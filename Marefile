@@ -1,0 +1,38 @@
+
+buildDir = "Build/$(configuration)/.$(target)"
+
+targets = {
+
+  md2tex = cppApplication + {
+    dependencies = { "libnstd" }
+    outputDir = "Build/$(configuration)"
+    includePaths = { "Ext/libnstd/include" }
+    libPaths = { "Build/$(configuration)/.libnstd" }
+    libs = { "nstd" }
+    root = "Src"
+    files = {
+      "Src/**.cpp" = cppSource
+      "Src/**.h"
+    }
+    if tool == "vcxproj" {
+      linkFlags += { "/SUBSYSTEM:CONSOLE" }
+    }
+    if platform == "Linux" {
+      libs += { "pthread", "rt" }
+      cppFlags += { "-Wno-delete-non-virtual-dtor" }
+    }
+  }
+
+  libnstd = cppStaticLibrary + {
+    folder = "Ext"
+    includePaths = { "Ext/libnstd/include" }
+    root = { "Ext/libnstd/src", "Ext/libnstd/include/nstd" }
+    files = {
+      "Ext/libnstd/src/*.cpp" = cppSource,
+      "Ext/libnstd/include/nstd/*.h"
+    }
+    if tool == "vcxproj" {
+      defines += { "_CRT_SECURE_NO_WARNINGS" }
+    }
+  }
+}
