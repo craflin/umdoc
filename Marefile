@@ -23,16 +23,8 @@ targets = {
     }
   }
 
-  libnstd = cppStaticLibrary + {
-    folder = "Ext"
-    includePaths = { "Ext/libnstd/include" }
-    root = { "Ext/libnstd/src", "Ext/libnstd/include/nstd" }
-    files = {
-      "Ext/libnstd/src/*.cpp" = cppSource,
-      "Ext/libnstd/include/nstd/*.h"
-    }
-    if tool == "vcxproj" {
-      defines += { "_CRT_SECURE_NO_WARNINGS" }
-    }
+  include "Ext/libnstd/libnstd.mare"
+  libnstd += {
+    enableDocument = "true"
   }
 }

@@ -1,0 +1,17 @@
+<md2tex class="">
+
+    <tex file="" />
+
+    <document>
+    
+        <tex file="" />
+        
+        <toc />
+
+        <pdf file="" />
+        
+        <part title="" />
+        <md file="" />
+    </document>
+
+</md2tex>
