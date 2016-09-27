@@ -22,8 +22,8 @@ public:
 
   public:
     Type type;
-    String file;
-    String title;
+    String filePath;
+    String content;
   };
 
 public:
@@ -32,7 +32,7 @@ public:
   List<Component> document;
 };
 
-bool_t loadInputFile(const String& inputFile, InputData& inputData)
+static bool_t loadInputFile(const String& inputFile, InputData& inputData)
 {
   XML::Parser xmlParser;
   XML::Element xmlFile;
@@ -91,16 +91,16 @@ bool_t loadInputFile(const String& inputFile, InputData& inputData)
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = element.type == "md" ? InputData::Component::mdType : InputData::Component::texType;
-          String filePath = *element.attributes.find("file");
+          component.filePath = *element.attributes.find("file");
           File file;
-          if(!file.open(filePath))
+          if(!file.open(component.filePath))
           {
-            Console::errorf("%s:%d:%d: error: Could not open file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
+            Console::errorf("%s:%d:%d: error: Could not open file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
             return false;
           }
-          if(!file.readAll(component.file))
+          if(!file.readAll(component.content))
           {
-            Console::errorf("%s:%d:%d: error: Could not read file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
+            Console::errorf("%s:%d:%d: error: Could not read file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
             return false;
           }
         }
@@ -113,13 +113,13 @@ bool_t loadInputFile(const String& inputFile, InputData& inputData)
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::pdfType;
-          component.file = *element.attributes.find("file");
+          component.filePath = *element.attributes.find("file");
         }
         else if(element.type == "part")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::pdfType;
-          component.title = *element.attributes.find("title");
+          component.content = *element.attributes.find("title");
         }
         else
         {
@@ -145,13 +145,139 @@ String texEscape(const String& str)
   return str;
 }
 
-String convertMarkdown(const String& markdown)
+class Document
 {
-  // todo
-  return String();
+public:
+  class Segment
+  {
+  public:
+    Segment(int_t indent) : indent(indent) {}
+
+  public:
+    virtual ~Segment() {};
+    virtual void_t print() = 0;
+    virtual bool_t merge(Segment& segment) = 0;
+
+  protected:
+    int_t indent;
+  };
+
+  class TitleSegment : public Segment
+  {
+  public:
+    virtual void_t print() {}
+  };
+
+  class ParagraphSegment : public Segment
+  {
+  public:
+    ParagraphSegment(int_t indent, const String& line) : Segment(indent) {text.attach((const char_t*)line + indent, line.length() - indent);}
+
+  public:
+    virtual void_t print() {}
+    virtual bool_t merge(Segment& segment)
+    {
+      ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
+      if(paragraphSegment && paragraphSegment->indent == indent)
+      {
+        text.append(' ');
+        text.append(paragraphSegment->text);
+        delete paragraphSegment;
+        return true;
+      }
+      return false;
+    }
+
+  private:
+    String text;
+  };
+
+  class SeparatorSegment : public Segment
+  {
+  public:
+    SeparatorSegment(int_t indent) : Segment(indent) {}
+  public:
+    virtual void_t print() {}
+    virtual bool_t merge(Segment& segment)
+    {
+      if(dynamic_cast<SeparatorSegment*>(&segment))
+      {
+        delete &segment;
+        return true;
+      }
+      return false;
+    }
+  };
+
+public:
+  const String& getErrorString() const {return lastError;}
+  int_t getErrorColumn() const {return errorColumn;}
+
+  bool_t addLine(const String& line);
+  String generate() const
+  {
+    return String();
+  }
+
+private:
+  List<Segment*> segments;
+  String lastError;
+  int_t errorColumn;
+};
+
+bool_t Document::addLine(const String& line)
+{
+  int_t indent = 0;
+  Segment* segment = 0;
+  const char_t* p = line;
+  for(; *p == ' '; ++p)
+    ++indent;
+  switch(*p)
+  {
+  case '\r':
+  case '\n':
+  case '\0':
+    segment = new SeparatorSegment(indent);
+    break;
+  default:
+    segment = new ParagraphSegment(indent, line);
+  }
+
+  if(segments.isEmpty() || !segments.back()->merge(*segment))
+    segments.append(segment);
+  return true;
 }
 
-bool_t createOutputFile(const InputData& inputData, const String& outputFile)
+static bool_t markdown2Tex(const String& filePath, const String& fileContent, String& output)
+{
+  Document doc;
+
+  int_t line = 1;
+  String lineStr;
+  for(const char_t* p = fileContent, * end; *p; (p = end), ++line)
+  {
+    end = String::findOneOf(p, "\r\n");
+    if(!end)
+      end = p + String::length(p);
+    
+    lineStr.attach(p, end - p);
+    if(!doc.addLine(lineStr))
+    {
+      Console::errorf("%s:%d:%d: %s", (const char_t*)filePath, line, doc.getErrorColumn(), (const char_t*)doc.getErrorString());
+      return false;
+    }
+
+    if(*end == '\r' && end[1] == '\n')
+      ++end;
+    if(*end)
+      ++end;
+  }
+
+  output = doc.generate();
+  return true;
+}
+
+static bool_t createOutputFile(const InputData& inputData, const String& outputFile)
 {
   File file;
   if(!file.open(outputFile, File::writeFlag))
@@ -190,20 +316,25 @@ bool_t createOutputFile(const InputData& inputData, const String& outputFile)
     switch(component.type)
     {
     case InputData::Component::texType:
-      file.write(component.file);
+      file.write(component.content);
       file.write("\n");
       break;
     case InputData::Component::texTocType:
       file.write("\\tableofcontents\n");
       break;
     case InputData::Component::texPartType:
-      file.write(String("\\part{") + texEscape(component.title) + "}\n");
+      file.write(String("\\part{") + texEscape(component.content) + "}\n");
       break;
     case InputData::Component::pdfType:
-      file.write(String("\\includepdf[pages=-]{") + component.file + "}\n");
+      file.write(String("\\includepdf[pages=-]{") + component.filePath + "}\n");
       break;
     case InputData::Component::mdType:
-      file.write(convertMarkdown(component.file));
+      {
+        String output;
+        if(!markdown2Tex(component.filePath, component.content, output))
+          return false;
+        file.write(output);
+      }
       file.write("\n");
       break;
     }
