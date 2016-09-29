@@ -1,17 +1,17 @@
 <md2tex class="">
 
-    <tex file="" />
+    <!-- <tex file="" /> -->
 
     <document>
     
-        <tex file="" />
+        <!-- <tex file="" /> -->
         
         <toc />
 
-        <pdf file="" />
+        <!-- <pdf file="" /> -->
         
-        <part title="" />
-        <md file="" />
+        <part title="Part I" />
+        <md file="example.md" />
     </document>
 
 </md2tex>
