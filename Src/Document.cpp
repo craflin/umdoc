@@ -7,7 +7,7 @@ begin:
   int_t indent = 0;
   Segment* segment = 0;
   const char_t* p = line;
-  for(; *p == ' '; ++p);
+  for(p += offset; *p == ' '; ++p);
   indent = p - (const char_t*)line;
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char_t*)line));
@@ -80,6 +80,7 @@ bool_t Document::ParagraphSegment::merge(Segment& segment)
   ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
   if(paragraphSegment && paragraphSegment->getIndent() == getIndent())
   {
+    int_t len = text.length();
     text.append(' ');
     text.append(paragraphSegment->text);
     delete paragraphSegment;
@@ -121,6 +122,14 @@ void_t Document::RuleSegment::print()
   // todo
 }
 
+Document::ListSegment::~ListSegment()
+{
+  for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+    delete *i;
+  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+    delete *i;
+}
+
 void_t Document::ListSegment::print()
 {
   // todo
@@ -128,13 +137,29 @@ void_t Document::ListSegment::print()
 
 bool_t Document::ListSegment::merge(Segment& segment)
 {
+  ListSegment* listSegment = dynamic_cast<ListSegment*>(&segment);
+  if(listSegment && listSegment->getIndent() == indent)
+  {
+    if(parent)
+      segment.setParent(*parent);
+    siblingSegments.append(listSegment);
+    return true;
+  }
   if(segment.getIndent() == childIndent)
-    return childSegments.append(&segment), true;
-  // todo
-  //Segment* parent = getParnet();
-  //if(parent)
-  //  return parent->merge(segment);
+  {
+    segment.setParent(*this);
+    childSegments.append(&segment);
+    return true;
+  }
+  if(parent)
+    return parent->merge(segment);
   return false;
+}
+
+Document::~Document()
+{
+  for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+    delete *i;
 }
 
 String Document::generate() const

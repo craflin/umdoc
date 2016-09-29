@@ -10,7 +10,7 @@ public:
   class Segment
   {
   public:
-    Segment(int_t indent) : indent(indent) {}
+    Segment(int_t indent) : indent(indent), parent(0) {}
 
   public:
     virtual ~Segment() {};
@@ -18,9 +18,12 @@ public:
     virtual bool_t merge(Segment& segment) = 0;
 
     int_t getIndent() const {return indent;}
+    Segment* getParent() const {return parent;}
+    void_t setParent(Segment& parent) {this->parent = &parent;}
 
-  private:
+  protected:
     int_t indent;
+    Segment* parent;
   };
 
   class TitleSegment : public Segment
@@ -38,7 +41,7 @@ public:
   class ParagraphSegment : public Segment
   {
   public:
-    ParagraphSegment(int_t indent, const String& line) : Segment(indent) {text.attach((const char_t*)line + indent, line.length() - indent);}
+    ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
 
   public:
     virtual void_t print();
@@ -69,6 +72,7 @@ public:
   {
   public:
     ListSegment(int_t indent, uint_t childIndent) : Segment(indent), childIndent(childIndent) {}
+    ~ListSegment();
   public:
     virtual void_t print();
     virtual bool_t merge(Segment& segment);
@@ -76,10 +80,11 @@ public:
     List<ListSegment*> siblingSegments;
     List<Segment*> childSegments;
     int_t childIndent;
-    Segment* parent;
   };
 
 public:
+  ~Document();
+
   const String& getErrorString() const {return lastError;}
   int_t getErrorColumn() const {return errorColumn;}
 
