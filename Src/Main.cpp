@@ -5,32 +5,8 @@
 #include <nstd/Error.h>
 #include <nstd/Document/XML.h>
 
-class InputData
-{
-public:
-  class Component
-  {
-  public:
-    enum Type
-    {
-      texType,
-      texTocType,
-      texPartType,
-      pdfType,
-      mdType,
-    };
-
-  public:
-    Type type;
-    String filePath;
-    String content;
-  };
-
-public:
-  String className;
-  List<String> headerTexFiles;
-  List<Component> document;
-};
+#include "InputData.h"
+#include "Document.h"
 
 static bool_t loadInputFile(const String& inputFile, InputData& inputData)
 {
@@ -145,108 +121,7 @@ String texEscape(const String& str)
   return str;
 }
 
-class Document
-{
-public:
-  class Segment
-  {
-  public:
-    Segment(int_t indent) : indent(indent) {}
 
-  public:
-    virtual ~Segment() {};
-    virtual void_t print() = 0;
-    virtual bool_t merge(Segment& segment) = 0;
-
-  protected:
-    int_t indent;
-  };
-
-  class TitleSegment : public Segment
-  {
-  public:
-    virtual void_t print() {}
-  };
-
-  class ParagraphSegment : public Segment
-  {
-  public:
-    ParagraphSegment(int_t indent, const String& line) : Segment(indent) {text.attach((const char_t*)line + indent, line.length() - indent);}
-
-  public:
-    virtual void_t print() {}
-    virtual bool_t merge(Segment& segment)
-    {
-      ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
-      if(paragraphSegment && paragraphSegment->indent == indent)
-      {
-        text.append(' ');
-        text.append(paragraphSegment->text);
-        delete paragraphSegment;
-        return true;
-      }
-      return false;
-    }
-
-  private:
-    String text;
-  };
-
-  class SeparatorSegment : public Segment
-  {
-  public:
-    SeparatorSegment(int_t indent) : Segment(indent) {}
-  public:
-    virtual void_t print() {}
-    virtual bool_t merge(Segment& segment)
-    {
-      if(dynamic_cast<SeparatorSegment*>(&segment))
-      {
-        delete &segment;
-        return true;
-      }
-      return false;
-    }
-  };
-
-public:
-  const String& getErrorString() const {return lastError;}
-  int_t getErrorColumn() const {return errorColumn;}
-
-  bool_t addLine(const String& line);
-  String generate() const
-  {
-    return String();
-  }
-
-private:
-  List<Segment*> segments;
-  String lastError;
-  int_t errorColumn;
-};
-
-bool_t Document::addLine(const String& line)
-{
-  int_t indent = 0;
-  Segment* segment = 0;
-  const char_t* p = line;
-  for(; *p == ' '; ++p)
-    ++indent;
-  switch(*p)
-  {
-  case '\r':
-  case '\n':
-  case '\0':
-    segment = new SeparatorSegment(indent);
-    break;
-  default:
-    segment = new ParagraphSegment(indent, line);
-  }
-
-  if(segments.isEmpty() || !segments.back()->merge(*segment))
-    segments.append(segment);
-  return true;
-}
 
 static bool_t markdown2Tex(const String& filePath, const String& fileContent, String& output)
 {
