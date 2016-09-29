@@ -14,13 +14,13 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
   XML::Element xmlFile;
   if(!xmlParser.load(inputFile, xmlFile))
   {
-    Console::errorf("%s:%d:%d: error: %s", (const char_t*)inputFile, xmlParser.getErrorLine(), xmlParser.getErrorColumn(), xmlParser.getErrorString());
+    Console::errorf("%s:%d:%d: error: %s\n", (const char_t*)inputFile, xmlParser.getErrorLine(), xmlParser.getErrorColumn(), (const char_t*)xmlParser.getErrorString());
     return false;
   }
 
   if(xmlFile.type != "md2tex")
   {
-    Console::errorf("%s:%d: error: Expected element 'md2tex'", (const char_t*)inputFile, xmlFile.line);
+    Console::errorf("%s:%d: error: Expected element 'md2tex'\n", (const char_t*)inputFile, xmlFile.line);
     return false;
   }
   inputData.className = *xmlFile.attributes.find("class");
@@ -34,7 +34,7 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
     const XML::Element& element = variant.toElement();
     if(documentRead)
     {
-      Console::errorf("%s:%d:%d: error: Unexpected element '%s'", (const char_t*)inputFile, element.line, element.column, element.type);
+      Console::errorf("%s:%d:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)element.type);
       return false;
     }
     if(element.type == "tex")
@@ -44,12 +44,12 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
       String data;
       if(!file.open(filePath))
       {
-        Console::errorf("%s:%d:%d: error: Could not open file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
+        Console::errorf("%s:%d:%d: error: Could not open file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
         return false;
       }
       if(!file.readAll(data))
       {
-        Console::errorf("%s:%d:%d: error: Could not read file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
+        Console::errorf("%s:%d:%d: error: Could not read file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
         return false;
       }
       inputData.headerTexFiles.append(data);
@@ -71,12 +71,12 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
           File file;
           if(!file.open(component.filePath))
           {
-            Console::errorf("%s:%d:%d: error: Could not open file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
+            Console::errorf("%s:%d:%d: error: Could not open file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
             return false;
           }
           if(!file.readAll(component.content))
           {
-            Console::errorf("%s:%d:%d: error: Could not read file '%s': %s", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
+            Console::errorf("%s:%d:%d: error: Could not read file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
             return false;
           }
         }
@@ -99,7 +99,7 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
         }
         else
         {
-          Console::errorf("%s:%d: error: Unexpected element '%s'", (const char_t*)inputFile, element.line, element.type);
+          Console::errorf("%s:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, (const char_t*)element.type);
           return false;
         }
       }
@@ -107,7 +107,7 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
     }
     else
     {
-      Console::errorf("%s:%d: error: Unexpected element '%s'", (const char_t*)inputFile, element.line, element.type);
+      Console::errorf("%s:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, (const char_t*)element.type);
       return false;
     }
   }
@@ -138,7 +138,7 @@ static bool_t markdown2Tex(const String& filePath, const String& fileContent, St
     lineStr.attach(p, end - p);
     if(!doc.addLine(lineStr))
     {
-      Console::errorf("%s:%d:%d: %s", (const char_t*)filePath, line, doc.getErrorColumn(), (const char_t*)doc.getErrorString());
+      Console::errorf("%s:%d:%d: %s\n", (const char_t*)filePath, line, doc.getErrorColumn(), (const char_t*)doc.getErrorString());
       return false;
     }
 
