@@ -14,7 +14,7 @@ public:
 
   public:
     virtual ~Segment() {};
-    virtual void_t print() = 0;
+    virtual String write() = 0;
     virtual bool_t merge(Segment& segment) = 0;
 
     int_t getIndent() const {return indent;}
@@ -31,7 +31,7 @@ public:
   public:
     TitleSegment(int_t indent, const String& line);
   public:
-    virtual void_t print();
+    virtual String write();
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     int level;
@@ -44,7 +44,7 @@ public:
     ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
 
   public:
-    virtual void_t print();
+    virtual String write();
     virtual bool_t merge(Segment& segment);
   private:
     String text;
@@ -55,7 +55,7 @@ public:
   public:
     SeparatorSegment(int_t indent) : Segment(indent) {}
   public:
-    virtual void_t print();
+    virtual String write();
     virtual bool_t merge(Segment& segment);
   };
 
@@ -64,7 +64,7 @@ public:
   public:
     RuleSegment(int_t indent) : Segment(indent) {}
   public:
-    virtual void_t print();
+    virtual String write();
     virtual bool_t merge(Segment& segment) {return false;}
   };
 
@@ -74,7 +74,7 @@ public:
     ListSegment(int_t indent, uint_t childIndent) : Segment(indent), childIndent(childIndent) {}
     ~ListSegment();
   public:
-    virtual void_t print();
+    virtual String write();
     virtual bool_t merge(Segment& segment);
   private:
     List<ListSegment*> siblingSegments;
@@ -82,19 +82,44 @@ public:
     int_t childIndent;
   };
 
+  class CodeSegment : public Segment
+  {
+  public:
+    CodeSegment(int_t indent) : Segment(indent) {}
+    void_t addLine(const String& line) {lines.append(line);}
+  public:
+    virtual String write();
+    virtual bool_t merge(Segment& segment) {return false;}
+  private:
+    String language;
+    List<String> lines;
+  };
+
 public:
+  Document();
   ~Document();
 
   const String& getErrorString() const {return lastError;}
   int_t getErrorColumn() const {return errorColumn;}
 
   bool_t addLine(const String& line, size_t offset = 0);
-  String generate() const;
+  String write() const;
+
+public:
+  static String texEscape(const String& str);
+
+private:
+  enum ParserMode
+  {
+    normalMode,
+    codeMode,
+  };
 
 private:
   List<Segment*> segments;
   String lastError;
   int_t errorColumn;
+  ParserMode parserMode;
 
 private:
   void_t addSegment(Segment& segment);

@@ -11,6 +11,16 @@ begin:
   indent = p - (const char_t*)line;
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char_t*)line));
+
+  if(parserMode == codeMode)
+  {
+    if(String::compare(p, "```", 3) == 0)
+      parserMode = normalMode;
+    else
+      ((CodeSegment*)segments.back())->addLine(line);
+    return true;
+  }
+
   switch(*p)
   {
   case '#':
@@ -49,12 +59,17 @@ begin:
       }
     }
     break;
+  case '`':
+    if(String::compare(p + 1, "``", 2) == 0)
+      segment = new CodeSegment(indent);
+
+    break;
   case '\r':
   case '\n':
   case '\0':
     segment = new SeparatorSegment(indent);
     break;
-  default: ;
+  default:;
   }
 
   if(!segment)
@@ -70,9 +85,12 @@ void_t Document::addSegment(Segment& segment)
     segments.append(&segment);
 }
 
-void_t Document::ParagraphSegment::print()
+String Document::ParagraphSegment::write()
 {
-  // todo 
+  String result("\n\n");
+  result.append(this->text);
+  result.append('\n');
+  return result;
 }
 
 bool_t Document::ParagraphSegment::merge(Segment& segment)
@@ -89,9 +107,10 @@ bool_t Document::ParagraphSegment::merge(Segment& segment)
   return false;
 }
 
-void_t Document::SeparatorSegment::print()
+String Document::SeparatorSegment::write()
 {
   // todo
+  return String();
 }
 
 bool_t Document::SeparatorSegment::merge(Segment& segment)
@@ -112,14 +131,16 @@ Document::TitleSegment::TitleSegment(int_t indent, const String& line) : Segment
   title.attach(i, line.length() - (i - (const char_t* )line));
 }
 
-void_t Document::TitleSegment::print()
+String Document::TitleSegment::write()
 {
   // todo
+  return String();
 }
 
-void_t Document::RuleSegment::print()
+String Document::RuleSegment::write()
 {
   // todo
+  return String();
 }
 
 Document::ListSegment::~ListSegment()
@@ -130,9 +151,10 @@ Document::ListSegment::~ListSegment()
     delete *i;
 }
 
-void_t Document::ListSegment::print()
+String Document::ListSegment::write()
 {
   // todo
+  return String();
 }
 
 bool_t Document::ListSegment::merge(Segment& segment)
@@ -156,14 +178,31 @@ bool_t Document::ListSegment::merge(Segment& segment)
   return false;
 }
 
+String Document::CodeSegment::write()
+{
+  // todo
+  return String();
+}
+
+Document::Document() : parserMode(normalMode) {}
+
 Document::~Document()
 {
   for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
     delete *i;
 }
 
-String Document::generate() const
+String Document::write() const
+{
+  String result(segments.size() * 256);
+  for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+    result.append((*i)->write());
+  return result;
+}
+
+String Document::texEscape(const String& str)
 {
   // todo
-  return String();
+  return str;
 }
+

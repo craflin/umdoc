@@ -94,7 +94,7 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
         else if(element.type == "part")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
-          component.type = InputData::Component::pdfType;
+          component.type = InputData::Component::texPartType;
           component.content = *element.attributes.find("title");
         }
         else
@@ -114,13 +114,6 @@ static bool_t loadInputFile(const String& inputFile, InputData& inputData)
 
   return true;
 }
-
-String texEscape(const String& str)
-{
-  // todo
-  return str;
-}
-
 
 
 static bool_t markdown2Tex(const String& filePath, const String& fileContent, String& output)
@@ -148,7 +141,7 @@ static bool_t markdown2Tex(const String& filePath, const String& fileContent, St
       ++end;
   }
 
-  output = doc.generate();
+  output = doc.write();
   return true;
 }
 
@@ -198,7 +191,7 @@ static bool_t createOutputFile(const InputData& inputData, const String& outputF
       file.write("\\tableofcontents\n");
       break;
     case InputData::Component::texPartType:
-      file.write(String("\\part{") + texEscape(component.content) + "}\n");
+      file.write(String("\\part{") + Document::texEscape(component.content) + "}\n");
       break;
     case InputData::Component::pdfType:
       file.write(String("\\includepdf[pages=-]{") + component.filePath + "}\n");
