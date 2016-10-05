@@ -4,7 +4,7 @@
 #include <nstd/String.h>
 #include <nstd/List.h>
 
-class Document
+class OutputData
 {
 public:
   class Segment
@@ -14,7 +14,7 @@ public:
 
   public:
     virtual ~Segment() {};
-    virtual String write() = 0;
+    virtual String generate() const = 0;
     virtual bool_t merge(Segment& segment) = 0;
 
     int_t getIndent() const {return indent;}
@@ -31,7 +31,7 @@ public:
   public:
     TitleSegment(int_t indent, const String& line);
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     int level;
@@ -44,7 +44,7 @@ public:
     ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
 
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   private:
     String text;
@@ -55,7 +55,7 @@ public:
   public:
     SeparatorSegment(int_t indent) : Segment(indent) {}
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   };
 
@@ -64,7 +64,7 @@ public:
   public:
     RuleSegment(int_t indent) : Segment(indent) {}
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
   };
 
@@ -74,7 +74,7 @@ public:
     ListSegment(int_t indent, uint_t childIndent) : Segment(indent), childIndent(childIndent) {}
     ~ListSegment();
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   private:
     List<ListSegment*> siblingSegments;
@@ -88,39 +88,64 @@ public:
     CodeSegment(int_t indent) : Segment(indent) {}
     void_t addLine(const String& line) {lines.append(line);}
   public:
-    virtual String write();
+    virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     String language;
     List<String> lines;
   };
 
-public:
-  Document();
-  ~Document();
-
-  const String& getErrorString() const {return lastError;}
-  int_t getErrorColumn() const {return errorColumn;}
-
-  bool_t addLine(const String& line, size_t offset = 0);
-  String write() const;
-
-public:
-  static String texEscape(const String& str);
-
-private:
-  enum ParserMode
+  class TexSegment : public Segment
   {
-    normalMode,
-    codeMode,
+  public:
+    TexSegment(const String& content) : Segment(0), content(content) {}
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment) {return false;}
+  private:
+    String content;
   };
 
-private:
-  List<Segment*> segments;
-  String lastError;
-  int_t errorColumn;
-  ParserMode parserMode;
+  class TexTocSegment : public Segment
+  {
+  public:
+    TexTocSegment() : Segment(0) {}
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment) {return false;}
+  };
 
-private:
-  void_t addSegment(Segment& segment);
+  class TexPartSegment : public Segment
+  {
+  public:
+    TexPartSegment(const String& title) : Segment(0), title(title) {}
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment) {return false;}
+  private:
+    String title;
+  };
+
+  class PdfSegment : public Segment
+  {
+  public:
+    PdfSegment(const String& filePath) : Segment(0), filePath(filePath) {}
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment) {return false;}
+  private:
+    String filePath;
+  };
+
+public:
+  String className;
+  List<String> headerTexFiles;
+  bool hasPdfSegments;
+  List<Segment*> segments;
+
+public:
+  OutputData() : hasPdfSegments(false) {}
+  ~OutputData();
+
+  String generate() const;
 };
