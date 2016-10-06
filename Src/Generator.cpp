@@ -1,5 +1,6 @@
 
 #include <nstd/File.h>
+#include <nstd/Error.h>
 
 #include "Generator.h"
 #include "OutputData.h"
@@ -35,6 +36,10 @@ bool_t Generator::generate(const OutputData& outputData, const String& outputFil
   return true;
 }
 
+String Generator::getErrorString() const
+{
+  return Error::getErrorString();
+}
 
 String Generator::texEscape(const String& str)
 {

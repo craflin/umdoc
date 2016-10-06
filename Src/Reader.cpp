@@ -1,5 +1,4 @@
 
-#include <nstd/Console.h>
 #include <nstd/File.h>
 #include <nstd/Error.h>
 #include <nstd/Document/XML.h>
@@ -12,16 +11,11 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
   XML::Parser xmlParser;
   XML::Element xmlFile;
   if(!xmlParser.load(inputFile, xmlFile))
-  {
-    Console::errorf("%s:%d:%d: error: %s\n", (const char_t*)inputFile, xmlParser.getErrorLine(), xmlParser.getErrorColumn(), (const char_t*)xmlParser.getErrorString());
-    return false;
-  }
+    return errorLine = xmlParser.getErrorLine(), errorColumn = xmlParser.getErrorColumn(), errorString = xmlParser.getErrorString(), false;
 
   if(xmlFile.type != "md2tex")
-  {
-    Console::errorf("%s:%d: error: Expected element 'md2tex'\n", (const char_t*)inputFile, xmlFile.line);
-    return false;
-  }
+    return errorLine = xmlParser.getErrorLine(), errorColumn = xmlParser.getErrorColumn(), errorString = "Expected element 'md2tex'", false;
+
   inputData.className = *xmlFile.attributes.find("class");
 
   bool documentRead = false;
@@ -32,27 +26,20 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
       continue;
     const XML::Element& element = variant.toElement();
     if(documentRead)
-    {
-      Console::errorf("%s:%d:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)element.type);
-      return false;
-    }
+      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
+
     if(element.type == "tex")
     {
       String filePath = *element.attributes.find("file");
       File file;
       String data;
       if(!file.open(filePath))
-      {
-        Console::errorf("%s:%d:%d: error: Could not open file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
-        return false;
-      }
-      if(!file.readAll(data))
-      {
-        Console::errorf("%s:%d:%d: error: Could not read file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)filePath, (const char_t*)Error::getErrorString());
-        return false;
-      }
-      inputData.headerTexFiles.append(data);
+        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char_t*)filePath, (const char_t*)Error::getErrorString()), false;
 
+      if(!file.readAll(data))
+        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char_t*)filePath, (const char_t*)Error::getErrorString()), false;
+
+      inputData.headerTexFiles.append(data);
     }
     else if(element.type == "document")
     {
@@ -69,15 +56,10 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
           component.filePath = *element.attributes.find("file");
           File file;
           if(!file.open(component.filePath))
-          {
-            Console::errorf("%s:%d:%d: error: Could not open file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
-            return false;
-          }
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char_t*)component.filePath, (const char_t*)Error::getErrorString()), false;
+
           if(!file.readAll(component.content))
-          {
-            Console::errorf("%s:%d:%d: error: Could not read file '%s': %s\n", (const char_t*)inputFile, element.line, element.column, (const char_t*)component.filePath, (const char_t*)Error::getErrorString());
-            return false;
-          }
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char_t*)component.filePath, (const char_t*)Error::getErrorString()), false;
         }
         else if(element.type == "toc")
         {
@@ -97,18 +79,12 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
           component.content = *element.attributes.find("title");
         }
         else
-        {
-          Console::errorf("%s:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, (const char_t*)element.type);
-          return false;
-        }
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
       }
       documentRead = true;
     }
     else
-    {
-      Console::errorf("%s:%d: error: Unexpected element '%s'\n", (const char_t*)inputFile, element.line, (const char_t*)element.type);
-      return false;
-    }
+      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
   }
 
   return true;

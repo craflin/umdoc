@@ -63,7 +63,6 @@ bool_t Parser::parse(const InputData& inputData, OutputData& outputData)
       break;
     }
   }
-
   return true;
 }
 
