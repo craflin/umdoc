@@ -12,6 +12,6 @@ public:
 
   String getErrorString() const;
 
-private:
+public:
   static String texEscape(const String& str);
 };

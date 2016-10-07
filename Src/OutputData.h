@@ -30,11 +30,12 @@ public:
   {
   public:
     TitleSegment(int_t indent, const String& line);
+    TitleSegment(int_t indent, int_t level, const String& title);
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
-    int level;
+    int_t level;
     String title;
   };
 
@@ -42,6 +43,8 @@ public:
   {
   public:
     ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
+
+    const String& getText() const {return text;}
 
   public:
     virtual String generate() const;

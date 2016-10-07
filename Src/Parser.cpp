@@ -92,18 +92,57 @@ begin:
     {
       const char_t* i = remainingLine;
       const char_t* end = i + remainingLine.length();
-      for(; *i == '#'; ++i)
+      for(; *i == '#'; ++i);
       if(i < end && String::isSpace(*i))
+      {
         segment = new OutputData::TitleSegment(indent, remainingLine);
+        break;
+      }
     }
     break;
   case '=':
     {
       const char_t* i = remainingLine;
       const char_t* end = i + remainingLine.length();
-      for(; i < end && (String::isSpace(*i) || *i == '='); ++i);
+      for(; i < end && *i == '='; ++i);
+      for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
+      {
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(outputData->segments.back());
+        if(paragraphSegment && paragraphSegment->getIndent() == indent)
+        {
+          segment = new OutputData::TitleSegment(indent, 1, paragraphSegment->getText());
+          delete paragraphSegment;
+          outputData->segments.removeBack();
+          break;
+        }
+      }
+    }
+    break;
+  case '-':
+    {
+      const char_t* i = remainingLine;
+      const char_t* end = i + remainingLine.length();
+      for(; i < end && *i == '-'; ++i);
+      for(; i < end && String::isSpace(*i); ++i);
+      if(i == end)
+      {
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(outputData->segments.back());
+        if(paragraphSegment && paragraphSegment->getIndent() == indent)
+        {
+          segment = new OutputData::TitleSegment(indent, 2, paragraphSegment->getText());
+          delete paragraphSegment;
+          outputData->segments.removeBack();
+          break;
+        }
+      }
+      i = remainingLine;
+      for(; i < end && (*i == '-' || String::isSpace(*i)); ++i);
+      if(i == end)
+      {
         segment = new OutputData::RuleSegment(indent);
+        break;
+      }
     }
     break;
   case '*':
@@ -112,8 +151,11 @@ begin:
       const char_t* end = i + remainingLine.length();
       for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
       if(i == end)
+      {
         segment = new OutputData::RuleSegment(indent);
-      else if(p + 1 < end && String::isSpace(*(p + 1)))
+        break;
+      }
+      if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
@@ -126,8 +168,11 @@ begin:
     break;
   case '`':
     if(String::compare(p + 1, "``", 2) == 0)
+    {
       segment = new OutputData::CodeSegment(indent);
-
+      parserMode = codeMode;
+      break;
+    }
     break;
   case '\r':
   case '\n':

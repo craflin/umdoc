@@ -34,6 +34,8 @@ OutputData::TitleSegment::TitleSegment(int_t indent, const String& line) : Segme
   title.attach(i, line.length() - (i - (const char_t* )line));
 }
 
+OutputData::TitleSegment::TitleSegment(int_t indent, int_t level, const String& title) : Segment(indent), level(level), title(title) {}
+
 OutputData::ListSegment::~ListSegment()
 {
   for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)

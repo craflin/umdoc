@@ -1,4 +1,5 @@
 
+#include <nstd/Debug.h>
 #include <nstd/File.h>
 #include <nstd/Error.h>
 
@@ -30,7 +31,7 @@ bool_t Generator::generate(const OutputData& outputData, const String& outputFil
        return false;
   if(!file.write("\n\\begin{document}\n\n") ||
      !file.write(outputData.generate()) ||
-     !file.write("\\end{document}\n"))
+     !file.write("\n\\end{document}\n"))
     return false;
 
   return true;
@@ -57,10 +58,7 @@ String OutputData::generate() const
 
 String OutputData::ParagraphSegment::generate() const
 {
-  String result("\n\n");
-  result.append(this->text);
-  result.append('\n');
-  return result;
+  return String("\n") + Generator::texEscape(text) + "\n";
 }
 
 String OutputData::SeparatorSegment::generate() const
@@ -71,14 +69,32 @@ String OutputData::SeparatorSegment::generate() const
 
 String OutputData::TitleSegment::generate() const
 {
-  // todo
+  switch(level)
+  {
+  case 1:
+    return String("\n\\section{") + Generator::texEscape(title) + "}\n";
+    break;
+  case 2:
+    return String("\n\\subsection{") + Generator::texEscape(title) + "}\n";
+    break;
+  case 3:
+    return String("\n\\subsubsection{") + Generator::texEscape(title) + "}\n";
+    break;
+  case 4:
+    return String("\n\\paragraph{") + Generator::texEscape(title) + "}\n";
+    break;
+  case 5:
+    return String("\n\\subparagraph{") + Generator::texEscape(title) + "}\n";
+    break;
+  default:
+    ASSERT(false);
+  }
   return String();
 }
 
 String OutputData::RuleSegment::generate() const
 {
-  // todo
-  return String();
+  return String("\n\\rule{\\textwidth}{1pt}\n");
 }
 
 String OutputData::ListSegment::generate() const
@@ -95,24 +111,20 @@ String OutputData::CodeSegment::generate() const
 
 String OutputData::TexSegment::generate() const
 {
-  // todo
-  return String();
+  return content + "\n";
 }
 
 String OutputData::TexTocSegment::generate() const
 {
-  // todo
-  return String();
+  return String("\n\\pagestyle{empty}\n\\tableofcontents\n");
 }
 
 String OutputData::TexPartSegment::generate() const
 {
-  // todo
-  return String();
+  return String("\n\\part{") + Generator::texEscape(title) + "}\n";
 }
 
 String OutputData::PdfSegment::generate() const
 {
-  // todo
-  return String();
+  return String("\n\\includepdf[pages=-]{") + filePath + "}\n";
 }
