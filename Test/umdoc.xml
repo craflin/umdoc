@@ -1,4 +1,4 @@
-<md2tex class="">
+<umdoc class="">
 
     <!-- <tex file="" /> -->
 
@@ -14,4 +14,4 @@
         <md file="example.md" />
     </document>
 
-</md2tex>
+</umdoc>

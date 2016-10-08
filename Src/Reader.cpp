@@ -13,8 +13,8 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
   if(!xmlParser.load(inputFile, xmlFile))
     return errorLine = xmlParser.getErrorLine(), errorColumn = xmlParser.getErrorColumn(), errorString = xmlParser.getErrorString(), false;
 
-  if(xmlFile.type != "md2tex")
-    return errorLine = xmlParser.getErrorLine(), errorColumn = xmlParser.getErrorColumn(), errorString = "Expected element 'md2tex'", false;
+  if(xmlFile.type != "umdoc")
+    return errorLine = xmlParser.getErrorLine(), errorColumn = xmlParser.getErrorColumn(), errorString = "Expected element 'umdoc'", false;
 
   inputData.className = *xmlFile.attributes.find("class");
 

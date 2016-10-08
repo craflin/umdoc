@@ -3,7 +3,7 @@ buildDir = "Build/$(configuration)/.$(target)"
 
 targets = {
 
-  md2tex = cppApplication + {
+  umdoc = cppApplication + {
     dependencies = { "libnstd" }
     outputDir = "Build/$(configuration)"
     includePaths = { "Ext/libnstd/include" }
@@ -11,8 +11,8 @@ targets = {
     libs = { "nstd" }
     root = "Src"
     files = {
-      "Src/**.cpp" = cppSource
-      "Src/**.h"
+      "Src/*.cpp" = cppSource
+      "Src/*.h"
     }
     if tool == "vcxproj" {
       linkFlags += { "/SUBSYSTEM:CONSOLE" }

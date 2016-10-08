@@ -10,7 +10,7 @@
 
 int_t main(int_t argc, char_t* argv[])
 {
-  String configFile("md2tex.xml");
+  String configFile("umdoc.xml");
   String outputFile;
 
   {
