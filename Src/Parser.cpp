@@ -15,18 +15,24 @@ public:
 public:
   ParserMode parserMode;
   OutputData* outputData;
+  String errorFile;
+  int_t errorLine;
+  String errorString;
 
 public:
-  Private() : parserMode(normalMode) {}
+  Private() : parserMode(normalMode), errorLine(0) {}
 
   void_t addSegment(OutputData::Segment& segment)
   {
+    //if(sgemtn == ListSgement && back == SeparatorSegment && back->level == 0 && back -1 == ListSgement)
+    //  (back -1 ).merge(segment)
+
     if(outputData->segments.isEmpty() || !outputData->segments.back()->merge(segment))
       outputData->segments.append(&segment);
   }
 
-  void_t parseMarkdown(const String& filePath, const String& fileContent);
-  void_t parseMarkdownLine(const String& line, size_t offset);
+  bool_t parseMarkdown(const String& filePath, const String& fileContent);
+  bool_t parseMarkdownLine(const String& line, size_t offset);
 };
 
 Parser::Parser() : p(new Private) {}
@@ -59,14 +65,19 @@ bool_t Parser::parse(const InputData& inputData, OutputData& outputData)
       outputData.hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
-      p->parseMarkdown(component.filePath, component.content);
+      if(!p->parseMarkdown(component.filePath, component.content))
+        return false;
       break;
     }
   }
   return true;
 }
 
-void_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
+String Parser::getErrorFile() const {return p->errorFile;}
+int_t Parser::getErrorLine() const {return p->errorLine;}
+String Parser::getErrorString() const {return p->errorString;}
+
+bool_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
 {
 begin:
   int_t indent = 0;
@@ -83,7 +94,7 @@ begin:
       parserMode = normalMode;
     else
       ((OutputData::CodeSegment*)outputData->segments.back())->addLine(line);
-    return;
+    return true;
   }
 
   switch(*p)
@@ -160,6 +171,9 @@ begin:
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
         segment = new OutputData::ListSegment(indent, childIndent);
+
+        //??
+
         addSegment(*segment);
         offset = i - (const char_t*)line;
         goto begin;
@@ -169,7 +183,10 @@ begin:
   case '`':
     if(String::compare(p + 1, "``", 2) == 0)
     {
-      segment = new OutputData::CodeSegment(indent);
+      OutputData::CodeSegment* codeSegment = new OutputData::CodeSegment(indent);
+      if(!codeSegment->parseArguments(remainingLine))
+        return false;
+      segment = codeSegment;
       parserMode = codeMode;
       break;
     }
@@ -186,12 +203,15 @@ begin:
     segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
   addSegment(*segment);
+  return true;
 }
 
-void_t Parser::Private::parseMarkdown(const String& filePath, const String& fileContent)
+bool_t Parser::Private::parseMarkdown(const String& filePath, const String& fileContent)
 {
   int_t line = 1;
   String lineStr;
+  errorFile = filePath;
+  errorLine = 1;
   for(const char_t* p = fileContent, * end; *p; (p = end), ++line)
   {
     end = String::findOneOf(p, "\r\n");
@@ -199,11 +219,14 @@ void_t Parser::Private::parseMarkdown(const String& filePath, const String& file
       end = p + String::length(p);
     
     lineStr.attach(p, end - p);
-    parseMarkdownLine(lineStr, 0);
+    if(!parseMarkdownLine(lineStr, 0))
+      return false;
 
     if(*end == '\r' && end[1] == '\n')
       ++end;
     if(*end)
       ++end;
+    ++errorLine;
   }
+  return true;
 }

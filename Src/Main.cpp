@@ -61,7 +61,7 @@ int_t main(int_t argc, char_t* argv[])
     Parser parser;
     if(!parser.parse(inputData, outputData))
     {
-      Console::errorf("%s:%d:%d: error: %s\n", (const char_t*)parser.getErrorFile(), parser.getErrorLine(), parser.getErrorColumn(), (const char_t*)parser.getErrorString());
+      Console::errorf("%s:%d: error: %s\n", (const char_t*)parser.getErrorFile(), parser.getErrorLine(), (const char_t*)parser.getErrorString());
       return 1;
     }
   }

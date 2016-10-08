@@ -20,6 +20,7 @@ bool_t OutputData::SeparatorSegment::merge(Segment& segment)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
+    ++level;
     delete &segment;
     return true;
   }

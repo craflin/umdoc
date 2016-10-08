@@ -44,8 +44,42 @@ String Generator::getErrorString() const
 
 String Generator::texEscape(const String& str)
 {
-  // todo
-  return str;
+  String result(str.length());
+  char_t c;
+  for(const char_t* i = str, * end = i + str.length(); i < end; ++i)
+  {
+    switch(c = *i)
+    {
+    case '\\':
+      result.append("{\\textbackslash}");
+      break;
+    case '<':
+      result.append("{\\textless}");
+      break;
+    case '>':
+      result.append("{\\textgreater}");
+      break;
+    case '_':
+      result.append("{\\_\\-}");
+      break;
+    case '-':
+      result.append("-{}");
+      break;
+    case '$':
+    case '%':
+    case '}':
+    case '&':
+    case '#':
+    case '{':
+      result.append('\\');
+      result.append(c);
+      break;
+    default:
+      result.append(c);
+      break;
+    }
+  }
+  return result;
 }
 
 String OutputData::generate() const
@@ -63,7 +97,6 @@ String OutputData::ParagraphSegment::generate() const
 
 String OutputData::SeparatorSegment::generate() const
 {
-  // todo
   return String();
 }
 
@@ -99,14 +132,30 @@ String OutputData::RuleSegment::generate() const
 
 String OutputData::ListSegment::generate() const
 {
-  // todo
-  return String();
+  String result("\\begin{itemize}%\n\\item ");
+  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+    result.append((*i)->generate());
+  for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  {
+    ListSegment* siblingSegment = *i;
+    result.append("\\item ");
+    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+      result.append((*i)->generate());
+  }
+  result.append("\\end{itemize}\n");
+  return result;
 }
 
 String OutputData::CodeSegment::generate() const
 {
-  // todo
-  return String();
+  String result("\n\\begin{verbatim}\n");
+  for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
+  {
+    result.append(*i);
+    result.append("\n");
+  }
+  result.append("\\end{verbatim}\n");
+  return result;
 }
 
 String OutputData::TexSegment::generate() const

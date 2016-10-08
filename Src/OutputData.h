@@ -56,10 +56,12 @@ public:
   class SeparatorSegment : public Segment
   {
   public:
-    SeparatorSegment(int_t indent) : Segment(indent) {}
+    SeparatorSegment(int_t indent) : Segment(indent), level(0) {}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment);
+  private:
+    int_t level;
   };
 
   class RuleSegment : public Segment
@@ -90,6 +92,7 @@ public:
   public:
     CodeSegment(int_t indent) : Segment(indent) {}
     void_t addLine(const String& line) {lines.append(line);}
+    bool_t parseArguments(const String& line) {return true;}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
