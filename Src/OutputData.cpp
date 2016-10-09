@@ -56,10 +56,11 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
     siblingSegments.append(listSegment);
     return true;
   }
-  if(segment.getIndent() == childIndent)
+  ListSegment* lastSibling = siblingSegments.isEmpty() ? this : siblingSegments.back();
+  if(segment.getIndent() == lastSibling->childIndent)
   {
-    segment.setParent(*this);
-    childSegments.append(&segment);
+    segment.setParent(*lastSibling);
+    lastSibling->childSegments.append(&segment);
     return true;
   }
   if(parent)
