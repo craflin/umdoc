@@ -172,7 +172,7 @@ String OutputData::TexTocSegment::generate() const
 
 String OutputData::TexPartSegment::generate() const
 {
-  return String("\n\\part{") + Generator::texEscape(title) + "}\n";
+  return String("\n\\clearpage\n\\part{") + Generator::texEscape(title) + "}\n";
 }
 
 String OutputData::PdfSegment::generate() const
