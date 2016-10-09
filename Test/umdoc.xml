@@ -6,9 +6,9 @@
     
         <!-- <tex file="" /> -->
         
+        <pdf file="cover.pdf" />
         <toc />
 
-        <!-- <pdf file="" /> -->
         
         <part title="Part I" />
         <md file="example.md" />
