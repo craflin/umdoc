@@ -16,8 +16,10 @@ bool_t Generator::generate(const OutputData& outputData, const String& outputFil
   if(className.isEmpty())
     className = "article";
 
-  if(!file.write(String("\\documentclass[a4paper]{") + className + "}\n") ||
-     !file.write("\\usepackage[utf8]{inputenc}\n"))
+  if(!file.write(String("\\documentclass[a4paper]{") + className + "}\n"))
+    
+     //!file.write("\\directlua{print(texconfig.max_print_line)}"))
+     //!file.write("\\usepackage[utf8]{inputenc}\n"))
      return false;
 
   if(outputData.hasPdfSegments)
