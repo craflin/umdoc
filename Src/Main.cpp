@@ -13,54 +13,93 @@
 
 static bool_t latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
 {
-  Process process;
-  if(process.open(engine + " --interaction=scrollmode  --halt-on-error --file-line-error --aux-directory=\"" + auxDirectory + "\" --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
-    return false;
-
-  // Well I tried to set textinfo.max_print_line in an lua init script. This does not work since it is overwritten from kpathsea when it is reading its config file (texmf.cnf).
-  // I tried to create a texmf.cnf file to overwrite max_print_line just for this build, but this does not seem to work with MiKTeX. After inspecting some MiKTeX I came to the
-  // conclusion that there is currently no way to set max_print_line without editing the global texmfapp.ini or hacking into MiKTeX's file IO operations.
-
-  // Why the fuck are TeX engines still wrapping log messages after 79 characters? We have terminal emulators and text editors that will do this for you.
-
-  // Now, lets try to unfuck lualatex's output:
-
-  char_t buffer[32 * 1024];
-  String unhandledData;
-  for(ssize_t i;;)
-    switch((i = process.read(buffer, sizeof(buffer))))
+  String tocFile;
+  String auxFile;
+  {
+    const char* end = texFile.findLastOf("\\/.");
+    if(end)
     {
-    case -1:
-      return false;
-    case 0:
-      goto done;
-    default:
-      unhandledData.append(buffer, i);
-
-      for(;;)
-      {
-        const char_t* lineEnd = unhandledData.findOneOf("\r\n");
-        if(lineEnd)
-        {
-          size_t lineLen = lineEnd - unhandledData;
-          if(lineLen == 79)
-            Console::print(unhandledData.substr(0, lineLen));
-          else
-            Console::print(unhandledData.substr(0, lineLen) + "\n");
-          if(*lineEnd == '\r' && lineEnd[1] == '\n')
-            ++lineLen;
-          unhandledData = unhandledData.substr(lineLen + 1);
-        }
-        else
-          break;
-      }
-      break;
+      tocFile = texFile.substr(0, end - texFile) + ".toc";
+      auxFile = texFile.substr(0, end - texFile) + ".aux";
     }
+    else
+    {
+      tocFile = texFile + ".toc";
+      auxFile = texFile + ".aux";
+    }
+  }
 
-  if(!unhandledData.isEmpty())
-    Console::print(unhandledData);
+  for(int run = 0; run < 5; ++run)
+  {
+    bool tocFileExists = File::exists(tocFile);
+    bool auxFileExists = File::exists(auxFile);
+    bool rerun = false;
 
-done: 
+    Process process;
+    if(process.open(engine + " --interaction=scrollmode  --halt-on-error --file-line-error --aux-directory=\"" + auxDirectory + "\" --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
+      return false;
+
+    // Well I tried to set textinfo.max_print_line in an lua init script. This does not work since it is overwritten from kpathsea when it is reading its config file (texmf.cnf).
+    // I tried to create a texmf.cnf file to overwrite max_print_line just for this build, but this does not seem to work with MiKTeX. After inspecting some MiKTeX I came to the
+    // conclusion that there is currently no way to set max_print_line without editing the global texmfapp.ini or hacking into MiKTeX's file IO operations.
+
+    // Why the fuck are TeX engines still wrapping log messages after 79 characters? We have terminal emulators and text editors that will do this for you.
+
+    // Now, lets try to unfuck lualatex's output:
+
+    char_t buffer[32 * 1024];
+    String unhandledData;
+    String bufferedLine;
+    for(ssize_t i;;)
+      switch((i = process.read(buffer, sizeof(buffer))))
+      {
+      case -1:
+        return false;
+      case 0:
+        goto done;
+      default:
+        unhandledData.append(buffer, i);
+
+        for(;;)
+        {
+          const char_t* lineEnd = unhandledData.findOneOf("\r\n");
+          if(lineEnd)
+          {
+            size_t lineLen = lineEnd - unhandledData;
+            if(lineLen == 79)
+              bufferedLine.append(unhandledData.substr(0, lineLen));
+            else
+            {
+              String line = bufferedLine + unhandledData.substr(0, lineLen);
+              if(line.find("Rerun to get"))
+                rerun = true;
+
+              Console::print(line + "\n");
+              bufferedLine.clear();
+            }
+            if(*lineEnd == '\r' && lineEnd[1] == '\n')
+              ++lineLen;
+            unhandledData = unhandledData.substr(lineLen + 1);
+          }
+          else
+            break;
+        }
+        break;
+      }
+
+    if(bufferedLine.isEmpty() || !unhandledData.isEmpty())
+      Console::print(bufferedLine + unhandledData);
+  done: ;
+
+    if((!tocFileExists && File::exists(tocFile)) ||
+       (!auxFileExists && File::exists(auxFile)))
+       rerun = true;
+
+    if(!rerun)
+       break;
+
+  }
+
   return true;
 }
 
