@@ -230,3 +230,50 @@ bool_t Parser::Private::parseMarkdown(const String& filePath, const String& file
   }
   return true;
 }
+
+bool_t OutputData::ParagraphSegment::merge(Segment& segment)
+{
+  ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
+  if(paragraphSegment && paragraphSegment->getIndent() == getIndent())
+  {
+    int_t len = text.length();
+    text.append(' ');
+    text.append(paragraphSegment->text);
+    delete paragraphSegment;
+    return true;
+  }
+  return false;
+}
+
+bool_t OutputData::SeparatorSegment::merge(Segment& segment)
+{
+  if(dynamic_cast<SeparatorSegment*>(&segment))
+  {
+    ++level;
+    delete &segment;
+    return true;
+  }
+  return false;
+}
+
+bool_t OutputData::ListSegment::merge(Segment& segment)
+{
+  ListSegment* listSegment = dynamic_cast<ListSegment*>(&segment);
+  if(listSegment && listSegment->getIndent() == indent)
+  {
+    if(parent)
+      segment.setParent(*parent);
+    siblingSegments.append(listSegment);
+    return true;
+  }
+  ListSegment* lastSibling = siblingSegments.isEmpty() ? this : siblingSegments.back();
+  if(segment.getIndent() == lastSibling->childIndent)
+  {
+    segment.setParent(*lastSibling);
+    lastSibling->childSegments.append(&segment);
+    return true;
+  }
+  if(parent)
+    return parent->merge(segment);
+  return false;
+}
