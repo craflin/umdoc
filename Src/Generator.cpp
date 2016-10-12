@@ -44,6 +44,41 @@ String Generator::getErrorString() const
   return Error::getErrorString();
 }
 
+String Generator::texEscape(char_t c)
+{
+  switch(c)
+  {
+    case '\\':
+      return "{\\textbackslash}";
+    case '<':
+      return "{\\textless}";
+    case '>':
+      return "{\\textgreater}";
+    case '_':
+      return "{\\_\\-}";
+    case '-':
+      return "-{}";
+      break;
+    case '$':
+    case '%':
+    case '}':
+    case '&':
+    case '#':
+    case '{':
+      {
+        String result("\\");
+        result.append(c);
+        return result;
+      }
+    default:
+      {
+        String result;
+        result.append(c);
+        return result;
+      }
+  }
+}
+
 String Generator::texEscape(const String& str)
 {
   String result(str.length());
@@ -53,31 +88,12 @@ String Generator::texEscape(const String& str)
     switch(c = *i)
     {
     case '\\':
-      result.append("{\\textbackslash}");
-      break;
-    case '<':
-      result.append("{\\textless}");
-      break;
-    case '>':
-      result.append("{\\textgreater}");
-      break;
-    case '_':
-      result.append("{\\_\\-}");
-      break;
-    case '-':
-      result.append("-{}");
-      break;
-    case '$':
-    case '%':
-    case '}':
-    case '&':
-    case '#':
-    case '{':
-      result.append('\\');
-      result.append(c);
+      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
+        ++i;
+      result.append(texEscape(*i));
       break;
     default:
-      result.append(c);
+      result.append(texEscape(c));
       break;
     }
   }

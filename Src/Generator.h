@@ -13,5 +13,6 @@ public:
   String getErrorString() const;
 
 public:
+  static String texEscape(char_t c);
   static String texEscape(const String& str);
 };
