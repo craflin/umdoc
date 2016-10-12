@@ -10,7 +10,7 @@ public:
   class Segment
   {
   public:
-    Segment(int_t indent) : indent(indent), parent(0) {}
+    Segment(int_t indent) : valid(true), indent(indent), parent(0) {}
 
   public:
     virtual ~Segment() {};
@@ -21,16 +21,31 @@ public:
     Segment* getParent() const {return parent;}
     void_t setParent(Segment& parent) {this->parent = &parent;}
 
+    bool_t isValid() const {return valid;}
+    void_t invalidate() {valid = false;}
+
   protected:
+    bool_t valid;
     int_t indent;
     Segment* parent;
+  };
+
+  class ParagraphSegment : public Segment
+  {
+  public:
+    ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
+    const String& getText() const {return text;}
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment);
+  private:
+    String text;
   };
 
   class TitleSegment : public Segment
   {
   public:
-    TitleSegment(int_t indent, const String& line);
-    TitleSegment(int_t indent, int_t level, const String& title);
+    TitleSegment(int_t indent, int_t level, const String& title) : Segment(indent), level(level), title(title) {}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment) {return false;}
@@ -39,29 +54,16 @@ public:
     String title;
   };
 
-  class ParagraphSegment : public Segment
-  {
-  public:
-    ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
-
-    const String& getText() const {return text;}
-
-  public:
-    virtual String generate() const;
-    virtual bool_t merge(Segment& segment);
-  private:
-    String text;
-  };
-
   class SeparatorSegment : public Segment
   {
   public:
-    SeparatorSegment(int_t indent) : Segment(indent), level(0) {}
+    SeparatorSegment(int_t indent) : Segment(indent), lines(1) {}
+    int_t getLines() const {return lines;}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   private:
-    int_t level;
+    int_t lines;
   };
 
   class RuleSegment : public Segment

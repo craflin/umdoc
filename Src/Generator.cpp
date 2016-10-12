@@ -92,14 +92,14 @@ String OutputData::generate() const
   return result;
 }
 
-String OutputData::ParagraphSegment::generate() const
-{
-  return String("\n") + Generator::texEscape(text) + "\n";
-}
-
 String OutputData::SeparatorSegment::generate() const
 {
   return String();
+}
+
+String OutputData::ParagraphSegment::generate() const
+{
+  return String("\n") + Generator::texEscape(text) + "\n";
 }
 
 String OutputData::TitleSegment::generate() const

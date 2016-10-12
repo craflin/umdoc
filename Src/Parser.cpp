@@ -18,18 +18,12 @@ public:
   String errorFile;
   int_t errorLine;
   String errorString;
+  List<OutputData::Segment*> segments;
 
 public:
   Private() : parserMode(normalMode), errorLine(0) {}
 
-  void_t addSegment(OutputData::Segment& segment)
-  {
-    //if(sgemtn == ListSgement && back == SeparatorSegment && back->level == 0 && back -1 == ListSgement)
-    //  (back -1 ).merge(segment)
-
-    if(outputData->segments.isEmpty() || !outputData->segments.back()->merge(segment))
-      outputData->segments.append(&segment);
-  }
+  void_t addSegment(OutputData::Segment& segment);
 
   bool_t parseMarkdown(const String& filePath, const String& fileContent);
   bool_t parseMarkdownLine(const String& line, size_t offset);
@@ -65,6 +59,7 @@ bool_t Parser::parse(const InputData& inputData, OutputData& outputData)
       outputData.hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
+      p->segments.clear();
       if(!p->parseMarkdown(component.filePath, component.content))
         return false;
       break;
@@ -76,6 +71,65 @@ bool_t Parser::parse(const InputData& inputData, OutputData& outputData)
 String Parser::getErrorFile() const {return p->errorFile;}
 int_t Parser::getErrorLine() const {return p->errorLine;}
 String Parser::getErrorString() const {return p->errorString;}
+
+void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
+{
+  if(segments.size() >= 2 && dynamic_cast<OutputData::ListSegment*>(&newSegment))
+  {
+    OutputData::SeparatorSegment* separatorSegment = dynamic_cast<OutputData::SeparatorSegment*>(segments.back());
+    if(separatorSegment && separatorSegment->getLines() == 1)
+    {
+      OutputData::ListSegment* listSegment = dynamic_cast<OutputData::ListSegment* >((*(--(--segments.end())))->getParent());
+      if(listSegment && listSegment->merge(newSegment))
+      {
+        separatorSegment->invalidate();
+        segments.removeBack();
+
+        if(!segments.back()->isValid())
+          segments.removeBack();
+        if(newSegment.isValid())
+          segments.append(&newSegment);
+        else
+          delete &newSegment;
+        return;
+      }
+    }
+  }
+
+  if(!segments.isEmpty())
+  {
+    OutputData::Segment* lastSegment = segments.back();
+    if(lastSegment)
+    {
+      if(!lastSegment->isValid())
+        segments.removeBack();
+      if(!segments.isEmpty())
+      {
+        lastSegment = segments.back();
+        if(lastSegment)
+          for(OutputData::Segment* segment = lastSegment;;)
+          {
+            if(segment->merge(newSegment))
+            {
+              if(!segments.back()->isValid())
+                segments.removeBack();
+              if(newSegment.isValid())
+                segments.append(&newSegment);
+              else
+                delete &newSegment;
+              return;
+            }
+            segment = segment->getParent();
+            if(!segment)
+              break;
+          }
+      }
+    }
+  }
+
+  outputData->segments.append(&newSegment);
+  segments.append(&newSegment);
+}
 
 bool_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
 {
@@ -93,7 +147,7 @@ begin:
     if(String::compare(p, "```", 3) == 0)
       parserMode = normalMode;
     else
-      ((OutputData::CodeSegment*)outputData->segments.back())->addLine(line);
+      ((OutputData::CodeSegment*)segments.back())->addLine(line);
     return true;
   }
 
@@ -106,7 +160,11 @@ begin:
       for(; *i == '#'; ++i);
       if(i < end && String::isSpace(*i))
       {
-        segment = new OutputData::TitleSegment(indent, remainingLine);
+        int_t titleLevel = i - ( const char_t*)remainingLine;
+        ++i;
+        String title;
+        title.attach(i, remainingLine.length() - (i - (const char_t*)remainingLine));
+        segment = new OutputData::TitleSegment(indent, titleLevel, title);
         break;
       }
     }
@@ -119,12 +177,11 @@ begin:
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(outputData->segments.back());
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(segments.back());
         if(paragraphSegment && paragraphSegment->getIndent() == indent)
         {
+          paragraphSegment->invalidate();
           segment = new OutputData::TitleSegment(indent, 1, paragraphSegment->getText());
-          delete paragraphSegment;
-          outputData->segments.removeBack();
           break;
         }
       }
@@ -138,12 +195,11 @@ begin:
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(outputData->segments.back());
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(segments.back());
         if(paragraphSegment && paragraphSegment->getIndent() == indent)
         {
+          paragraphSegment->invalidate();
           segment = new OutputData::TitleSegment(indent, 2, paragraphSegment->getText());
-          delete paragraphSegment;
-          outputData->segments.removeBack();
           break;
         }
       }
@@ -171,10 +227,8 @@ begin:
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
         segment = new OutputData::ListSegment(indent, childIndent);
-
-        //??
-
         addSegment(*segment);
+        segment = 0;
         offset = i - (const char_t*)line;
         goto begin;
       }
@@ -236,10 +290,9 @@ bool_t OutputData::ParagraphSegment::merge(Segment& segment)
   ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
   if(paragraphSegment && paragraphSegment->getIndent() == getIndent())
   {
-    int_t len = text.length();
     text.append(' ');
-    text.append(paragraphSegment->text);
-    delete paragraphSegment;
+    text.append(paragraphSegment->getText());
+    segment.invalidate();
     return true;
   }
   return false;
@@ -249,8 +302,8 @@ bool_t OutputData::SeparatorSegment::merge(Segment& segment)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
-    ++level;
-    delete &segment;
+    ++lines;
+    segment.invalidate();
     return true;
   }
   return false;
@@ -273,7 +326,5 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
     lastSibling->childSegments.append(&segment);
     return true;
   }
-  if(parent)
-    return parent->merge(segment);
   return false;
 }
