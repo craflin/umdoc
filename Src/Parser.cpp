@@ -315,15 +315,20 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
   if(listSegment && listSegment->getIndent() == indent)
   {
     if(parent)
-      segment.setParent(*parent);
+    {
+      ListSegment* parentListSegment = dynamic_cast<ListSegment*>(parent);
+      if(parentListSegment && parentListSegment->getIndent() == indent)
+        return parentListSegment->merge(segment);
+    }
+
+    listSegment->setParent(*this);
     siblingSegments.append(listSegment);
     return true;
   }
-  ListSegment* lastSibling = siblingSegments.isEmpty() ? this : siblingSegments.back();
-  if(segment.getIndent() == lastSibling->childIndent)
+  if(segment.getIndent() == this->childIndent)
   {
-    segment.setParent(*lastSibling);
-    lastSibling->childSegments.append(&segment);
+    segment.setParent(*this);
+    childSegments.append(&segment);
     return true;
   }
   return false;
