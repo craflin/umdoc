@@ -10,3 +10,7 @@ Build/
 *.vcxproj.user
 
 Test/md2tex.tex
+
+.*
+Test/umdoc/
+Test/umdoc.pdf
