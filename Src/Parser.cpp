@@ -187,6 +187,28 @@ begin:
       }
     }
     break;
+  case '*':
+    {
+      const char_t* i = remainingLine;
+      const char_t* end = i + remainingLine.length();
+      for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
+      if(i == end)
+      {
+        segment = new OutputData::RuleSegment(indent);
+        break;
+      }
+      if(p + 1 < end && String::isSpace(*(p + 1)))
+      {
+        for(i = p + 2; i < end && String::isSpace(*i); ++i);
+        int_t childIndent = i - (const char_t*)line;
+        segment = new OutputData::ListSegment(indent, '*', childIndent);
+        addSegment(*segment);
+        segment = 0;
+        offset = i - (const char_t*)line;
+        goto begin;
+      }
+    }
+    break;
   case '-':
     {
       const char_t* i = remainingLine;
@@ -210,23 +232,27 @@ begin:
         segment = new OutputData::RuleSegment(indent);
         break;
       }
-    }
-    break;
-  case '*':
-    {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
-      for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
-      if(i == end)
-      {
-        segment = new OutputData::RuleSegment(indent);
-        break;
-      }
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
-        segment = new OutputData::ListSegment(indent, childIndent);
+        segment = new OutputData::ListSegment(indent, '-', childIndent);
+        addSegment(*segment);
+        segment = 0;
+        offset = i - (const char_t*)line;
+        goto begin;
+      }
+    }
+    break;
+  case '+':
+    {
+      const char_t* i = remainingLine;
+      const char_t* end = i + remainingLine.length();
+      if(p + 1 < end && String::isSpace(*(p + 1)))
+      {
+        for(i = p + 2; i < end && String::isSpace(*i); ++i);
+        int_t childIndent = i - (const char_t*)line;
+        segment = new OutputData::ListSegment(indent, '+', childIndent);
         addSegment(*segment);
         segment = 0;
         offset = i - (const char_t*)line;
@@ -312,12 +338,12 @@ bool_t OutputData::SeparatorSegment::merge(Segment& segment)
 bool_t OutputData::ListSegment::merge(Segment& segment)
 {
   ListSegment* listSegment = dynamic_cast<ListSegment*>(&segment);
-  if(listSegment && listSegment->getIndent() == indent)
+  if(listSegment && listSegment->getIndent() == indent && listSegment->getSymbol() == symbol)
   {
     if(parent)
     {
       ListSegment* parentListSegment = dynamic_cast<ListSegment*>(parent);
-      if(parentListSegment && parentListSegment->getIndent() == indent)
+      if(parentListSegment && parentListSegment->getIndent() == indent && parentListSegment->getSymbol() == symbol)
         return parentListSegment->merge(segment);
     }
 

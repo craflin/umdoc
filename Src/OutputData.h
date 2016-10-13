@@ -78,14 +78,16 @@ public:
   class ListSegment : public Segment
   {
   public:
-    ListSegment(int_t indent, uint_t childIndent) : Segment(indent), childIndent(childIndent) {}
+    ListSegment(int_t indent, char_t symbol, uint_t childIndent) : Segment(indent), symbol(symbol), childIndent(childIndent) {}
     ~ListSegment();
+    char_t getSymbol() const {return symbol;}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   private:
     List<ListSegment*> siblingSegments;
     List<Segment*> childSegments;
+    char_t symbol;
     int_t childIndent;
   };
 
