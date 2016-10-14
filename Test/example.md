@@ -13,6 +13,15 @@ Make is part of almost every build system for UNIX-like systems. It is simple, v
 
 * In a Makefile the rules on how to compile files are specified without any conventions or additional information. The structure of the project can hence not be deduced from the Makefile alone, since some information like the purpose of a rule is missing. Other third party tools like IDEs maintain such information in separate files. This leads to non-centralized project configuration management that is unnecessarily complex.
 
+* Test of nested lists
+
+  * item 1
+    * subitem 1
+      * subitem 1
+      * subitem 2
+    * subitem 2
+  * item 2
+
 * In many software projects, different configuration sets (e.g. for debuggable and for optimized code) are used. Although Make provides means to handle multiple configurations, using them can lead to badly structured Makefiles. Even the support for multiple configurations in some of the popular build systems is limited to some degree.
 
 * While Makefile-generators add most of the functionality that is missing in Make, they compromise the simplicity of the build system. Many Makefile-generators were build to address a certain issue and the result is not always in favor of the developers of the software project that ends up using them.

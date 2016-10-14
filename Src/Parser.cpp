@@ -351,7 +351,7 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
     siblingSegments.append(listSegment);
     return true;
   }
-  if(segment.getIndent() == this->childIndent)
+  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
   {
     segment.setParent(*this);
     childSegments.append(&segment);

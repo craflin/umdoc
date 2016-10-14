@@ -22,6 +22,10 @@ bool_t Generator::generate(const OutputData& outputData, const String& outputFil
      //!file.write("\\usepackage[utf8]{inputenc}\n"))
      return false;
 
+  if(!file.write(String("\\setlength\\parindent{0pt}\n")) ||
+     !file.write(String("\\setlength\\parskip{5pt}\n")))
+     return false;
+
   if(outputData.hasPdfSegments)
     if(!file.write("\\usepackage{pdfpages}\n"))
       return false;
@@ -200,7 +204,7 @@ String OutputData::RuleSegment::generate() const
 
 String OutputData::ListSegment::generate() const
 {
-  String result("\\begin{itemize}%\n\\item ");
+  String result("\\vspace{-\\parskip}\\begin{itemize}%\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
   {
     const Segment* segment = *i;
