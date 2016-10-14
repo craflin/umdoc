@@ -1,7 +1,7 @@
 Mare
 ====
 
-Mare (Make replacement) is a build automation tool similar to Make. It can be used to automatize the build process of software projects. Based on a set of build rules (or recipes), which specifies build commands and dependencies between source files and targets, Mare determines which files to compile in order to create a build target or to apply changes in source files. Unlike Make, Mare relies on a file format that was designed with the needs of modern software projects in mind.
+Mare (*Ma*ke *re*placement) * is a *build automation tool* similar to Make. It can be used to automatize the build process of software projects. Based on a set of build rules (or recipes), which specifies build commands and dependencies between source files and targets, Mare determines which files to compile in order to create a build target or to apply changes in source files. Unlike Make, Mare relies on a file format that was designed with the needs of modern software projects in mind.
 
 
 Motivation
@@ -310,7 +310,7 @@ targets = {
 
 ### File Name Wildcards
 
-When wildcards are used in file names, the wildcard pattern will be replaced with a list of matching files found in the file system. For instance, the "**.cpp" pattern will be replaced with "file1.cpp file2.cpp" given these two files exist:
+When wildcards are used in file names, the wildcard pattern will be replaced with a list of matching files found in the file system. For instance, the "\*\*.cpp" pattern will be replaced with "file1.cpp file2.cpp" given these two files exist:
 
 ```
 targets = {
@@ -324,9 +324,9 @@ targets = {
 ```
 
 The wildcard pattern may contain the following placeholders:
-* \* - matches any string within the name of a file (e.g. "*.cpp" matches "ab.cpp", "bcd.cpp")
+* \* - matches any string within the name of a file (e.g. "\*.cpp" matches "ab.cpp", "bcd.cpp")
 * ? - matches a single character within the name of a file (e.g. "a?.cpp" matches "ab.cpp", "ac.cpp" but not "aef.cpp") 
-* \*\* - matches any string (including slashes) within the path of a file (e.g. "**.cpp" matches "aa.cpp", "bb.cpp", "subdir/bbws.cpp", "subdir/subdir/bassb.cpp") 
+* \*\* - matches any string (including slashes) within the path of a file (e.g. "\*\*.cpp" matches "aa.cpp", "bb.cpp", "subdir/bbws.cpp", "subdir/subdir/bassb.cpp") 
 
 ### Space Characters in Keys
 

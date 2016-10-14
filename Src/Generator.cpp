@@ -55,10 +55,11 @@ String Generator::texEscape(char_t c)
     case '>':
       return "{\\textgreater}";
     case '_':
-      return "{\\_\\-}";
+      return "{\\_\\-}"; // allow line break after _
     case '-':
-      return "-{}";
-      break;
+      return "-{}"; // do not merge -- into a long -
+    case '/':
+      return "{/\\-}"; // allow line break after /
     case '$':
     case '%':
     case '}':
@@ -83,7 +84,9 @@ String Generator::texEscape(const String& str)
 {
   String result(str.length());
   char_t c;
-  for(const char_t* i = str, * end = i + str.length(); i < end; ++i)
+  String endSequence;
+  List<String> endSequenceStack;
+  for(const char_t* start = str, * i = start, * end = start + str.length(); i < end; ++i)
   {
     switch(c = *i)
     {
@@ -93,10 +96,52 @@ String Generator::texEscape(const String& str)
       result.append(texEscape(*i));
       break;
     default:
+      if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
+      {
+        if(endSequence == "*")
+        {
+          if(String::find(" \t*", i[1]) && (i == start || String::find(" \t*", i[-1])))
+          { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
+            result.append(texEscape(c));
+            continue;
+          }
+
+        result.append("}");
+          if(endSequenceStack.isEmpty())
+            endSequence.clear();
+          else
+          {
+            endSequence = endSequenceStack.back();
+            endSequenceStack.removeBack();
+          }
+          continue;
+        }
+      }
+      if(c == '*')
+      {
+        if(String::find(" \t*", i[1]) && (i == start || String::find(" \t*", i[-1])))
+        { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
+          result.append(texEscape(c));
+          continue;
+        }
+
+        result.append("\\emph{");
+        if(!endSequence.isEmpty())
+          endSequenceStack.append(endSequence);
+        endSequence = "*";
+        continue;
+      }
       result.append(texEscape(c));
       break;
     }
   }
+  while(!endSequenceStack.isEmpty())
+  {
+    result.append("}");
+    endSequenceStack.removeBack();
+  }
+  if(!endSequence.isEmpty())
+    result.append("}");
   return result;
 }
 
@@ -104,7 +149,12 @@ String OutputData::generate() const
 {
   String result(segments.size() * 256);
   for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
-    result.append((*i)->generate());
+  {
+    const Segment* segment = *i;
+    if(!segment->isValid())
+      continue;
+    result.append(segment->generate());
+  }
   return result;
 }
 
@@ -152,13 +202,25 @@ String OutputData::ListSegment::generate() const
 {
   String result("\\begin{itemize}%\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  {
+    const Segment* segment = *i;
+    if(!segment->isValid())
+      continue;
     result.append((*i)->generate());
+  }
   for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
     ListSegment* siblingSegment = *i;
+    if(!siblingSegment->isValid())
+      continue;
     result.append("\\item ");
     for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
-      result.append((*i)->generate());
+    {
+      const Segment* segment = *i;
+      if(!segment->isValid())
+        continue;
+      result.append(segment->generate());
+    }
   }
   result.append("\\end{itemize}\n");
   return result;
