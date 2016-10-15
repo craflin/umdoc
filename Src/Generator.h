@@ -8,7 +8,7 @@ class OutputData;
 class Generator
 {
 public:
-  bool_t generate(const OutputData& outputData, const String& outputFile);
+  bool_t generate(const String& engine, const OutputData& outputData, const String& outputFile);
 
   String getErrorString() const;
 

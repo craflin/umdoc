@@ -26,9 +26,11 @@ Make is part of almost every build system for UNIX-like systems. It is simple, v
 
 * While Makefile-generators add most of the functionality that is missing in Make, they compromise the simplicity of the build system. Many Makefile-generators were build to address a certain issue and the result is not always in favor of the developers of the software project that ends up using them.
 
-+ test1
++ new list item 1
 
-+ test 2
++ item 2
+
++ umlaut test: äöü
 
 How does Mare work?
 -------------------

@@ -10,7 +10,7 @@
         <toc />
 
         
-        <part title="Part I" />
+        <part title="Title of *Part I*" />
         <md file="example.md" />
     </document>
 

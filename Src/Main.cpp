@@ -108,6 +108,7 @@ int_t main(int_t argc, char_t* argv[])
   String inputFile("umdoc.xml");
   String outputFile;
   String engine("lualatex");
+  //String engine("pdflatex");
   String auxDirectory;
 
   {
@@ -207,7 +208,7 @@ int_t main(int_t argc, char_t* argv[])
   // generate tmp tex file
   {
     Generator generator;
-    if(!generator.generate(outputData, tmpTexFile))
+    if(!generator.generate(engine, outputData, tmpTexFile))
     {
       Console::errorf("%s: error: %s\n", (const char_t*)tmpTexFile, (const char_t*)generator.getErrorString());
       return 1;

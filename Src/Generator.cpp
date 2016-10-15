@@ -6,7 +6,7 @@
 #include "Generator.h"
 #include "OutputData.h"
 
-bool_t Generator::generate(const OutputData& outputData, const String& outputFile)
+bool_t Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
   File file;
   if(!file.open(outputFile, File::writeFlag))
@@ -17,13 +17,49 @@ bool_t Generator::generate(const OutputData& outputData, const String& outputFil
     className = "article";
 
   if(!file.write(String("\\documentclass[a4paper]{") + className + "}\n"))
-    
-     //!file.write("\\directlua{print(texconfig.max_print_line)}"))
-     //!file.write("\\usepackage[utf8]{inputenc}\n"))
+    return false;
+
+  if(engine == "pdflatex")
+    if(!file.write("\\usepackage[utf8]{inputenc}\n"))
+      return false;
+
+  if(!file.write("\\usepackage[english]{babel}\n"))
      return false;
 
-  if(!file.write(String("\\setlength\\parindent{0pt}\n")) ||
-     !file.write(String("\\setlength\\parskip{5pt}\n")))
+  // change parindent and parskip, you can overwrite this in your own own tex header file if you want
+  if(!file.write("\\setlength\\parindent{0pt}\n") ||
+     !file.write("\\setlength\\parskip{5pt}\n"))
+     return false;
+
+  // change page geometry, you can overwrite this in your own own tex header file if you want
+  if(!file.write("\\usepackage{geometry}\n") ||
+     !file.write("\\geometry{\n") ||
+     !file.write(" a4paper,\n") ||
+     !file.write(" left=25mm,\n") ||
+     !file.write(" right=25mm,\n") ||
+     !file.write(" top=38mm,\n") ||
+     !file.write(" bottom=25mm,\n") ||
+     !file.write("}\n"))
+     return false;
+
+  // we need hyperlinks in toc, idk if you can overwrite this
+  if(!file.write("\\usepackage{hyperref}\n") ||
+     !file.write("\\hypersetup{%\n") ||
+     !file.write(" colorlinks,\n") ||
+     !file.write(" citecolor=black,\n") ||
+     !file.write(" filecolor=black,\n") ||
+     !file.write(" linkcolor=black,\n") ||
+     !file.write(" urlcolor=blue\n") ||
+     !file.write("}\n"))
+     return false;
+
+  // change default font, you can overwrite this in your own own tex header file if you want
+  //if(!file.write("\\usepackage{sourcecodepro}\n") ||
+  //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
+  //   return false;
+
+  if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
+     !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
      return false;
 
   if(outputData.hasPdfSegments)
