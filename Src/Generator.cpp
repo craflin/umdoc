@@ -56,6 +56,10 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("}\n"))
        return false;
 
+    if(!file.write("\\usepackage{enumitem}\n") ||
+       !file.write("\\setlist{topsep=0pt}\n"))
+      return false;
+
     // change default font, you can overwrite this in your own own tex header file if you want
     //if(!file.write("\\usepackage{sourcecodepro}\n") ||
     //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
@@ -150,6 +154,7 @@ String Generator::texEscape(const String& str)
             result.append(texEscape('*'));
             if(endSequence == "**")
               result.append(texEscape('*'));
+            i += endSequence.length() - 1;
             continue;
           }
 
@@ -168,12 +173,12 @@ String Generator::texEscape(const String& str)
       if(c == '*')
       {
         const String& sequence = i[1] == '*' ? String("**") : String("*");
-
         if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
         { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-            result.append(texEscape(c));
-            if(endSequence == "**")
-              result.append(texEscape('*'));
+          result.append(texEscape(c));
+          if(sequence == "**")
+            result.append(texEscape('*'));
+          i += sequence.length() - 1;
           continue;
         }
 
@@ -253,7 +258,7 @@ String OutputData::RuleSegment::generate() const
 
 String OutputData::ListSegment::generate() const
 {
-  String result("\\vspace{-\\parskip}\\begin{itemize}%\n\\item ");
+  String result("\n\\begin{itemize}%\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
   {
     const Segment* segment = *i;
@@ -275,7 +280,7 @@ String OutputData::ListSegment::generate() const
       result.append(segment->generate());
     }
   }
-  result.append("\\end{itemize}\\vspace{-\\parskip}\n");
+  result.append("\\end{itemize}\n");
   return result;
 }
 

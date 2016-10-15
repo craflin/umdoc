@@ -1,7 +1,7 @@
 Mare
 ====
 
-Mare (*Ma*ke *re*placement) * is a *build automation tool* similar to Make. It can be used to automatize the build process of software projects. Based on a set of build rules (or recipes), which specifies build commands and dependencies between source files and targets, Mare determines which files to compile in order to create a build target or to apply changes in source files. Unlike Make, Mare relies on a file format that was designed with the needs of modern software projects in mind.
+Mare (*Ma*ke *re*placement) * is a *build automation tool* ** similar to Make. It can be used to automatize the build process of software projects. Based on a set of build rules (or recipes), which specifies build commands and dependencies between source files and targets, Mare determines which files to compile in order to create a build target or to apply changes in source files. Unlike Make, Mare relies on a file format that was designed with the needs of modern software projects in mind.
 
 
 Motivation
