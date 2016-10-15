@@ -37,6 +37,8 @@ How does Mare work?
 
 Mare is a small stand alone tool. Once executed in its working directory, it searches for a file with name "Marefile". This file specifies rules to compile the source files of a software project into build targets. Mare determines which targets to recreate by comparing the file modification timestamp of the source files and previously generated build targets. In case the build target is missing or older than one of its source files it is recreated by executing a build command as specified by the build rules. Instead of managing the build process directly, Mare can also be used to generate project files for other tools like Visual Studio, CodeBlocks, CodeLite, NetBeans, Make and cmake.
 
+******************
+
 A Marefile consists of three lists: "configurations", "targets" and "platforms". "configurations" lists different build configurations (e.g. "Debug" for debuggable code and "Release" for optimized code). "targets" lists all the build targets (executables, libraries, etc.) of a software project. Each build target contains a list of source files, the rules to compile them and a rule to create the target. "platforms" is normally not used unless the target platform differs from the host platform.
 
 Here is an example of a Marefile for a simple c++ application where all source files are stored in the directory "src":

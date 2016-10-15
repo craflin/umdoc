@@ -220,6 +220,7 @@ int_t main(int_t argc, char_t* argv[])
     return 1;
 
   // copy tmp pdf to output file
+  if(tmpPdfFile != outputFile)
   {
     String pdfData;
     File pdfFile;

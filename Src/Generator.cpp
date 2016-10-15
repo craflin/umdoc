@@ -69,6 +69,9 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
        return false;
 
+    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{3pt}}\n"))
+      return false;
+
     if(outputData.hasPdfSegments)
       if(!file.write("\\usepackage{pdfpages}\n"))
         return false;
@@ -253,7 +256,7 @@ String OutputData::TitleSegment::generate() const
 
 String OutputData::RuleSegment::generate() const
 {
-  return String("\n\\rule{\\textwidth}{1pt}\n");
+  return String("\n\\fullrule\n");
 }
 
 String OutputData::ListSegment::generate() const
