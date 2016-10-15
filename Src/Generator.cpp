@@ -12,59 +12,64 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
   if(!file.open(outputFile, File::writeFlag))
     return false;
 
-  String className = outputData.className;
-  if(className.isEmpty())
-    className = "article";
-
-  if(!file.write(String("\\documentclass[a4paper]{") + className + "}\n"))
-    return false;
-
-  if(engine == "pdflatex")
-    if(!file.write("\\usepackage[utf8]{inputenc}\n"))
+  if(!outputData.className.isEmpty())
+  {
+    if(!file.write(String("\\documentclass{") + outputData.className + "}\n"))
+      return false;
+  }
+  else
+  {
+    if(!file.write(String("\\documentclass[a4paper]{article}\n")))
       return false;
 
-  if(!file.write("\\usepackage[english]{babel}\n"))
-     return false;
+    if(engine == "pdflatex")
+      if(!file.write("\\usepackage[utf8]{inputenc}\n"))
+        return false;
 
-  // change parindent and parskip, you can overwrite this in your own own tex header file if you want
-  if(!file.write("\\setlength\\parindent{0pt}\n") ||
-     !file.write("\\setlength\\parskip{5pt}\n"))
-     return false;
+    if(!file.write("\\usepackage[english]{babel}\n"))
+       return false;
 
-  // change page geometry, you can overwrite this in your own own tex header file if you want
-  if(!file.write("\\usepackage{geometry}\n") ||
-     !file.write("\\geometry{\n") ||
-     !file.write(" a4paper,\n") ||
-     !file.write(" left=25mm,\n") ||
-     !file.write(" right=25mm,\n") ||
-     !file.write(" top=38mm,\n") ||
-     !file.write(" bottom=25mm,\n") ||
-     !file.write("}\n"))
-     return false;
+    // change parindent and parskip, you can overwrite this in your own own tex header file if you want
+    if(!file.write("\\setlength\\parindent{0pt}\n") ||
+       !file.write("\\setlength\\parskip{5pt}\n"))
+       return false;
 
-  // we need hyperlinks in toc, idk if you can overwrite this
-  if(!file.write("\\usepackage{hyperref}\n") ||
-     !file.write("\\hypersetup{%\n") ||
-     !file.write(" colorlinks,\n") ||
-     !file.write(" citecolor=black,\n") ||
-     !file.write(" filecolor=black,\n") ||
-     !file.write(" linkcolor=black,\n") ||
-     !file.write(" urlcolor=blue\n") ||
-     !file.write("}\n"))
-     return false;
+    // change page geometry, you can overwrite this in your own own tex header file if you want
+    if(!file.write("\\usepackage{geometry}\n") ||
+       !file.write("\\geometry{\n") ||
+       !file.write(" a4paper,\n") ||
+       !file.write(" left=25mm,\n") ||
+       !file.write(" right=25mm,\n") ||
+       !file.write(" top=38mm,\n") ||
+       !file.write(" bottom=25mm,\n") ||
+       !file.write("}\n"))
+       return false;
 
-  // change default font, you can overwrite this in your own own tex header file if you want
-  //if(!file.write("\\usepackage{sourcecodepro}\n") ||
-  //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
-  //   return false;
+    // we need hyperlinks in toc, idk if you can overwrite this
+    if(!file.write("\\usepackage{hyperref}\n") ||
+       !file.write("\\hypersetup{%\n") ||
+       !file.write(" colorlinks,\n") ||
+       !file.write(" citecolor=black,\n") ||
+       !file.write(" filecolor=black,\n") ||
+       !file.write(" linkcolor=black,\n") ||
+       !file.write(" urlcolor=blue\n") ||
+       !file.write("}\n"))
+       return false;
 
-  if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
-     !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
-     return false;
+    // change default font, you can overwrite this in your own own tex header file if you want
+    //if(!file.write("\\usepackage{sourcecodepro}\n") ||
+    //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
+    //   return false;
 
-  if(outputData.hasPdfSegments)
-    if(!file.write("\\usepackage{pdfpages}\n"))
-      return false;
+    if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
+       !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
+       return false;
+
+    if(outputData.hasPdfSegments)
+      if(!file.write("\\usepackage{pdfpages}\n"))
+        return false;
+  }
+
   if(!file.write("\n"))
     return false;
   for(List<String>::Iterator i = outputData.headerTexFiles.begin(), end = outputData.headerTexFiles.end(); i != end; ++i)
@@ -262,7 +267,7 @@ String OutputData::ListSegment::generate() const
       result.append(segment->generate());
     }
   }
-  result.append("\\end{itemize}\n");
+  result.append("\\end{itemize}\\vspace{-\\parskip}\n");
   return result;
 }
 
