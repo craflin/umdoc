@@ -143,15 +143,18 @@ String Generator::texEscape(const String& str)
     default:
       if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
       {
-        if(endSequence == "*")
+        if(endSequence == "*" || endSequence == "**")
         {
-          if(String::find(" \t*", i[1]) && (i == start || String::find(" \t*", i[-1])))
+          if(String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-            result.append(texEscape(c));
+            result.append(texEscape('*'));
+            if(endSequence == "**")
+              result.append(texEscape('*'));
             continue;
           }
 
-        result.append("}");
+          result.append("}");
+          i += endSequence.length() - 1;
           if(endSequenceStack.isEmpty())
             endSequence.clear();
           else
@@ -164,16 +167,21 @@ String Generator::texEscape(const String& str)
       }
       if(c == '*')
       {
-        if(String::find(" \t*", i[1]) && (i == start || String::find(" \t*", i[-1])))
+        const String& sequence = i[1] == '*' ? String("**") : String("*");
+
+        if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
         { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-          result.append(texEscape(c));
+            result.append(texEscape(c));
+            if(endSequence == "**")
+              result.append(texEscape('*'));
           continue;
         }
 
-        result.append("\\emph{");
+        result.append(sequence == "*" ? String("\\emph{") : String("\\textbf{"));
+        i += sequence.length() - 1;
         if(!endSequence.isEmpty())
           endSequenceStack.append(endSequence);
-        endSequence = "*";
+        endSequence = sequence;
         continue;
       }
       result.append(texEscape(c));

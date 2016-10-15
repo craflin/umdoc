@@ -15,7 +15,7 @@ Make is part of almost every build system for UNIX-like systems. It is simple, v
 
 * Test of nested lists
 
-  * item 1
+  * item 1 _emph text_ __bold text__ **bold text** in**line**bold in*line*emph
     * subitem 1
       * subitem 1
       * subitem 2
