@@ -8,6 +8,9 @@
 
 bool_t Reader::read(const String& inputFile, InputData& inputData)
 {
+  // todo: if inputFile.endsWitdh(".md") skip xml stuff
+
+
   XML::Parser xmlParser;
   XML::Element xmlFile;
   if(!xmlParser.load(inputFile, xmlFile))

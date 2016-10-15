@@ -41,6 +41,12 @@ Mare is a small stand alone tool. Once executed in its working directory, it sea
 
 A Marefile consists of three lists: "configurations", "targets" and "platforms". "configurations" lists different build configurations (e.g. "Debug" for debuggable code and "Release" for optimized code). "targets" lists all the build targets (executables, libraries, etc.) of a software project. Each build target contains a list of source files, the rules to compile them and a rule to create the target. "platforms" is normally not used unless the target platform differs from the host platform.
 
+> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+> 
+> daskjdslad
+
+> dajskdlsa
+
 Here is an example of a Marefile for a simple c++ application where all source files are stored in the directory "src":
 
 ```

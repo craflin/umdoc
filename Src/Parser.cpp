@@ -106,23 +106,22 @@ void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
       if(!segments.isEmpty())
       {
         lastSegment = segments.back();
-        if(lastSegment)
-          for(OutputData::Segment* segment = lastSegment;;)
+        for(OutputData::Segment* segment = lastSegment;;)
+        {
+          if(segment->merge(newSegment))
           {
-            if(segment->merge(newSegment))
-            {
-              if(!segments.back()->isValid())
-                segments.removeBack();
-              if(newSegment.isValid())
-                segments.append(&newSegment);
-              else
-                delete &newSegment;
-              return;
-            }
-            segment = segment->getParent();
-            if(!segment)
-              break;
+            if(!segments.back()->isValid())
+              segments.removeBack();
+            if(newSegment.isValid())
+              segments.append(&newSegment);
+            else
+              delete &newSegment;
+            return;
           }
+          segment = segment->getParent();
+          if(!segment)
+            break;
+        }
       }
     }
   }
@@ -252,9 +251,8 @@ begin:
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
-        segment = new OutputData::ListSegment(indent, '+', childIndent);
-        addSegment(*segment);
-        segment = 0;
+        OutputData::ListSegment* listSegment = new OutputData::ListSegment(indent, '+', childIndent);
+        addSegment(*listSegment);
         offset = i - (const char_t*)line;
         goto begin;
       }
@@ -269,6 +267,15 @@ begin:
       segment = codeSegment;
       parserMode = codeMode;
       break;
+    }
+    break;
+  case '>':
+    if(String::isSpace(p[1]))
+    {
+      OutputData::BlockquoteSegment* blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
+      addSegment(*blockquoteSegment);
+      offset = p + 2 - (const char_t*)line;
+      goto begin;
     }
     break;
   case '\r':
@@ -349,6 +356,31 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
 
     listSegment->setParent(*this);
     siblingSegments.append(listSegment);
+    return true;
+  }
+  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
+  {
+    segment.setParent(*this);
+    childSegments.append(&segment);
+    return true;
+  }
+  return false;
+}
+
+bool_t OutputData::BlockquoteSegment::merge(Segment& segment)
+{
+  BlockquoteSegment* blockSegment = dynamic_cast<BlockquoteSegment*>(&segment);
+  if(blockSegment && blockSegment->getIndent() == indent)
+  {
+    if(parent)
+    {
+      BlockquoteSegment* parentBlockquoteSegment = dynamic_cast<BlockquoteSegment*>(parent);
+      if(parentBlockquoteSegment && parentBlockquoteSegment->getIndent() == indent)
+        return parentBlockquoteSegment->merge(segment);
+    }
+
+    blockSegment->setParent(*this);
+    siblingSegments.append(blockSegment);
     return true;
   }
   if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))

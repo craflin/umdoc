@@ -56,8 +56,13 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("}\n"))
        return false;
 
+    // customized enumerations
     if(!file.write("\\usepackage{enumitem}\n") ||
        !file.write("\\setlist{topsep=0pt}\n"))
+      return false;
+
+    // customized blockquotes
+    if(!file.write("\\usepackage{quoting}\n"))
       return false;
 
     // change default font, you can overwrite this in your own own tex header file if you want
@@ -65,13 +70,16 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
     //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
     //   return false;
 
+    // mordern fonts
     if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
        !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
        return false;
 
+    // command to paint a horizontal tule
     if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{3pt}}\n"))
       return false;
 
+    // package to include pdf pages
     if(outputData.hasPdfSegments)
       if(!file.write("\\usepackage{pdfpages}\n"))
         return false;
@@ -281,6 +289,33 @@ String OutputData::ListSegment::generate() const
     }
   }
   result.append("\\end{itemize}\n");
+  return result;
+}
+
+String OutputData::BlockquoteSegment::generate() const
+{
+  String result("\n\\begin{quoting}\n");
+  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  {
+    const Segment* segment = *i;
+    if(!segment->isValid())
+      continue;
+    result.append((*i)->generate());
+  }
+  for(List<BlockquoteSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  {
+    BlockquoteSegment* siblingSegment = *i;
+    if(!siblingSegment->isValid())
+      continue;
+    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    {
+      const Segment* segment = *i;
+      if(!segment->isValid())
+        continue;
+      result.append(segment->generate());
+    }
+  }
+  result.append("\n\\end{quoting}\n");
   return result;
 }
 
