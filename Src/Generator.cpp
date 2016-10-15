@@ -150,13 +150,12 @@ String Generator::texEscape(const String& str)
     default:
       if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
       {
-        if(endSequence == "*" || endSequence == "**")
+        if(*(const char_t*)endSequence == '*' || *(const char_t*)endSequence == '_')
         {
           if(String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-            result.append(texEscape('*'));
-            if(endSequence == "**")
-              result.append(texEscape('*'));
+            for(size_t j = 0; j < endSequence.length(); ++j)
+              result.append(texEscape(*(const char_t*)endSequence));
             i += endSequence.length() - 1;
             continue;
           }
@@ -166,26 +165,24 @@ String Generator::texEscape(const String& str)
           if(endSequenceStack.isEmpty())
             endSequence.clear();
           else
-          {
-            endSequence = endSequenceStack.back();
-            endSequenceStack.removeBack();
-          }
+            endSequence = endSequenceStack.back(), endSequenceStack.removeBack();
           continue;
         }
       }
-      if(c == '*')
+      if(c == '*' || c == '_')
       {
-        const String& sequence = i[1] == '*' ? String("**") : String("*");
+        String sequence;
+        sequence.attach(i, i[1] == c ? 2 : 1);
+
         if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
         { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-          result.append(texEscape(c));
-          if(sequence == "**")
-            result.append(texEscape('*'));
+          for(size_t j = 0; j < sequence.length(); ++j)
+            result.append(texEscape(c));
           i += sequence.length() - 1;
           continue;
         }
 
-        result.append(sequence == "*" ? String("\\emph{") : String("\\textbf{"));
+        result.append(sequence.length() == 2 ?  String("\\textbf{") : String("\\emph{"));
         i += sequence.length() - 1;
         if(!endSequence.isEmpty())
           endSequenceStack.append(endSequence);
