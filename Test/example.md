@@ -33,7 +33,20 @@ or
 
 ***
 
+## Inline Links
+
+```
+This is an [example link](https://github.com/craflin/umdoc).
+```
+
+results in:
+***
+This is an [example link](https://github.com/craflin/umdoc).
+***
+
 ## Bullet Lists
+
+Lines with asterisks (\*), pluses (\+), or hyphen (\-) are interpreted as bullet list items.
 
 ```
 * item a
@@ -57,14 +70,35 @@ or
 - item c
 ```
 
-
+results in:
 ***
-
 - item a
 - item b
 - item c
+***
 
-## Nested Bullet Lists
+List items can have multiple paragraphs.
+
+```
+* item a
+
+  line 2
+
+* item b
+* item c
+```
+
+results in:
+***
+* item a
+
+  line 2
+
+* item b
+* item c
+***
+
+Lists can be nested.
 
 ```
 * item a
@@ -74,6 +108,7 @@ or
 * item c
 ```
 
+results in:
 ***
 
 * item a
@@ -97,8 +132,6 @@ or
 2. item b
 3. item c
 
-
-## Nested Numbered Lists
 
 ```
 1. item a

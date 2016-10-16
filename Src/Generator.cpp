@@ -140,13 +140,66 @@ String Generator::texEscape(char_t c)
   }
 }
 
+bool Generator::matchInlineLink(const char_t* s, const char_t* end, const char_t*& pos, String& result)
+{
+  if(*s != '[')
+    return false;
+  const char_t* nameStart = ++s;
+  while(*s != ']')
+    if(++s >= end)
+      return false;
+  const char_t* nameEnd = s++;
+  if(*s != '(')
+    return false;
+  const char_t* linkStart = ++s;
+  const char_t* linkEnd = 0;
+  while(*s != ')')
+  {
+    if(*s == ' ' && !linkEnd)
+      linkEnd = s;
+    if(++s >= end)
+      return false;
+  }
+  if(!linkEnd)
+    linkEnd = s;
+  ++s;
+  result.append("\\href{");
+  result.append(linkStart, linkEnd - linkStart);
+  result.append("}{");
+  String name;
+  name.attach(nameStart, nameEnd - nameStart);
+  result.append(texEscape(name));
+  result.append("}");
+  pos = s;
+  return true;
+}
+/*
+String Generator::mardownUnescape(const String& str)
+{
+  const char_t* start = str;
+  const char_t* i = String::find(start, '\\');
+  if(!i)
+    return str;
+  String result(str.length());
+  result.append(str.substr(0, i - start));
+  const char_t* end = start + str.length();
+  for(; i < end; ++i)
+    if(*i == '\\')
+    {
+      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
+        ++i;
+      result.append(*i);
+    }
+  return result;
+}
+*/
 String Generator::texEscape(const String& str)
 {
   String result(str.length());
   char_t c;
   String endSequence;
   List<String> endSequenceStack;
-  for(const char_t* start = str, * i = start, * end = start + str.length(); i < end; ++i)
+  for(const char_t* start = str, * i = start, * end = start + str.length(); i < end;)
   {
     switch(c = *i)
     {
@@ -154,6 +207,7 @@ String Generator::texEscape(const String& str)
       if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
         ++i;
       result.append(texEscape(*i));
+      ++i;
       break;
     default:
       if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
@@ -164,12 +218,12 @@ String Generator::texEscape(const String& str)
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < endSequence.length(); ++j)
               result.append(texEscape(*(const char_t*)endSequence));
-            i += endSequence.length() - 1;
+            i += endSequence.length();
             continue;
           }
 
           result.append("}");
-          i += endSequence.length() - 1;
+          i += endSequence.length();
           if(endSequenceStack.isEmpty())
             endSequence.clear();
           else
@@ -186,18 +240,21 @@ String Generator::texEscape(const String& str)
         { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
           for(size_t j = 0; j < sequence.length(); ++j)
             result.append(texEscape(c));
-          i += sequence.length() - 1;
+          i += sequence.length();
           continue;
         }
 
         result.append(sequence.length() == 2 ?  String("\\textbf{") : String("\\emph{"));
-        i += sequence.length() - 1;
+        i += sequence.length();
         if(!endSequence.isEmpty())
           endSequenceStack.append(endSequence);
         endSequence = sequence;
         continue;
       }
+      if(matchInlineLink(i, end, i, result))
+        continue;
       result.append(texEscape(c));
+      ++i;
       break;
     }
   }
