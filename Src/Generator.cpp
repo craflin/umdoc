@@ -29,12 +29,12 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
     if(!file.write("\\usepackage[english]{babel}\n"))
        return false;
 
-    // change parindent and parskip, you can overwrite this in your own own tex header file if you want
+    // change parindent and parskip
     if(!file.write("\\setlength\\parindent{0pt}\n") ||
        !file.write("\\setlength\\parskip{5pt}\n"))
        return false;
 
-    // change page geometry, you can overwrite this in your own own tex header file if you want
+    // change page geometry
     if(!file.write("\\usepackage{geometry}\n") ||
        !file.write("\\geometry{\n") ||
        !file.write(" a4paper,\n") ||
@@ -45,7 +45,7 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("}\n"))
        return false;
 
-    // we need hyperlinks in toc, idk if you can overwrite this
+    // we need hyperlinks in toc
     if(!file.write("\\usepackage{hyperref}\n") ||
        !file.write("\\hypersetup{%\n") ||
        !file.write(" colorlinks,\n") ||
@@ -75,8 +75,8 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
        return false;
 
-    // command to paint a horizontal tule
-    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{3pt}}\n"))
+    // command to insert a horizontal rule
+    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n"))
       return false;
 
     // package to include pdf pages
@@ -266,7 +266,7 @@ String OutputData::RuleSegment::generate() const
 
 String OutputData::ListSegment::generate() const
 {
-  String result("\n\\begin{itemize}%\n\\item ");
+  String result("\n\\begin{itemize}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
   {
     const Segment* segment = *i;
@@ -290,6 +290,35 @@ String OutputData::ListSegment::generate() const
   }
   result.append("\\end{itemize}\n");
   return result;
+}
+
+String OutputData::NumberedListSegment::generate() const
+{
+  String result("\n\\begin{enumerate}\n\\item ");
+  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  {
+    const Segment* segment = *i;
+    if(!segment->isValid())
+      continue;
+    result.append((*i)->generate());
+  }
+  for(List<NumberedListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  {
+    NumberedListSegment* siblingSegment = *i;
+    if(!siblingSegment->isValid())
+      continue;
+    result.append("\\item ");
+    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    {
+      const Segment* segment = *i;
+      if(!segment->isValid())
+        continue;
+      result.append(segment->generate());
+    }
+  }
+  result.append("\\end{enumerate}\n");
+  return result;
+
 }
 
 String OutputData::BlockquoteSegment::generate() const

@@ -91,6 +91,21 @@ public:
     int_t childIndent;
   };
 
+  class NumberedListSegment : public Segment
+  {
+  public:
+    NumberedListSegment(int_t indent, uint_t number, uint_t childIndent) : Segment(indent), number(number), childIndent(childIndent) {}
+    ~NumberedListSegment();
+  public:
+    virtual String generate() const;
+    virtual bool_t merge(Segment& segment);
+  private:
+    List<NumberedListSegment*> siblingSegments;
+    List<Segment*> childSegments;
+    uint_t number;
+    int_t childIndent;
+  };
+
   class BlockquoteSegment : public Segment
   {
   public:

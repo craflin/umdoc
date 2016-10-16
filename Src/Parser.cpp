@@ -74,6 +74,7 @@ String Parser::getErrorString() const {return p->errorString;}
 
 void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
 {
+  /*
   if(segments.size() >= 2 && dynamic_cast<OutputData::ListSegment*>(&newSegment))
   {
     OutputData::SeparatorSegment* separatorSegment = dynamic_cast<OutputData::SeparatorSegment*>(segments.back());
@@ -95,33 +96,31 @@ void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
       }
     }
   }
+  */
 
   if(!segments.isEmpty())
   {
     OutputData::Segment* lastSegment = segments.back();
-    if(lastSegment)
+    if(!lastSegment->isValid())
+      segments.removeBack();
+    if(!segments.isEmpty())
     {
-      if(!lastSegment->isValid())
-        segments.removeBack();
-      if(!segments.isEmpty())
+      lastSegment = segments.back();
+      for(OutputData::Segment* segment = lastSegment;;)
       {
-        lastSegment = segments.back();
-        for(OutputData::Segment* segment = lastSegment;;)
+        if(segment->merge(newSegment))
         {
-          if(segment->merge(newSegment))
-          {
-            if(!segments.back()->isValid())
-              segments.removeBack();
-            if(newSegment.isValid())
-              segments.append(&newSegment);
-            else
-              delete &newSegment;
-            return;
-          }
-          segment = segment->getParent();
-          if(!segment)
-            break;
+          if(!segments.back()->isValid())
+            segments.removeBack();
+          if(newSegment.isValid())
+            segments.append(&newSegment);
+          else
+            delete &newSegment;
+          return;
         }
+        segment = segment->getParent();
+        if(!segment)
+          break;
       }
     }
   }
@@ -284,6 +283,22 @@ begin:
     segment = new OutputData::SeparatorSegment(indent);
     break;
   default:;
+    if(String::isDigit(*p))
+    {
+      const char_t* i = p + 1;
+      for(; String::isDigit(*i); ++i);
+      if(*i == '.' && String::isSpace(i[1]))
+      {
+        const char_t* end = i + remainingLine.length();
+        for(i += 2; i < end && String::isSpace(*i); ++i);
+        int_t childIndent = i - (const char_t*)line;
+        String numberStr;
+        OutputData::NumberedListSegment* numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
+        addSegment(*numberedListSegment);
+        offset = i - (const char_t*)line;
+        goto begin;
+      }
+    }
   }
 
   if(!segment)
@@ -356,6 +371,31 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
 
     listSegment->setParent(*this);
     siblingSegments.append(listSegment);
+    return true;
+  }
+  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
+  {
+    segment.setParent(*this);
+    childSegments.append(&segment);
+    return true;
+  }
+  return false;
+}
+
+bool_t OutputData::NumberedListSegment::merge(Segment& segment)
+{
+  NumberedListSegment* numebredListSegment = dynamic_cast<NumberedListSegment*>(&segment);
+  if(numebredListSegment && numebredListSegment->getIndent() == indent)
+  {
+    if(parent)
+    {
+      NumberedListSegment* parentNumberedListSegment = dynamic_cast<NumberedListSegment*>(parent);
+      if(parentNumberedListSegment && parentNumberedListSegment->getIndent() == indent)
+        return parentNumberedListSegment->merge(segment);
+    }
+
+    numebredListSegment->setParent(*this);
+    siblingSegments.append(numebredListSegment);
     return true;
   }
   if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))

@@ -1,3 +1,123 @@
+
+# Supported Markdown Features
+
+## Horizontal Rules
+
+```
+***
+```
+
+or
+
+```
+*******
+```
+
+or
+
+```
+***** * *
+```
+
+or
+
+```
+-------
+```
+
+or
+
+```
+---- ---
+```
+
+***
+
+## Bullet Lists
+
+```
+* item a
+* item b
+* item c
+```
+
+or
+
+```
++ item a
++ item b
++ item c
+```
+
+or
+
+```
+- item a
+- item b
+- item c
+```
+
+
+***
+
+- item a
+- item b
+- item c
+
+## Nested Bullet Lists
+
+```
+* item a
+  * subitem a
+  * subitem a
+* item b
+* item c
+```
+
+***
+
+* item a
+  * subitem a
+  * subitem a
+* item b
+* item c
+
+
+## Numbered Lists
+
+```
+1. item a
+2. item b
+3. item c
+```
+
+***
+
+1. item a
+2. item b
+3. item c
+
+
+## Nested Numbered Lists
+
+```
+1. item a
+   1. subitem a
+   2. subitem a
+2. item b
+3. item c
+```
+
+***
+
+1. item a
+   1. subitem a
+   2. subitem a
+2. item b
+3. item c
+
+
+
 Mare
 ====
 
@@ -44,6 +164,8 @@ A Marefile consists of three lists: "configurations", "targets" and "platforms".
 > Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 > 
 > daskjdslad
+
+> ******************
 
 > dajskdlsa
 
@@ -443,91 +565,3 @@ targets = {
   }
 }
 ```
-
-Translators
------------
-
-A Marefile can be translated into project files for Visual Studio, CodeLite, CodeBlocks and NetBeans and into build files for cmake and Make. However currently, these translators are not fully functional. Here is a brief overview over the current state of the development:
-<table>
-  <tr>
-    <td></td>
-    <td>mare&nbsp;1)</td>
-    <td>vcxproj</td>
-    <td>vcproj</td>
-    <td>make</td>
-    <td>codelite</td>
-    <td>codeblocks</td>
-    <td>cmake</td>
-    <td>netbeans</td>
-  </tr>
-  <tr>
-    <td>configurations</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works&nbsp;2)</td>
-    <td>works</td>
-  </tr>
-  <tr>
-    <td>platforms</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>?</td>
-    <td>?</td>
-    <td>works&nbsp;3)</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>{c,cpp}{Source,Application,DynamicLibrary,StaticLibrary}</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td>works</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>{c,cpp}Compiler</td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td>works</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>linker</td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>{build,clean,reBuild}Command</td>
-    <td></td>
-    <td>works</td>
-    <td></td>
-    <td></td>
-    <td>works</td>
-    <td>works</td>
-    <td></td>
-    <td>works</td>
-  </tr>
-</table>
-
-1) not a translator
-2) in single-configuration generators
-3) mapped to a configuration type
