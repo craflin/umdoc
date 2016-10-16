@@ -75,17 +75,17 @@ public:
     virtual bool_t merge(Segment& segment) {return false;}
   };
 
-  class ListSegment : public Segment
+  class BulletListSegment : public Segment
   {
   public:
-    ListSegment(int_t indent, char_t symbol, uint_t childIndent) : Segment(indent), symbol(symbol), childIndent(childIndent) {}
-    ~ListSegment();
+    BulletListSegment(int_t indent, char_t symbol, uint_t childIndent) : Segment(indent), symbol(symbol), childIndent(childIndent) {}
+    ~BulletListSegment();
     char_t getSymbol() const {return symbol;}
   public:
     virtual String generate() const;
     virtual bool_t merge(Segment& segment);
   private:
-    List<ListSegment*> siblingSegments;
+    List<BulletListSegment*> siblingSegments;
     List<Segment*> childSegments;
     char_t symbol;
     int_t childIndent;

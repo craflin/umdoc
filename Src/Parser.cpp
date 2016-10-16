@@ -199,9 +199,8 @@ begin:
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
-        segment = new OutputData::ListSegment(indent, '*', childIndent);
-        addSegment(*segment);
-        segment = 0;
+        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
+        addSegment(*listSegment);
         offset = i - (const char_t*)line;
         goto begin;
       }
@@ -234,9 +233,8 @@ begin:
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
-        segment = new OutputData::ListSegment(indent, '-', childIndent);
-        addSegment(*segment);
-        segment = 0;
+        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
+        addSegment(*listSegment);
         offset = i - (const char_t*)line;
         goto begin;
       }
@@ -250,7 +248,7 @@ begin:
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int_t childIndent = i - (const char_t*)line;
-        OutputData::ListSegment* listSegment = new OutputData::ListSegment(indent, '+', childIndent);
+        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
         addSegment(*listSegment);
         offset = i - (const char_t*)line;
         goto begin;
@@ -357,15 +355,15 @@ bool_t OutputData::SeparatorSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::ListSegment::merge(Segment& segment)
+bool_t OutputData::BulletListSegment::merge(Segment& segment)
 {
-  ListSegment* listSegment = dynamic_cast<ListSegment*>(&segment);
+  BulletListSegment* listSegment = dynamic_cast<BulletListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == indent && listSegment->getSymbol() == symbol)
   {
     if(parent)
     {
-      ListSegment* parentListSegment = dynamic_cast<ListSegment*>(parent);
-      if(parentListSegment && parentListSegment->getIndent() == indent && parentListSegment->getSymbol() == symbol)
+      BulletListSegment* parentListSegment = dynamic_cast<BulletListSegment*>(parent);
+      if(parentListSegment && parentListSegment->getIndent() == indent)
         return parentListSegment->merge(segment);
     }
 
@@ -384,18 +382,18 @@ bool_t OutputData::ListSegment::merge(Segment& segment)
 
 bool_t OutputData::NumberedListSegment::merge(Segment& segment)
 {
-  NumberedListSegment* numebredListSegment = dynamic_cast<NumberedListSegment*>(&segment);
-  if(numebredListSegment && numebredListSegment->getIndent() == indent)
+  NumberedListSegment* listSegment = dynamic_cast<NumberedListSegment*>(&segment);
+  if(listSegment && listSegment->getIndent() == indent)
   {
     if(parent)
     {
-      NumberedListSegment* parentNumberedListSegment = dynamic_cast<NumberedListSegment*>(parent);
-      if(parentNumberedListSegment && parentNumberedListSegment->getIndent() == indent)
-        return parentNumberedListSegment->merge(segment);
+      NumberedListSegment* parentListSegment = dynamic_cast<NumberedListSegment*>(parent);
+      if(parentListSegment && parentListSegment->getIndent() == indent)
+        return parentListSegment->merge(segment);
     }
 
-    numebredListSegment->setParent(*this);
-    siblingSegments.append(numebredListSegment);
+    listSegment->setParent(*this);
+    siblingSegments.append(listSegment);
     return true;
   }
   if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))

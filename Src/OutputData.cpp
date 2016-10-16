@@ -1,9 +1,9 @@
 
 #include "OutputData.h"
 
-OutputData::ListSegment::~ListSegment()
+OutputData::BulletListSegment::~BulletListSegment()
 {
-  for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  for(List<BulletListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
     delete *i;
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
     delete *i;

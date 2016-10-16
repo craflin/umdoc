@@ -264,7 +264,7 @@ String OutputData::RuleSegment::generate() const
   return String("\n\\fullrule\n");
 }
 
-String OutputData::ListSegment::generate() const
+String OutputData::BulletListSegment::generate() const
 {
   String result("\n\\begin{itemize}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -274,9 +274,9 @@ String OutputData::ListSegment::generate() const
       continue;
     result.append((*i)->generate());
   }
-  for(List<ListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  for(List<BulletListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
-    ListSegment* siblingSegment = *i;
+    BulletListSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("\\item ");
