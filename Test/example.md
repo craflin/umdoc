@@ -44,6 +44,10 @@ results in:
 This is an [example link](https://github.com/craflin/umdoc).
 ***
 
+## Code Spans
+
+Some text with code like `printf()`. Code span with backticks `` `test` ``.
+
 ## Bullet Lists
 
 Lines with asterisks (\*), pluses (\+), or hyphen (\-) are interpreted as bullet list items.

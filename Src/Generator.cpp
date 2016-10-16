@@ -199,6 +199,7 @@ String Generator::texEscape(const String& str)
   char_t c;
   String endSequence;
   List<String> endSequenceStack;
+  bool_t ignoreSingleBacktick = false;
   for(const char_t* start = str, * i = start, * end = start + str.length(); i < end;)
   {
     switch(c = *i)
@@ -221,31 +222,56 @@ String Generator::texEscape(const String& str)
             i += endSequence.length();
             continue;
           }
-
-          result.append("}");
-          i += endSequence.length();
-          if(endSequenceStack.isEmpty())
-            endSequence.clear();
-          else
-            endSequence = endSequenceStack.back(), endSequenceStack.removeBack();
-          continue;
         }
+
+        if(*(const char_t*)endSequence == '`')
+          while(!result.isEmpty() && String::find(" \t", ((const char_t*)result)[result.length() - 1]))
+            result.resize(result.length() - 1);
+
+        result.append("}");
+        i += endSequence.length();
+        if(endSequence == "``")
+          ignoreSingleBacktick = false;
+        if(endSequenceStack.isEmpty())
+          endSequence.clear();
+        else
+          endSequence = endSequenceStack.back(), endSequenceStack.removeBack();
+        continue;
       }
-      if(c == '*' || c == '_')
+      if(c == '*' || c == '_' || c == '`')
       {
         String sequence;
         sequence.attach(i, i[1] == c ? 2 : 1);
 
-        if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
-        { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-          for(size_t j = 0; j < sequence.length(); ++j)
-            result.append(texEscape(c));
-          i += sequence.length();
+        if(c == '*' || c == '_')
+        {
+          if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
+          { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
+            for(size_t j = 0; j < sequence.length(); ++j)
+              result.append(texEscape(c));
+            i += sequence.length();
+            continue;
+          }
+        }
+
+        if(c == '`' && ignoreSingleBacktick)
+        {
+          result.append(texEscape(c));
+          ++i;
           continue;
         }
 
-        result.append(sequence.length() == 2 ?  String("\\textbf{") : String("\\emph{"));
         i += sequence.length();
+        if(c == '`')
+        {
+          result.append("\\texttt{");
+          if(sequence.length() > 1)
+            ignoreSingleBacktick = true;
+          while(String::find(" \t", *i))
+            ++i;
+        }
+        else
+          result.append(sequence.length() == 2 ?  String("\\textbf{") : String("\\emph{"));
         if(!endSequence.isEmpty())
           endSequenceStack.append(endSequence);
         endSequence = sequence;
