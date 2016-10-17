@@ -1,6 +1,7 @@
 
 #include <nstd/Debug.h>
 #include <nstd/File.h>
+#include <nstd/Directory.h>
 #include <nstd/Error.h>
 
 #include "Generator.h"
@@ -8,30 +9,28 @@
 
 bool_t Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
+  this->outputData = &outputData;
+
   File file;
   if(!file.open(outputFile, File::writeFlag))
     return false;
 
   if(!outputData.className.isEmpty())
   {
-    if(!file.write(String("\\documentclass{") + outputData.className + "}\n"))
+    if(!file.write(String("\\documentclass{") + outputData.className + "}\n\n"))
       return false;
   }
   else
   {
-    if(!file.write(String("\\documentclass[a4paper]{article}\n")))
+    if(!file.write(String("\\documentclass[a4paper]{article}\n\n")))
       return false;
 
     if(engine == "pdflatex")
-      if(!file.write("\\usepackage[utf8]{inputenc}\n"))
+      if(!file.write("\\usepackage[utf8]{inputenc}\n\n"))
         return false;
 
-    if(!file.write("\\usepackage[english]{babel}\n"))
-       return false;
-
-    // change parindent and parskip
-    if(!file.write("\\setlength\\parindent{0pt}\n") ||
-       !file.write("\\setlength\\parskip{5pt}\n"))
+    // inword wrap for english
+    if(!file.write("\\usepackage[english]{babel}\n\n"))
        return false;
 
     // change page geometry
@@ -42,10 +41,10 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write(" right=25mm,\n") ||
        !file.write(" top=38mm,\n") ||
        !file.write(" bottom=25mm,\n") ||
-       !file.write("}\n"))
+       !file.write("}\n\n"))
        return false;
 
-    // we need hyperlinks in toc
+    // we need hyperlinks in toc and for \href
     if(!file.write("\\usepackage{hyperref}\n") ||
        !file.write("\\hypersetup{%\n") ||
        !file.write(" colorlinks,\n") ||
@@ -53,35 +52,39 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write(" filecolor=black,\n") ||
        !file.write(" linkcolor=black,\n") ||
        !file.write(" urlcolor=blue\n") ||
-       !file.write("}\n"))
+       !file.write("}\n\n"))
+       return false;
+
+    // package to include images
+    if(!file.write("\\usepackage{graphicx}\n\n"))
        return false;
 
     // customized enumerations
     if(!file.write("\\usepackage{enumitem}\n") ||
-       !file.write("\\setlist{topsep=0pt}\n"))
+       !file.write("\\setlist{topsep=0pt}\n\n"))
       return false;
 
     // customized blockquotes
-    if(!file.write("\\usepackage{quoting}\n"))
+    if(!file.write("\\usepackage{quoting}\n\n"))
       return false;
-
-    // change default font, you can overwrite this in your own own tex header file if you want
-    //if(!file.write("\\usepackage{sourcecodepro}\n") ||
-    //   !file.write("\\renewcommand*\\rmdefault{phv}\n"))
-    //   return false;
 
     // mordern fonts
     if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
-       !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n"))
+       !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n\n"))
+       return false;
+
+    // change parindent and parskip
+    if(!file.write("\\setlength\\parindent{0pt}\n") ||
+       !file.write("\\setlength\\parskip{5pt}\n\n"))
        return false;
 
     // command to insert a horizontal rule
-    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n"))
+    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n\n"))
       return false;
 
     // package to include pdf pages
     if(outputData.hasPdfSegments)
-      if(!file.write("\\usepackage{pdfpages}\n"))
+      if(!file.write("\\usepackage{pdfpages}\n\n"))
         return false;
   }
 
@@ -104,7 +107,7 @@ String Generator::getErrorString() const
   return Error::getErrorString();
 }
 
-String Generator::texEscape(char_t c)
+String Generator::texEscapeChar(char_t c)
 {
   switch(c)
   {
@@ -140,7 +143,7 @@ String Generator::texEscape(char_t c)
   }
 }
 
-bool Generator::matchInlineLink(const char_t* s, const char_t* end, const char_t*& pos, String& result)
+bool Generator::matchInlineLink(const char_t* s, const char_t* end, const OutputData& outputData, const char_t*& pos, String& result)
 {
   if(*s != '[')
     return false;
@@ -168,7 +171,41 @@ bool Generator::matchInlineLink(const char_t* s, const char_t* end, const char_t
   result.append("}{");
   String name;
   name.attach(nameStart, nameEnd - nameStart);
-  result.append(texEscape(name));
+  result.append(texEscape(name, outputData));
+  result.append("}");
+  pos = s;
+  return true;
+}
+
+bool Generator::matchInlineImage(const char_t* s, const char_t* end,const OutputData& outputData, const char_t*& pos, String& result)
+{
+  if(*s != '!')
+    return false;
+  if(*(++s) != '[')
+    return false;
+  while(*(++s) != ']')
+    if(++s >= end)
+      return false;
+  if(*(++s) != '(')
+    return false;
+  const char_t* pathStart = ++s;
+  const char_t* pathEnd = 0;
+  while(*s != ')')
+  {
+    if(*s == ' ' && !pathEnd)
+      pathEnd = s;
+    if(++s >= end)
+      return false;
+  }
+  if(!pathEnd)
+    pathEnd = s;
+  ++s;
+  String path;
+  path.attach(pathStart, pathEnd - pathStart);
+  if(!File::isAbsolutePath(path))
+    path = outputData.inputDirectory + "/" + path;
+  result.append("\\includegraphics{");
+  result.append(File::getRelativePath(outputData.outputDirectory, path));
   result.append("}");
   pos = s;
   return true;
@@ -193,7 +230,7 @@ String Generator::mardownUnescape(const String& str)
   return result;
 }
 */
-String Generator::texEscape(const String& str)
+String Generator::texEscape(const String& str, const OutputData& outputData)
 {
   String result(str.length());
   char_t c;
@@ -207,7 +244,7 @@ String Generator::texEscape(const String& str)
     case '\\':
       if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
         ++i;
-      result.append(texEscape(*i));
+      result.append(texEscapeChar(*i));
       ++i;
       break;
     default:
@@ -218,7 +255,7 @@ String Generator::texEscape(const String& str)
           if(String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < endSequence.length(); ++j)
-              result.append(texEscape(*(const char_t*)endSequence));
+              result.append(texEscapeChar(*(const char_t*)endSequence));
             i += endSequence.length();
             continue;
           }
@@ -248,7 +285,7 @@ String Generator::texEscape(const String& str)
           if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < sequence.length(); ++j)
-              result.append(texEscape(c));
+              result.append(texEscapeChar(c));
             i += sequence.length();
             continue;
           }
@@ -256,7 +293,7 @@ String Generator::texEscape(const String& str)
 
         if(c == '`' && ignoreSingleBacktick)
         {
-          result.append(texEscape(c));
+          result.append(texEscapeChar(c));
           ++i;
           continue;
         }
@@ -277,9 +314,11 @@ String Generator::texEscape(const String& str)
         endSequence = sequence;
         continue;
       }
-      if(matchInlineLink(i, end, i, result))
+      if(matchInlineLink(i, end, outputData, i, result))
         continue;
-      result.append(texEscape(c));
+      if(matchInlineImage(i, end, outputData, i, result))
+        continue;
+      result.append(texEscapeChar(c));
       ++i;
       break;
     }
@@ -302,39 +341,39 @@ String OutputData::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append(segment->generate());
+    result.append(segment->generate(*this));
   }
   return result;
 }
 
-String OutputData::SeparatorSegment::generate() const
+String OutputData::SeparatorSegment::generate(const OutputData& outputData) const
 {
   return String();
 }
 
-String OutputData::ParagraphSegment::generate() const
+String OutputData::ParagraphSegment::generate(const OutputData& outputData) const
 {
-  return String("\n") + Generator::texEscape(text) + "\n";
+  return String("\n") + Generator::texEscape(text, outputData) + "\n";
 }
 
-String OutputData::TitleSegment::generate() const
+String OutputData::TitleSegment::generate(const OutputData& outputData) const
 {
   switch(level)
   {
   case 1:
-    return String("\n\\section{") + Generator::texEscape(title) + "}\n";
+    return String("\n\\section{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 2:
-    return String("\n\\subsection{") + Generator::texEscape(title) + "}\n";
+    return String("\n\\subsection{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 3:
-    return String("\n\\subsubsection{") + Generator::texEscape(title) + "}\n";
+    return String("\n\\subsubsection{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 4:
-    return String("\n\\paragraph{") + Generator::texEscape(title) + "}\n";
+    return String("\n\\paragraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 5:
-    return String("\n\\subparagraph{") + Generator::texEscape(title) + "}\n";
+    return String("\n\\subparagraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   default:
     ASSERT(false);
@@ -342,12 +381,12 @@ String OutputData::TitleSegment::generate() const
   return String();
 }
 
-String OutputData::RuleSegment::generate() const
+String OutputData::RuleSegment::generate(const OutputData& outputData) const
 {
   return String("\n\\fullrule\n");
 }
 
-String OutputData::BulletListSegment::generate() const
+String OutputData::BulletListSegment::generate(const OutputData& outputData) const
 {
   String result("\n\\begin{itemize}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -355,7 +394,7 @@ String OutputData::BulletListSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generate(outputData));
   }
   for(List<BulletListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -368,14 +407,14 @@ String OutputData::BulletListSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generate(outputData));
     }
   }
   result.append("\\end{itemize}\n");
   return result;
 }
 
-String OutputData::NumberedListSegment::generate() const
+String OutputData::NumberedListSegment::generate(const OutputData& outputData) const
 {
   String result("\n\\begin{enumerate}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -383,7 +422,7 @@ String OutputData::NumberedListSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generate(outputData));
   }
   for(List<NumberedListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -396,7 +435,7 @@ String OutputData::NumberedListSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generate(outputData));
     }
   }
   result.append("\\end{enumerate}\n");
@@ -404,7 +443,7 @@ String OutputData::NumberedListSegment::generate() const
 
 }
 
-String OutputData::BlockquoteSegment::generate() const
+String OutputData::BlockquoteSegment::generate(const OutputData& outputData) const
 {
   String result("\n\\begin{quoting}\n");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -412,7 +451,7 @@ String OutputData::BlockquoteSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generate(outputData));
   }
   for(List<BlockquoteSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -424,14 +463,14 @@ String OutputData::BlockquoteSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generate(outputData));
     }
   }
   result.append("\n\\end{quoting}\n");
   return result;
 }
 
-String OutputData::CodeSegment::generate() const
+String OutputData::CodeSegment::generate(const OutputData& outputData) const
 {
   String result("\n\\begin{verbatim}\n");
   for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
@@ -443,22 +482,25 @@ String OutputData::CodeSegment::generate() const
   return result;
 }
 
-String OutputData::TexSegment::generate() const
+String OutputData::TexSegment::generate(const OutputData& outputData) const
 {
   return content + "\n";
 }
 
-String OutputData::TexTocSegment::generate() const
+String OutputData::TexTocSegment::generate(const OutputData& outputData) const
 {
   return String("\n\\pagestyle{empty}\n\\tableofcontents\n");
 }
 
-String OutputData::TexPartSegment::generate() const
+String OutputData::TexPartSegment::generate(const OutputData& outputData) const
 {
-  return String("\n\\clearpage\n\\part{") + Generator::texEscape(title) + "}\n";
+  return String("\n\\clearpage\n\\part{") + Generator::texEscape(title, outputData) + "}\n";
 }
 
-String OutputData::PdfSegment::generate() const
+String OutputData::PdfSegment::generate(const OutputData& outputData) const
 {
-  return String("\n\\includepdf[pages=-]{") + filePath + "}\n";
+  String path = filePath;
+  if(!File::isAbsolutePath(path))
+    path = outputData.inputDirectory + "/" + path;
+    return String("\n\\includepdf[pages=-]{") + File::getRelativePath(outputData.outputDirectory, path) + "}\n";
 }

@@ -26,6 +26,7 @@ public:
   };
 
 public:
+  String inputFile;
   String className;
   List<String> headerTexFiles;
   List<Component> document;

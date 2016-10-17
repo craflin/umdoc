@@ -1,4 +1,7 @@
 
+#include <nstd/File.h>
+#include <nstd/Directory.h>
+
 #include "Parser.h"
 #include "InputData.h"
 #include "OutputData.h"
@@ -32,9 +35,12 @@ public:
 Parser::Parser() : p(new Private) {}
 Parser::~Parser() {delete p;}
 
-bool_t Parser::parse(const InputData& inputData, OutputData& outputData)
+bool_t Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
 {
   p->outputData = &outputData;
+
+  outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
+  outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
   outputData.className = inputData.className;
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)

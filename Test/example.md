@@ -153,7 +153,11 @@ results in:
 2. item b
 3. item c
 
+## Inline Images
 
+***
+
+Text with inline an inline image like this ![](coffee.png).
 
 Mare
 ====

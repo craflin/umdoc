@@ -198,7 +198,7 @@ int_t main(int_t argc, char_t* argv[])
   // parse input data
   {
     Parser parser;
-    if(!parser.parse(inputData, outputData))
+    if(!parser.parse(inputData, tmpTexFile, outputData))
     {
       Console::errorf("%s:%d: error: %s\n", (const char_t*)parser.getErrorFile(), parser.getErrorLine(), (const char_t*)parser.getErrorString());
       return 1;

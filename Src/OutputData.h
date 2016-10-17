@@ -14,7 +14,7 @@ public:
 
   public:
     virtual ~Segment() {};
-    virtual String generate() const = 0;
+    virtual String generate(const OutputData& outputData) const = 0;
     virtual bool_t merge(Segment& segment) = 0;
 
     int_t getIndent() const {return indent;}
@@ -36,7 +36,7 @@ public:
     ParagraphSegment(int_t indent, const String& line) : Segment(indent), text(line) {}
     const String& getText() const {return text;}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment);
   private:
     String text;
@@ -47,7 +47,7 @@ public:
   public:
     TitleSegment(int_t indent, int_t level, const String& title) : Segment(indent), level(level), title(title) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     int_t level;
@@ -60,7 +60,7 @@ public:
     SeparatorSegment(int_t indent) : Segment(indent), lines(1) {}
     int_t getLines() const {return lines;}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment);
   private:
     int_t lines;
@@ -71,7 +71,7 @@ public:
   public:
     RuleSegment(int_t indent) : Segment(indent) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   };
 
@@ -82,7 +82,7 @@ public:
     ~BulletListSegment();
     char_t getSymbol() const {return symbol;}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment);
   private:
     List<BulletListSegment*> siblingSegments;
@@ -97,7 +97,7 @@ public:
     NumberedListSegment(int_t indent, uint_t number, uint_t childIndent) : Segment(indent), number(number), childIndent(childIndent) {}
     ~NumberedListSegment();
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment);
   private:
     List<NumberedListSegment*> siblingSegments;
@@ -112,7 +112,7 @@ public:
     BlockquoteSegment(int_t indent, uint_t childIndent) : Segment(indent), childIndent(childIndent) {}
     ~BlockquoteSegment();
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment);
   private:
     List<BlockquoteSegment*> siblingSegments;
@@ -127,7 +127,7 @@ public:
     void_t addLine(const String& line) {lines.append(line);}
     bool_t parseArguments(const String& line) {return true;}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     String language;
@@ -139,7 +139,7 @@ public:
   public:
     TexSegment(const String& content) : Segment(0), content(content) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     String content;
@@ -150,7 +150,7 @@ public:
   public:
     TexTocSegment() : Segment(0) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   };
 
@@ -159,7 +159,7 @@ public:
   public:
     TexPartSegment(const String& title) : Segment(0), title(title) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     String title;
@@ -170,13 +170,15 @@ public:
   public:
     PdfSegment(const String& filePath) : Segment(0), filePath(filePath) {}
   public:
-    virtual String generate() const;
+    virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
     String filePath;
   };
 
 public:
+  String inputDirectory;
+  String outputDirectory;
   String className;
   List<String> headerTexFiles;
   bool hasPdfSegments;
