@@ -157,7 +157,7 @@ results in:
 
 ***
 
-Text with inline an inline image like this ![](coffee.png).
+Text with inline an inline image like this ![](circle.png).
 
 Mare
 ====

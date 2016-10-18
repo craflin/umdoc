@@ -79,7 +79,11 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        return false;
 
     // command to insert a horizontal rule
-    if(!file.write("\\newcommand\\fullrule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n\n"))
+    if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n\n"))
+      return false;
+
+    // command to insert an image into text
+    if(!file.write("\\newcommand\\InlineImage[1]{\\raisebox{-0.1em}{\\includegraphics[height=0.9em]{#1}}}\n\n"))
       return false;
 
     // package to include pdf pages
@@ -204,7 +208,7 @@ bool Generator::matchInlineImage(const char_t* s, const char_t* end,const Output
   path.attach(pathStart, pathEnd - pathStart);
   if(!File::isAbsolutePath(path))
     path = outputData.inputDirectory + "/" + path;
-  result.append("\\includegraphics{");
+  result.append("\\InlineImage{");
   result.append(File::getRelativePath(outputData.outputDirectory, path));
   result.append("}");
   pos = s;
@@ -383,7 +387,7 @@ String OutputData::TitleSegment::generate(const OutputData& outputData) const
 
 String OutputData::RuleSegment::generate(const OutputData& outputData) const
 {
-  return String("\n\\fullrule\n");
+  return String("\n\\HorizontalRule\n");
 }
 
 String OutputData::BulletListSegment::generate(const OutputData& outputData) const
