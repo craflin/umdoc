@@ -125,7 +125,7 @@ public:
   public:
     CodeSegment(int_t indent) : Segment(indent) {}
     void_t addLine(const String& line) {lines.append(line);}
-    bool_t parseArguments(const String& line) {return true;}
+    bool_t parseArguments(const String& line);
   public:
     virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}

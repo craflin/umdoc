@@ -476,13 +476,17 @@ String OutputData::BlockquoteSegment::generate(const OutputData& outputData) con
 
 String OutputData::CodeSegment::generate(const OutputData& outputData) const
 {
-  String result("\n\\begin{verbatim}\n");
+  String environment = language;
+  if(environment.isEmpty())
+    environment = "verbatim";
+
+  String result(String("\n\\begin{") + environment + "}\n");
   for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
   {
     result.append(*i);
     result.append("\n");
   }
-  result.append("\\end{verbatim}\n");
+  result.append(String("\\end{") + environment + "}\n");
   return result;
 }
 

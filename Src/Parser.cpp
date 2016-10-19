@@ -435,3 +435,22 @@ bool_t OutputData::BlockquoteSegment::merge(Segment& segment)
   }
   return false;
 }
+
+bool_t OutputData::CodeSegment::parseArguments(const String& line)
+{
+  const char_t* start = line;
+  const char_t* end = start + line.length();
+  const char_t* i = start;
+  while(*i == '`')
+    ++i;
+  for(; i < end && String::isSpace(*i); ++i);
+  const char_t* languageStart = i;
+  for(; i < end && String::isAlpha(*i); ++i);
+  const char_t* languageEnd = i;
+  for(; i < end && String::isSpace(*i); ++i);
+
+  language = String(languageStart, languageEnd - languageStart);
+
+
+  return true;
+}
