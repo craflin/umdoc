@@ -114,7 +114,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 
     //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n\n"))
     //  return false;
-    if(!file.write("\\NewEnviron{latexexample}{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}}\n\n"))
+    if(!file.write("\\NewEnviron{latexexample}{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}\\vspace{3.3pt}}\n\n"))
       return false;
     //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{mdframed}[backgroundcolor=yellow!10]\\begin{minipage}{\\linewidth}}{\\end{minipage}\\end{mdframed}}\n\n"))
     //  return false;
