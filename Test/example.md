@@ -3,6 +3,8 @@
 
 ## Horizontal Rules
 
+Lines of asterisks (\*), hyphens (\-), or underscores (\-) are interpreted as a horizontal rule.
+
 ```
 ***
 ```
@@ -16,7 +18,7 @@ or
 or
 
 ```
-***** * *
+* * * * *
 ```
 
 or
@@ -28,12 +30,12 @@ or
 or
 
 ```
----- ---
+______
 ```
 
 results in:
 ```latexexample
-***
+___
 ```
 
 ## Inline Links
@@ -60,7 +62,7 @@ Some text with code like `printf()`. Code span with backticks `` `test` ``.
 
 ## Bullet Lists
 
-Lines with asterisks (\*), pluses (\+), or hyphen (\-) are interpreted as bullet list items.
+Lines starting with asterisk (\*), plus (\+), or hyphen (\-) are interpreted as bullet list items.
 
 ```
 * item a

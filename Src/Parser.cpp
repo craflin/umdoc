@@ -173,10 +173,6 @@ begin:
       for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
       if(i == end)
       {
-        if(parentParser)
-        {
-          int k = 42;
-        }
         segment = new OutputData::RuleSegment(indent);
         break;
       }
@@ -188,6 +184,18 @@ begin:
         addSegment(*listSegment);
         offset = i - (const char*)line;
         goto begin;
+      }
+    }
+    break;
+  case '_':
+    {
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
+      for(; i < end && (String::isSpace(*i) || *i == '_'); ++i);
+      if(i == end)
+      {
+        segment = new OutputData::RuleSegment(indent);
+        break;
       }
     }
     break;
