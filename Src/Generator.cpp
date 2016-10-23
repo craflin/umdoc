@@ -89,8 +89,15 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     // package to use colored fonts
     if(!file.write("\\usepackage{xcolor}\n") ||
        !file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
-       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n"))
+       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n\n"))
       return false;
+
+    // package for custom environments
+    if(!file.write("\\usepackage{environ}\n\n"))
+      return false;
+    //
+    //if(!file.write("\\usepackage{mdframed}\n\n"))
+    //  return false;
 
     // command to insert a horizontal rule
     if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\linewidth}{0.4pt}\\vspace{4pt}}\n\n"))
@@ -104,22 +111,12 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write("\\lstnewenvironment{plain}{\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n\n"))
       return false;
 
-    //if(!file.write("\\renewenvironment{plain}{"
-    //               "\\begin{lstlisting}[frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}]"
-    //               "}{"
-    //               "\\end{lstlisting}"
-    //               "}\n"))
+    //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n\n"))
     //  return false;
-
-    //if(!file.write("\\newenvironment{latexexample}{"
-    //               "\\minipage\\HorizontalRule"
-    //               "}{"
-    //               "\\HorizontalRule\\endminipage"
-    //               "}\n"))
-    //  return false;
-
-    if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n"))
+    if(!file.write("\\NewEnviron{latexexample}{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}}\n\n"))
       return false;
+    //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{mdframed}[backgroundcolor=yellow!10]\\begin{minipage}{\\linewidth}}{\\end{minipage}\\end{mdframed}}\n\n"))
+    //  return false;
 
     // package to include pdf pages
     if(outputData.hasPdfSegments)

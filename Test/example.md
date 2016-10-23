@@ -31,6 +31,7 @@ or
 ---- ---
 ```
 
+results in:
 ```latexexample
 ***
 ```
@@ -43,9 +44,9 @@ This is an [example link](https://github.com/craflin/umdoc).
 ```
 
 results in:
-***
+```latexexample
 This is an [example link](https://github.com/craflin/umdoc).
-***
+```
 
 ## Code Spans
 
@@ -78,11 +79,11 @@ or
 ```
 
 results in:
-***
+```latexexample
 - item a
 - item b
 - item c
-***
+```
 
 List items can have multiple paragraphs.
 
