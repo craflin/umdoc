@@ -25,6 +25,12 @@ OutputData::BlockquoteSegment::~BlockquoteSegment()
     delete *i;
 }
 
+OutputData::EnvironmentSegment::~EnvironmentSegment()
+{
+  for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+    delete *i;
+}
+
 OutputData::~OutputData()
 {
   for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)

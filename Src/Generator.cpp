@@ -78,12 +78,47 @@ bool_t Generator::generate(const String& engine, const OutputData& outputData, c
        !file.write("\\setlength\\parskip{5pt}\n\n"))
        return false;
 
+    // package insert graphics at the desired position
+    if(!file.write("\\usepackage{float}\n\n"))
+      return false;
+
+    // package for pretty code and preformated blocks
+    if(!file.write("\\usepackage{listings}\n\n"))
+      return false;
+
+    // package to use colored fonts
+    if(!file.write("\\usepackage{xcolor}\n") ||
+       !file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
+       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n"))
+      return false;
+
     // command to insert a horizontal rule
-    if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\textwidth}{0.4pt}\\vspace{4pt}}\n\n"))
+    if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\linewidth}{0.4pt}\\vspace{4pt}}\n\n"))
       return false;
 
     // command to insert an image into text
     if(!file.write("\\newcommand\\InlineImage[1]{\\raisebox{-0.1em}{\\includegraphics[height=0.9em]{#1}}}\n\n"))
+      return false;
+
+     
+    if(!file.write("\\lstnewenvironment{plain}{\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}}{}\n\n"))
+      return false;
+
+    //if(!file.write("\\renewenvironment{plain}{"
+    //               "\\begin{lstlisting}[frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}]"
+    //               "}{"
+    //               "\\end{lstlisting}"
+    //               "}\n"))
+    //  return false;
+
+    //if(!file.write("\\newenvironment{latexexample}{"
+    //               "\\minipage\\HorizontalRule"
+    //               "}{"
+    //               "\\HorizontalRule\\endminipage"
+    //               "}\n"))
+    //  return false;
+
+    if(!file.write("\\newenvironment{latexexample}{\\begin{minipage}{0.9\\textwidth}}{\\end{minipage}}\n"))
       return false;
 
     // package to include pdf pages
@@ -474,19 +509,38 @@ String OutputData::BlockquoteSegment::generate(const OutputData& outputData) con
   return result;
 }
 
-String OutputData::CodeSegment::generate(const OutputData& outputData) const
+String OutputData::EnvironmentSegment::generate(const OutputData& outputData) const
 {
   String environment = language;
   if(environment.isEmpty())
-    environment = "verbatim";
+    //environment = "verbatim";
+    environment = "plain";
 
-  String result(String("\n\\begin{") + environment + "}\n");
-  for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
+  String result;
+  result.append("\n\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\n");
+  result.append(String("\\begin{") + environment + "}\n");
+  //String result(String("\\begin{lstlisting}[frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{white},rulecolor=\\color{white}]\n"));
+  if(verbatim)
   {
-    result.append(*i);
-    result.append("\n");
+    for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
+    {
+      result.append(*i);
+      result.append("\n");
+    }
+  }
+  else
+  {
+    for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+    {
+      const Segment* segment = *i;
+      if(!segment->isValid())
+        continue;
+      result.append(segment->generate(outputData));
+    }
   }
   result.append(String("\\end{") + environment + "}\n");
+  result.append("\\end{minipage}\n");
+  //result.append("\\end{lstlisting}");
   return result;
 }
 

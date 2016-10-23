@@ -17,10 +17,12 @@ public:
       texPartType,
       pdfType,
       mdType,
+      environmentType,
     };
 
   public:
     Type type;
+    String name;
     String filePath;
     String content;
   };

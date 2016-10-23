@@ -12,19 +12,35 @@ public:
   enum ParserMode
   {
     normalMode,
-    codeMode,
+    environmentMode,
+    childMode,
+    verbatimMode,
+  };
+
+  class Error
+  {
+  public:
+    String file;
+    int_t line;
+    String string;
+
+  public:
+    Error() : line(0) {}
   };
 
 public:
   ParserMode parserMode;
   OutputData* outputData;
-  String errorFile;
-  int_t errorLine;
-  String errorString;
+  Error error;
+  List<OutputData::Segment*> outputSegments;
   List<OutputData::Segment*> segments;
+  Private* environmentParser;
+  Private* parentParser;
 
 public:
-  Private() : parserMode(normalMode), errorLine(0) {}
+  Private() : parserMode(normalMode), outputData(0), environmentParser(0), parentParser(0) {}
+  Private(Private* parentParser) : parserMode(childMode), outputData(0), environmentParser(0), parentParser(parentParser) {}
+  ~Private();
 
   void_t addSegment(OutputData::Segment& segment);
 
@@ -32,78 +48,15 @@ public:
   bool_t parseMarkdownLine(const String& line, size_t offset);
 };
 
-Parser::Parser() : p(new Private) {}
-Parser::~Parser() {delete p;}
-
-bool_t Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
+Parser::Private::~Private()
 {
-  p->outputData = &outputData;
-
-  outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
-  outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
-  outputData.className = inputData.className;
-
-  for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
-    outputData.headerTexFiles.append(*i);
-
-  for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
-  {
-    const InputData::Component& component = *i;
-    switch(component.type)
-    {
-    case InputData::Component::texType:
-      outputData.segments.append(new OutputData::TexSegment(component.content));
-      break;
-    case InputData::Component::texTocType:
-      outputData.segments.append(new OutputData::TexTocSegment);
-      break;
-    case InputData::Component::texPartType:
-      outputData.segments.append(new OutputData::TexPartSegment(component.content));
-      break;
-    case InputData::Component::pdfType:
-      outputData.segments.append(new OutputData::PdfSegment(component.filePath));
-      outputData.hasPdfSegments = true;
-      break;
-    case InputData::Component::mdType:
-      p->segments.clear();
-      if(!p->parseMarkdown(component.filePath, component.content))
-        return false;
-      break;
-    }
-  }
-  return true;
+  delete environmentParser;
+  for(List<OutputData::Segment*>::Iterator i = outputSegments.begin(), end = outputSegments.end(); i != end; ++i)
+    delete *i;
 }
-
-String Parser::getErrorFile() const {return p->errorFile;}
-int_t Parser::getErrorLine() const {return p->errorLine;}
-String Parser::getErrorString() const {return p->errorString;}
 
 void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
 {
-  /*
-  if(segments.size() >= 2 && dynamic_cast<OutputData::ListSegment*>(&newSegment))
-  {
-    OutputData::SeparatorSegment* separatorSegment = dynamic_cast<OutputData::SeparatorSegment*>(segments.back());
-    if(separatorSegment && separatorSegment->getLines() == 1)
-    {
-      OutputData::ListSegment* listSegment = dynamic_cast<OutputData::ListSegment* >((*(--(--segments.end())))->getParent());
-      if(listSegment && listSegment->merge(newSegment))
-      {
-        separatorSegment->invalidate();
-        segments.removeBack();
-
-        if(!segments.back()->isValid())
-          segments.removeBack();
-        if(newSegment.isValid())
-          segments.append(&newSegment);
-        else
-          delete &newSegment;
-        return;
-      }
-    }
-  }
-  */
-
   if(!segments.isEmpty())
   {
     OutputData::Segment* lastSegment = segments.back();
@@ -131,12 +84,19 @@ void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
     }
   }
 
-  outputData->segments.append(&newSegment);
+  outputSegments.append(&newSegment);
   segments.append(&newSegment);
 }
 
 bool_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
 {
+  if(parserMode == environmentMode)
+  {
+    if(!environmentParser->parseMarkdownLine(line, offset))
+      return error = environmentParser->error, false;
+    return true;
+  }
+
 begin:
   int_t indent = 0;
   OutputData::Segment* segment = 0;
@@ -146,13 +106,28 @@ begin:
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char_t*)line));
 
-  if(parserMode == codeMode)
+  if(parserMode != normalMode)
   {
     if(String::compare(p, "```", 3) == 0)
-      parserMode = normalMode;
-    else
-      ((OutputData::CodeSegment*)segments.back())->addLine(line);
-    return true;
+    {
+      if(parserMode == childMode)
+      {
+        OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)parentParser->segments.back();
+        parentSegment->swapSegments(outputSegments);
+        parentParser->environmentParser = 0;
+        parentParser->parserMode = normalMode;
+        delete this;
+      }
+      else
+        parserMode = normalMode;
+      return true;
+    }
+    else if(parserMode == verbatimMode)
+    {
+      OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)segments.back();
+      environmentSegment->addLine(line);
+      return true;
+    }
   }
 
   switch(*p)
@@ -198,6 +173,10 @@ begin:
       for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
       if(i == end)
       {
+        if(parentParser)
+        {
+          int k = 42;
+        }
         segment = new OutputData::RuleSegment(indent);
         break;
       }
@@ -264,11 +243,20 @@ begin:
   case '`':
     if(String::compare(p + 1, "``", 2) == 0)
     {
-      OutputData::CodeSegment* codeSegment = new OutputData::CodeSegment(indent);
-      if(!codeSegment->parseArguments(remainingLine))
+      OutputData::EnvironmentSegment* environmentSegment = new OutputData::EnvironmentSegment(indent);
+      if(!environmentSegment->parseArguments(remainingLine, outputData->environments, error.string))
+      {
+        delete environmentSegment;
         return false;
-      segment = codeSegment;
-      parserMode = codeMode;
+      }
+      segment = environmentSegment;
+      if(environmentSegment->isVerbatim())
+        parserMode = verbatimMode;
+      else
+      {
+        environmentParser = new Private(this);
+        parserMode = environmentMode;
+      }
       break;
     }
     break;
@@ -316,8 +304,8 @@ bool_t Parser::Private::parseMarkdown(const String& filePath, const String& file
 {
   int_t line = 1;
   String lineStr;
-  errorFile = filePath;
-  errorLine = 1;
+  error.file = filePath;
+  error.line = 1;
   for(const char_t* p = fileContent, * end; *p; (p = end), ++line)
   {
     end = String::findOneOf(p, "\r\n");
@@ -332,7 +320,7 @@ bool_t Parser::Private::parseMarkdown(const String& filePath, const String& file
       ++end;
     if(*end)
       ++end;
-    ++errorLine;
+    ++error.line;
   }
   return true;
 }
@@ -436,7 +424,7 @@ bool_t OutputData::BlockquoteSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::CodeSegment::parseArguments(const String& line)
+bool_t OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, bool_t>& knownEnvironments, String& error)
 {
   const char_t* start = line;
   const char_t* end = start + line.length();
@@ -451,6 +439,72 @@ bool_t OutputData::CodeSegment::parseArguments(const String& line)
 
   language = String(languageStart, languageEnd - languageStart);
 
+  if(!language.isEmpty())
+  {
+    language.toLowerCase();
+    HashMap<String, bool_t>::Iterator it = knownEnvironments.find(language);
+    if(it == knownEnvironments.end())
+    {
+      error = String("Unknown environment '") + language + "'";
+      return false;
+    }
+    verbatim = *it;
+  }
 
   return true;
 }
+
+Parser::Parser() : p(new Private) {}
+Parser::~Parser() {delete p;}
+
+bool_t Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
+{
+  p->outputData = &outputData;
+
+  outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
+  outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
+  outputData.className = inputData.className;
+
+  for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
+    outputData.headerTexFiles.append(*i);
+
+  if(outputData.className.isEmpty())
+  {
+    outputData.environments.append("latexexample", false);
+  }
+
+  for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
+  {
+    const InputData::Component& component = *i;
+    switch(component.type)
+    {
+    case InputData::Component::texType:
+      p->outputSegments.append(new OutputData::TexSegment(component.content));
+      break;
+    case InputData::Component::texTocType:
+      p->outputSegments.append(new OutputData::TexTocSegment);
+      break;
+    case InputData::Component::texPartType:
+      p->outputSegments.append(new OutputData::TexPartSegment(component.content));
+      break;
+    case InputData::Component::pdfType:
+      p->outputSegments.append(new OutputData::PdfSegment(component.filePath));
+      outputData.hasPdfSegments = true;
+      break;
+    case InputData::Component::mdType:
+      p->segments.clear();
+      if(!p->parseMarkdown(component.filePath, component.content))
+        return false;
+      break;
+    case InputData::Component::environmentType:
+      //outputData.environments.append(component.name, component.content.toBool())
+      break;
+    }
+  }
+  outputData.segments.swap(p->outputSegments);
+  return true;
+}
+
+String Parser::getErrorFile() const {return p->error.file;}
+int_t Parser::getErrorLine() const {return p->error.line;}
+String Parser::getErrorString() const {return p->error.string;}

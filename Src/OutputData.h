@@ -3,6 +3,7 @@
 
 #include <nstd/String.h>
 #include <nstd/List.h>
+#include <nstd/HashMap.h>
 
 class OutputData
 {
@@ -120,18 +121,23 @@ public:
     int_t childIndent;
   };
 
-  class CodeSegment : public Segment
+  class EnvironmentSegment : public Segment
   {
   public:
-    CodeSegment(int_t indent) : Segment(indent) {}
+    EnvironmentSegment(int_t indent) : Segment(indent), verbatim(true) {}
+    ~EnvironmentSegment();
     void_t addLine(const String& line) {lines.append(line);}
-    bool_t parseArguments(const String& line);
+    bool_t parseArguments(const String& line, const HashMap<String, bool_t>& knownEnvironments, String& error);
+    bool_t isVerbatim() const {return verbatim;}
+    void_t swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
     virtual String generate(const OutputData& outputData) const;
     virtual bool_t merge(Segment& segment) {return false;}
   private:
+    bool_t verbatim;
     String language;
     List<String> lines;
+    List<Segment*> segments;
   };
 
   class TexSegment : public Segment
@@ -183,6 +189,7 @@ public:
   List<String> headerTexFiles;
   bool hasPdfSegments;
   List<Segment*> segments;
+  HashMap<String, bool_t> environments;
 
 public:
   OutputData() : hasPdfSegments(false) {}

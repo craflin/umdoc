@@ -31,7 +31,10 @@ or
 ---- ---
 ```
 
+```latexexample
 ***
+```
+
 
 ## Inline Links
 

@@ -71,7 +71,7 @@ static bool_t latex2pdf(const String& texFile, const String& engine, const Strin
             else
             {
               String line = bufferedLine + unhandledData.substr(0, lineLen);
-              if(line.find("Rerun to get"))
+              if(line.find("Rerun to get") || line.find("run LaTeX again"))
                 rerun = true;
 
               Console::print(line + "\n");

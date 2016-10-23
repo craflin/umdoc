@@ -82,6 +82,13 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
           component.type = InputData::Component::texPartType;
           component.content = *element.attributes.find("title");
         }
+        else if(element.type == "environment")
+        {
+          InputData::Component& component = inputData.document.append(InputData::Component());
+          component.type = InputData::Component::environmentType;
+          component.name = *element.attributes.find("name");
+          component.content = *element.attributes.find("verbatim");
+        }
         else
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
       }
