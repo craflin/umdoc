@@ -12,10 +12,10 @@ public:
   Parser();
   ~Parser();
 
-  bool_t parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
+  bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
 
   String getErrorFile() const;
-  int_t getErrorLine() const;
+  int getErrorLine() const;
   String getErrorString() const;
 
 private:

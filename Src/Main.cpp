@@ -11,7 +11,7 @@
 #include "Parser.h"
 #include "Generator.h"
 
-static bool_t latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
+static bool latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
 {
   String tocFile;
   String auxFile;
@@ -47,10 +47,10 @@ static bool_t latex2pdf(const String& texFile, const String& engine, const Strin
 
     // Now, lets try to unfuck lualatex's output:
 
-    char_t buffer[32 * 1024];
+    char buffer[32 * 1024];
     String unhandledData;
     String bufferedLine;
-    for(ssize_t i;;)
+    for(ssize i;;)
       switch((i = process.read(buffer, sizeof(buffer))))
       {
       case -1:
@@ -62,7 +62,7 @@ static bool_t latex2pdf(const String& texFile, const String& engine, const Strin
 
         for(;;)
         {
-          const char_t* lineEnd = unhandledData.findOneOf("\r\n");
+          const char* lineEnd = unhandledData.findOneOf("\r\n");
           if(lineEnd)
           {
             size_t lineLen = lineEnd - unhandledData;
@@ -103,7 +103,7 @@ static bool_t latex2pdf(const String& texFile, const String& engine, const Strin
   return true;
 }
 
-int_t main(int_t argc, char_t* argv[])
+int main(int argc, char* argv[])
 {
   String inputFile("umdoc.xml");
   String outputFile;
@@ -118,7 +118,7 @@ int_t main(int_t argc, char_t* argv[])
         {'a', "aux-directory", Process::argumentFlag},
     };
     Process::Arguments arguments(argc, argv, options);
-    int_t character;
+    int character;
     String argument;
     while(arguments.read(character, argument))
       switch(character)
@@ -133,10 +133,10 @@ int_t main(int_t argc, char_t* argv[])
         auxDirectory = argument;
         break;
       case '?':
-        Console::errorf("Unknown option: %s.\n", (const char_t*)argument);
+        Console::errorf("Unknown option: %s.\n", (const char*)argument);
         return 1;
       case ':':
-        Console::errorf("Option %s required an argument.\n", (const char_t*)argument);
+        Console::errorf("Option %s required an argument.\n", (const char*)argument);
         return 1;
       case '\0':
         inputFile = argument;
@@ -149,7 +149,7 @@ int_t main(int_t argc, char_t* argv[])
 
   if(outputFile.isEmpty())
   {
-    const tchar_t* end = inputFile.findLastOf("\\/.");
+    const tchar* end = inputFile.findLastOf("\\/.");
     if(end && *end == '.')
       outputFile = inputFile.substr(0, end - inputFile) + ".pdf";
     else
@@ -158,7 +158,7 @@ int_t main(int_t argc, char_t* argv[])
 
   if(auxDirectory.isEmpty())
   {
-    const tchar_t* end = outputFile.findLastOf("\\/.");
+    const tchar* end = outputFile.findLastOf("\\/.");
     if(end && *end == '.')
       auxDirectory = outputFile.substr(0, end - outputFile);
     else
@@ -167,7 +167,7 @@ int_t main(int_t argc, char_t* argv[])
 
   if(!Directory::exists(auxDirectory) && !Directory::create(auxDirectory))
   {
-    Console::errorf("%s: error: %s\n", (const char_t*)auxDirectory, (const char_t*)Error::getErrorString());
+    Console::errorf("%s: error: %s\n", (const char*)auxDirectory, (const char*)Error::getErrorString());
     return 1;
   }
 
@@ -175,7 +175,7 @@ int_t main(int_t argc, char_t* argv[])
   String tmpPdfFile;
   {
     String inputFileBasename = File::basename(inputFile);
-    const tchar_t* end = inputFileBasename.findLast('.');
+    const tchar* end = inputFileBasename.findLast('.');
     if(end)
       inputFileBasename = inputFileBasename.substr(0, end - inputFileBasename);
     tmpTexFile = auxDirectory + "/" + inputFileBasename + ".tex";
@@ -190,7 +190,7 @@ int_t main(int_t argc, char_t* argv[])
     Reader reader;
     if(!reader.read(inputFile, inputData))
     {
-      Console::errorf("%s:%d:%d: error: %s\n", (const char_t*)inputFile, reader.getErrorLine(), reader.getErrorColumn(), (const char_t*)reader.getErrorString());
+      Console::errorf("%s:%d:%d: error: %s\n", (const char*)inputFile, reader.getErrorLine(), reader.getErrorColumn(), (const char*)reader.getErrorString());
       return 1;
     }
   }
@@ -200,7 +200,7 @@ int_t main(int_t argc, char_t* argv[])
     Parser parser;
     if(!parser.parse(inputData, tmpTexFile, outputData))
     {
-      Console::errorf("%s:%d: error: %s\n", (const char_t*)parser.getErrorFile(), parser.getErrorLine(), (const char_t*)parser.getErrorString());
+      Console::errorf("%s:%d: error: %s\n", (const char*)parser.getErrorFile(), parser.getErrorLine(), (const char*)parser.getErrorString());
       return 1;
     }
   }
@@ -210,7 +210,7 @@ int_t main(int_t argc, char_t* argv[])
     Generator generator;
     if(!generator.generate(engine, outputData, tmpTexFile))
     {
-      Console::errorf("%s: error: %s\n", (const char_t*)tmpTexFile, (const char_t*)generator.getErrorString());
+      Console::errorf("%s: error: %s\n", (const char*)tmpTexFile, (const char*)generator.getErrorString());
       return 1;
     }
   }
@@ -227,14 +227,14 @@ int_t main(int_t argc, char_t* argv[])
     if(!pdfFile.open(tmpPdfFile) ||
        !pdfFile.readAll(pdfData))
     {
-      Console::errorf("%s: error: %s\n", (const char_t*)tmpPdfFile, (const char_t*)Error::getErrorString());
+      Console::errorf("%s: error: %s\n", (const char*)tmpPdfFile, (const char*)Error::getErrorString());
       return 1;
     }
     File file;
     if(!file.open(outputFile, File::writeFlag) ||
        !file.write(pdfData))
     {
-      Console::errorf("%s: error: %s\n", (const char_t*)outputFile, (const char_t*)Error::getErrorString());
+      Console::errorf("%s: error: %s\n", (const char*)outputFile, (const char*)Error::getErrorString());
       return 1;
     }
   }

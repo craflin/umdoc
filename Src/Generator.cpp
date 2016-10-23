@@ -7,7 +7,7 @@
 #include "Generator.h"
 #include "OutputData.h"
 
-bool_t Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
+bool Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
   this->outputData = &outputData;
 
@@ -146,7 +146,7 @@ String Generator::getErrorString() const
   return Error::getErrorString();
 }
 
-String Generator::texEscapeChar(char_t c)
+String Generator::texEscapeChar(char c)
 {
   switch(c)
   {
@@ -182,19 +182,19 @@ String Generator::texEscapeChar(char_t c)
   }
 }
 
-bool Generator::matchInlineLink(const char_t* s, const char_t* end, const OutputData& outputData, const char_t*& pos, String& result)
+bool Generator::matchInlineLink(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result)
 {
   if(*s != '[')
     return false;
-  const char_t* nameStart = ++s;
+  const char* nameStart = ++s;
   while(*s != ']')
     if(++s >= end)
       return false;
-  const char_t* nameEnd = s++;
+  const char* nameEnd = s++;
   if(*s != '(')
     return false;
-  const char_t* linkStart = ++s;
-  const char_t* linkEnd = 0;
+  const char* linkStart = ++s;
+  const char* linkEnd = 0;
   while(*s != ')')
   {
     if(*s == ' ' && !linkEnd)
@@ -216,7 +216,7 @@ bool Generator::matchInlineLink(const char_t* s, const char_t* end, const Output
   return true;
 }
 
-bool Generator::matchInlineImage(const char_t* s, const char_t* end,const OutputData& outputData, const char_t*& pos, String& result)
+bool Generator::matchInlineImage(const char* s, const char* end,const OutputData& outputData, const char*& pos, String& result)
 {
   if(*s != '!')
     return false;
@@ -227,8 +227,8 @@ bool Generator::matchInlineImage(const char_t* s, const char_t* end,const Output
       return false;
   if(*(++s) != '(')
     return false;
-  const char_t* pathStart = ++s;
-  const char_t* pathEnd = 0;
+  const char* pathStart = ++s;
+  const char* pathEnd = 0;
   while(*s != ')')
   {
     if(*s == ' ' && !pathEnd)
@@ -252,13 +252,13 @@ bool Generator::matchInlineImage(const char_t* s, const char_t* end,const Output
 /*
 String Generator::mardownUnescape(const String& str)
 {
-  const char_t* start = str;
-  const char_t* i = String::find(start, '\\');
+  const char* start = str;
+  const char* i = String::find(start, '\\');
   if(!i)
     return str;
   String result(str.length());
   result.append(str.substr(0, i - start));
-  const char_t* end = start + str.length();
+  const char* end = start + str.length();
   for(; i < end; ++i)
     if(*i == '\\')
     {
@@ -272,11 +272,11 @@ String Generator::mardownUnescape(const String& str)
 String Generator::texEscape(const String& str, const OutputData& outputData)
 {
   String result(str.length());
-  char_t c;
+  char c;
   String endSequence;
   List<String> endSequenceStack;
-  bool_t ignoreSingleBacktick = false;
-  for(const char_t* start = str, * i = start, * end = start + str.length(); i < end;)
+  bool ignoreSingleBacktick = false;
+  for(const char* start = str, * i = start, * end = start + str.length(); i < end;)
   {
     switch(c = *i)
     {
@@ -289,19 +289,19 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
     default:
       if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
       {
-        if(*(const char_t*)endSequence == '*' || *(const char_t*)endSequence == '_')
+        if(*(const char*)endSequence == '*' || *(const char*)endSequence == '_')
         {
           if(String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < endSequence.length(); ++j)
-              result.append(texEscapeChar(*(const char_t*)endSequence));
+              result.append(texEscapeChar(*(const char*)endSequence));
             i += endSequence.length();
             continue;
           }
         }
 
-        if(*(const char_t*)endSequence == '`')
-          while(!result.isEmpty() && String::find(" \t", ((const char_t*)result)[result.length() - 1]))
+        if(*(const char*)endSequence == '`')
+          while(!result.isEmpty() && String::find(" \t", ((const char*)result)[result.length() - 1]))
             result.resize(result.length() - 1);
 
         result.append("}");

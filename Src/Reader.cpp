@@ -6,7 +6,7 @@
 #include "Reader.h"
 #include "InputData.h"
 
-bool_t Reader::read(const String& inputFile, InputData& inputData)
+bool Reader::read(const String& inputFile, InputData& inputData)
 {
   // todo: if inputFile.endsWitdh(".md") skip xml stuff
 
@@ -30,7 +30,7 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
       continue;
     const XML::Element& element = variant.toElement();
     if(documentRead)
-      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
+      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
 
     if(element.type == "tex")
     {
@@ -38,10 +38,10 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
       File file;
       String data;
       if(!file.open(filePath))
-        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char_t*)filePath, (const char_t*)Error::getErrorString()), false;
+        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
 
       if(!file.readAll(data))
-        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char_t*)filePath, (const char_t*)Error::getErrorString()), false;
+        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
 
       inputData.headerTexFiles.append(data);
     }
@@ -60,10 +60,10 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
           component.filePath = *element.attributes.find("file");
           File file;
           if(!file.open(component.filePath))
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char_t*)component.filePath, (const char_t*)Error::getErrorString()), false;
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
 
           if(!file.readAll(component.content))
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char_t*)component.filePath, (const char_t*)Error::getErrorString()), false;
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
         }
         else if(element.type == "toc")
         {
@@ -90,12 +90,12 @@ bool_t Reader::read(const String& inputFile, InputData& inputData)
           component.content = *element.attributes.find("verbatim");
         }
         else
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
+            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
       }
       documentRead = true;
     }
     else
-      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char_t*)element.type), false;
+      return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
   }
 
   return true;

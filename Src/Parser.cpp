@@ -21,7 +21,7 @@ public:
   {
   public:
     String file;
-    int_t line;
+    int line;
     String string;
 
   public:
@@ -42,10 +42,10 @@ public:
   Private(Private* parentParser) : parserMode(childMode), outputData(0), environmentParser(0), parentParser(parentParser) {}
   ~Private();
 
-  void_t addSegment(OutputData::Segment& segment);
+  void addSegment(OutputData::Segment& segment);
 
-  bool_t parseMarkdown(const String& filePath, const String& fileContent);
-  bool_t parseMarkdownLine(const String& line, size_t offset);
+  bool parseMarkdown(const String& filePath, const String& fileContent);
+  bool parseMarkdownLine(const String& line, size_t offset);
 };
 
 Parser::Private::~Private()
@@ -55,7 +55,7 @@ Parser::Private::~Private()
     delete *i;
 }
 
-void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
+void Parser::Private::addSegment(OutputData::Segment& newSegment)
 {
   if(!segments.isEmpty())
   {
@@ -88,7 +88,7 @@ void_t Parser::Private::addSegment(OutputData::Segment& newSegment)
   segments.append(&newSegment);
 }
 
-bool_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
+bool Parser::Private::parseMarkdownLine(const String& line, size_t offset)
 {
   if(parserMode == environmentMode)
   {
@@ -98,13 +98,13 @@ bool_t Parser::Private::parseMarkdownLine(const String& line, size_t offset)
   }
 
 begin:
-  int_t indent = 0;
+  int indent = 0;
   OutputData::Segment* segment = 0;
-  const char_t* p = line;
+  const char* p = line;
   for(p += offset; *p == ' '; ++p);
-  indent = p - (const char_t*)line;
+  indent = p - (const char*)line;
   String remainingLine;
-  remainingLine.attach(p, line.length() - (p - (const char_t*)line));
+  remainingLine.attach(p, line.length() - (p - (const char*)line));
 
   if(parserMode != normalMode)
   {
@@ -134,15 +134,15 @@ begin:
   {
   case '#':
     {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
       for(; *i == '#'; ++i);
       if(i < end && String::isSpace(*i))
       {
-        int_t titleLevel = i - ( const char_t*)remainingLine;
+        int titleLevel = i - ( const char*)remainingLine;
         ++i;
         String title;
-        title.attach(i, remainingLine.length() - (i - (const char_t*)remainingLine));
+        title.attach(i, remainingLine.length() - (i - (const char*)remainingLine));
         segment = new OutputData::TitleSegment(indent, titleLevel, title);
         break;
       }
@@ -150,8 +150,8 @@ begin:
     break;
   case '=':
     {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
       for(; i < end && *i == '='; ++i);
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
@@ -168,8 +168,8 @@ begin:
     break;
   case '*':
     {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
       for(; i < end && (String::isSpace(*i) || *i == '*'); ++i);
       if(i == end)
       {
@@ -183,18 +183,18 @@ begin:
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int_t childIndent = i - (const char_t*)line;
+        int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char_t*)line;
+        offset = i - (const char*)line;
         goto begin;
       }
     }
     break;
   case '-':
     {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
       for(; i < end && *i == '-'; ++i);
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
@@ -217,25 +217,25 @@ begin:
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int_t childIndent = i - (const char_t*)line;
+        int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char_t*)line;
+        offset = i - (const char*)line;
         goto begin;
       }
     }
     break;
   case '+':
     {
-      const char_t* i = remainingLine;
-      const char_t* end = i + remainingLine.length();
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int_t childIndent = i - (const char_t*)line;
+        int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char_t*)line;
+        offset = i - (const char*)line;
         goto begin;
       }
     }
@@ -265,7 +265,7 @@ begin:
     {
       OutputData::BlockquoteSegment* blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
       addSegment(*blockquoteSegment);
-      offset = p + 2 - (const char_t*)line;
+      offset = p + 2 - (const char*)line;
       goto begin;
     }
     break;
@@ -277,17 +277,17 @@ begin:
   default:;
     if(String::isDigit(*p))
     {
-      const char_t* i = p + 1;
+      const char* i = p + 1;
       for(; String::isDigit(*i); ++i);
       if(*i == '.' && String::isSpace(i[1]))
       {
-        const char_t* end = i + remainingLine.length();
+        const char* end = i + remainingLine.length();
         for(i += 2; i < end && String::isSpace(*i); ++i);
-        int_t childIndent = i - (const char_t*)line;
+        int childIndent = i - (const char*)line;
         String numberStr;
         OutputData::NumberedListSegment* numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
         addSegment(*numberedListSegment);
-        offset = i - (const char_t*)line;
+        offset = i - (const char*)line;
         goto begin;
       }
     }
@@ -300,13 +300,13 @@ begin:
   return true;
 }
 
-bool_t Parser::Private::parseMarkdown(const String& filePath, const String& fileContent)
+bool Parser::Private::parseMarkdown(const String& filePath, const String& fileContent)
 {
-  int_t line = 1;
+  int line = 1;
   String lineStr;
   error.file = filePath;
   error.line = 1;
-  for(const char_t* p = fileContent, * end; *p; (p = end), ++line)
+  for(const char* p = fileContent, * end; *p; (p = end), ++line)
   {
     end = String::findOneOf(p, "\r\n");
     if(!end)
@@ -325,7 +325,7 @@ bool_t Parser::Private::parseMarkdown(const String& filePath, const String& file
   return true;
 }
 
-bool_t OutputData::ParagraphSegment::merge(Segment& segment)
+bool OutputData::ParagraphSegment::merge(Segment& segment)
 {
   ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
   if(paragraphSegment && paragraphSegment->getIndent() == getIndent())
@@ -338,7 +338,7 @@ bool_t OutputData::ParagraphSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::SeparatorSegment::merge(Segment& segment)
+bool OutputData::SeparatorSegment::merge(Segment& segment)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
@@ -349,7 +349,7 @@ bool_t OutputData::SeparatorSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::BulletListSegment::merge(Segment& segment)
+bool OutputData::BulletListSegment::merge(Segment& segment)
 {
   BulletListSegment* listSegment = dynamic_cast<BulletListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == indent && listSegment->getSymbol() == symbol)
@@ -374,7 +374,7 @@ bool_t OutputData::BulletListSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::NumberedListSegment::merge(Segment& segment)
+bool OutputData::NumberedListSegment::merge(Segment& segment)
 {
   NumberedListSegment* listSegment = dynamic_cast<NumberedListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == indent)
@@ -399,7 +399,7 @@ bool_t OutputData::NumberedListSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::BlockquoteSegment::merge(Segment& segment)
+bool OutputData::BlockquoteSegment::merge(Segment& segment)
 {
   BlockquoteSegment* blockSegment = dynamic_cast<BlockquoteSegment*>(&segment);
   if(blockSegment && blockSegment->getIndent() == indent)
@@ -424,17 +424,17 @@ bool_t OutputData::BlockquoteSegment::merge(Segment& segment)
   return false;
 }
 
-bool_t OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, bool_t>& knownEnvironments, String& error)
+bool OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, bool>& knownEnvironments, String& error)
 {
-  const char_t* start = line;
-  const char_t* end = start + line.length();
-  const char_t* i = start;
+  const char* start = line;
+  const char* end = start + line.length();
+  const char* i = start;
   while(*i == '`')
     ++i;
   for(; i < end && String::isSpace(*i); ++i);
-  const char_t* languageStart = i;
+  const char* languageStart = i;
   for(; i < end && String::isAlpha(*i); ++i);
-  const char_t* languageEnd = i;
+  const char* languageEnd = i;
   for(; i < end && String::isSpace(*i); ++i);
 
   language = String(languageStart, languageEnd - languageStart);
@@ -442,7 +442,7 @@ bool_t OutputData::EnvironmentSegment::parseArguments(const String& line, const 
   if(!language.isEmpty())
   {
     language.toLowerCase();
-    HashMap<String, bool_t>::Iterator it = knownEnvironments.find(language);
+    HashMap<String, bool>::Iterator it = knownEnvironments.find(language);
     if(it == knownEnvironments.end())
     {
       error = String("Unknown environment '") + language + "'";
@@ -457,7 +457,7 @@ bool_t OutputData::EnvironmentSegment::parseArguments(const String& line, const 
 Parser::Parser() : p(new Private) {}
 Parser::~Parser() {delete p;}
 
-bool_t Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
+bool Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
 {
   p->outputData = &outputData;
 
@@ -506,5 +506,5 @@ bool_t Parser::parse(const InputData& inputData, const String& outputFile, Outpu
 }
 
 String Parser::getErrorFile() const {return p->error.file;}
-int_t Parser::getErrorLine() const {return p->error.line;}
+int Parser::getErrorLine() const {return p->error.line;}
 String Parser::getErrorString() const {return p->error.string;}

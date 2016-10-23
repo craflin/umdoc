@@ -11,14 +11,14 @@ class Reader
 public:
   Reader() : errorLine(0), errorColumn(0) {}
 
-  bool_t read(const String& inputFile, InputData& inputData);
+  bool read(const String& inputFile, InputData& inputData);
 
-  int_t getErrorLine() const {return errorLine;}
-  int_t getErrorColumn() const {return errorColumn;}
+  int getErrorLine() const {return errorLine;}
+  int getErrorColumn() const {return errorColumn;}
   const String& getErrorString() const {return errorString;}
 
 private:
-  int_t errorLine;
-  int_t errorColumn;
+  int errorLine;
+  int errorColumn;
   String errorString;
 };
