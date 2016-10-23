@@ -14,6 +14,7 @@ public:
     {
       texType,
       texTocType,
+      texNewPageType,
       texPartType,
       pdfType,
       mdType,

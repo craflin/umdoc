@@ -151,15 +151,6 @@ public:
     String content;
   };
 
-  class TexTocSegment : public Segment
-  {
-  public:
-    TexTocSegment() : Segment(0) {}
-  public:
-    virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
-  };
-
   class TexPartSegment : public Segment
   {
   public:

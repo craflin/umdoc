@@ -544,12 +544,7 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
 
 String OutputData::TexSegment::generate(const OutputData& outputData) const
 {
-  return content + "\n";
-}
-
-String OutputData::TexTocSegment::generate(const OutputData& outputData) const
-{
-  return String("\n\\pagestyle{empty}\n\\tableofcontents\n");
+  return String("\n") + content + "\n";
 }
 
 String OutputData::TexPartSegment::generate(const OutputData& outputData) const

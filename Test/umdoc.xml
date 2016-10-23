@@ -1,17 +1,12 @@
 <umdoc>
 
-    <!-- <tex file="" /> -->
-
     <document>
-    
-        <!-- <tex file="" /> -->
-        
-        <pdf file="cover.pdf" />
-        <toc />
 
-        
-        <part title="Title of *Part I*" />
-        <md file="example.md" />
+        <pdf file="cover.pdf"/>
+        <tableOfContents/>
+        <newPage/>
+
+        <md file="example.md"/>
     </document>
 
 </umdoc>

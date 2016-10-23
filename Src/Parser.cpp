@@ -482,7 +482,10 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       p->outputSegments.append(new OutputData::TexSegment(component.content));
       break;
     case InputData::Component::texTocType:
-      p->outputSegments.append(new OutputData::TexTocSegment);
+      p->outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
+      break;
+    case InputData::Component::texNewPageType:
+      p->outputSegments.append(new OutputData::TexSegment("\\clearpage"));
       break;
     case InputData::Component::texPartType:
       p->outputSegments.append(new OutputData::TexPartSegment(component.content));

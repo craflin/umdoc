@@ -65,10 +65,15 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           if(!file.readAll(component.content))
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
         }
-        else if(element.type == "toc")
+        else if(element.type == "tableOfContents" || element.type == "toc")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::texTocType;
+        }
+        else if(element.type == "newPage")
+        {
+          InputData::Component& component = inputData.document.append(InputData::Component());
+          component.type = InputData::Component::texNewPageType;
         }
         else if(element.type == "pdf")
         {
