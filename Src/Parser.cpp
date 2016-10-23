@@ -497,7 +497,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
         return false;
       break;
     case InputData::Component::environmentType:
-      //outputData.environments.append(component.name, component.content.toBool())
+      outputData.environments.append(component.name, component.content.toBool());
       break;
     }
   }

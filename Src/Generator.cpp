@@ -101,7 +101,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       return false;
 
      
-    if(!file.write("\\lstnewenvironment{plain}{\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}}{}\n\n"))
+    if(!file.write("\\lstnewenvironment{plain}{\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n\n"))
       return false;
 
     //if(!file.write("\\renewenvironment{plain}{"
@@ -118,7 +118,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     //               "}\n"))
     //  return false;
 
-    if(!file.write("\\newenvironment{latexexample}{\\begin{minipage}{0.9\\textwidth}}{\\end{minipage}}\n"))
+    if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n"))
       return false;
 
     // package to include pdf pages
@@ -517,8 +517,8 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
     environment = "plain";
 
   String result;
-  result.append("\n\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\n");
-  result.append(String("\\begin{") + environment + "}\n");
+  //result.append("\n\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\n");
+  result.append(String("\n\\begin{") + environment + "}\n");
   //String result(String("\\begin{lstlisting}[frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{white},rulecolor=\\color{white}]\n"));
   if(verbatim)
   {
@@ -539,7 +539,7 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
     }
   }
   result.append(String("\\end{") + environment + "}\n");
-  result.append("\\end{minipage}\n");
+  //result.append("\\end{minipage}\n");
   //result.append("\\end{lstlisting}");
   return result;
 }
