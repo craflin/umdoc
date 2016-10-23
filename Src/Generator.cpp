@@ -100,7 +100,8 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     //  return false;
 
     // command to insert a horizontal rule
-    if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\linewidth}{0.4pt}\\vspace{4pt}}\n\n"))
+    //if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\linewidth}{0.4pt}\\vspace{4pt}}\n\n"))
+    if(!file.write("\\newcommand\\HorizontalRule{\\raisebox{3.5pt}[1.5ex]{\\rule{\\linewidth}{0.4pt}}}\n\n"))
       return false;
 
     // command to insert an image into text
