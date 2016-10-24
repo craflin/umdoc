@@ -5,6 +5,7 @@
 #include "Parser.h"
 #include "InputData.h"
 #include "OutputData.h"
+#include "Generator.h"
 
 class Parser::Private
 {
@@ -449,8 +450,7 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
 
   if(!language.isEmpty())
   {
-    language.toLowerCase();
-    HashMap<String, bool>::Iterator it = knownEnvironments.find(language);
+    HashMap<String, bool>::Iterator it = knownEnvironments.find(Generator::getEnvironmentName(language));
     if(it == knownEnvironments.end())
     {
       error = String("Unknown environment '") + language + "'";
@@ -479,6 +479,8 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   if(outputData.className.isEmpty())
   {
     outputData.environments.append("latexexample", false);
+    for(usize i = 0; i < Generator::numOfDefaultListingsLanguages; ++i)
+      outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), true);
   }
 
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)

@@ -1,9 +1,21 @@
 
+# Usage
+
+The *umdoc* executable accepts the following command line arguments:
+
+```
+umdoc [<input-file>] [-o <output-file>] [-e <latex-engine>] 
+      [-a <aux-directory>]
+```
+
+The default behavior of *umdoc* is to look in the working directory for a `umdoc.xml` file...
+
+
 # Supported Markdown Features
 
 ## Horizontal Rules
 
-Lines of asterisks (\*), hyphens (\-), or underscores (\-) are interpreted as a horizontal rule.
+Lines of asterisks (\*), hyphens (\-), or underscores (\_) are interpreted as a horizontal rule.
 
 ```
 ***
@@ -174,4 +186,24 @@ Text with inline an inline image like this ![](circle.png).
 results in:
 ```latexexample
 Text with inline an inline image like this ![](circle.png).
+```
+
+## Fenced Code Blocks
+
+```c
+#include <stdio.h>
+
+int main(void)
+{
+    printf("Hello World\n");
+    return 0;
+}
+```
+
+```java
+class HelloWorldApp {
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
+}
 ```

@@ -13,8 +13,13 @@ public:
   String getErrorString() const;
 
 public:
+  static const char* defaultListingsLanguages[];
+  static const usize numOfDefaultListingsLanguages;
+
+public:
   static String texEscapeChar(char c);
   static String texEscape(const String& str, const OutputData& outputData);
+  static String getEnvironmentName(const String& language);
 
 private:
   const OutputData* outputData;

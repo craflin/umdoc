@@ -7,6 +7,9 @@
 #include "Generator.h"
 #include "OutputData.h"
 
+const char* Generator::defaultListingsLanguages[] = {"ABAP", "ACM", "ACMscript", "ACSL", "Ada", "Algol", "Ant", "Assembler", "Awk", "bash", "Basic", "C", "C++", "Caml", "CIL", "Clean", "Cobol", "Comal 80", "command.com", "Comsol", "csh", "Delphi", "Eiffel", "Elan", "erlang", "Euphoria", "Fortran", "GCL", "Gnuplot", "hansl", "Haskell", "HTML", "IDL", "inform", "Java", "JVMIS", "ksh", "Lingo", "Lisp", "LLVM", "Logo", "Lua", "make", "Matlab", "Mathematica", "Mercury", "MetaPost", "Miranda", "Mizar", "ML", "Modula-2", "MuPAD", "NASTRAN", "Oberon-2", "OCL", "Octave", "Oz", "Perl", "Pascal", "PHP", "PL/I", "Plasm", "PostScript", "POV", "Prolog", "Promela", "PSTricks", "Python", "R", "Reduce", "Rexx", "RSL", "Ruby", "S", "SAS", "Scala", "Scilab", "sh", "SHELXL", "SPARQL", "Simula", "SQL", "tcl", "TeX", "VBScript", "Verilog", "VHDL", "VRML", "XML", "XSLT"};
+const usize Generator::numOfDefaultListingsLanguages = sizeof(defaultListingsLanguages) / sizeof(*defaultListingsLanguages);
+
 bool Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
   this->outputData = &outputData;
@@ -25,7 +28,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write(String("\\documentclass[a4paper]{article}\n\n")))
       return false;
 
-    if(engine == "pdflatex")
+    if(engine != "lualatex")
       if(!file.write("\\usepackage[utf8]{inputenc}\n\n"))
         return false;
 
@@ -87,17 +90,12 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       return false;
 
     // package to use colored fonts
-    if(!file.write("\\usepackage{xcolor}\n") ||
-       !file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
-       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n\n"))
+    if(!file.write("\\usepackage{xcolor}\n"))
       return false;
 
     // package for custom environments
     if(!file.write("\\usepackage{environ}\n\n"))
       return false;
-    //
-    //if(!file.write("\\usepackage{mdframed}\n\n"))
-    //  return false;
 
     // command to insert a horizontal rule
     //if(!file.write("\\newcommand\\HorizontalRule{\\vspace{-3pt}\\rule{\\linewidth}{0.4pt}\\vspace{4pt}}\n\n"))
@@ -108,10 +106,29 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write("\\newcommand\\InlineImage[1]{\\raisebox{-0.1em}{\\includegraphics[height=0.9em]{#1}}}\n\n"))
       return false;
 
-     
-    if(!file.write("\\lstnewenvironment{plain}{\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n\n"))
+    // prepare environments for syntax highlighting
+    if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
+       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n\n") ||
+       !file.write("\\definecolor{codeRedColor}{RGB}{163,21,21}\n") ||
+       !file.write("\\definecolor{codeBlueColor}{RGB}{0,0,255}\n") ||
+       !file.write("\\definecolor{codeGreenColor}{RGB}{0,128,0}\n"))
+       return false;
+    if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
+    if(!file.write("\\lstnewenvironment{plain}{\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+      return false;
+    for(usize i = 0; i < numOfDefaultListingsLanguages; ++i)
+    {
+      String language = String::fromCString(defaultListingsLanguages[i]);
+      //if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}{\\lstset{language=" + language + ",frame=single,basicstyle=\//\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+      //  return false;
+      if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}{\\lstset{language=" + language + "}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+        return false;
+    }
+    if(!file.write("\n"))
+        return false;
 
+    // create environment for latex examples
     //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n\n"))
     //  return false;
     if(!file.write("\\NewEnviron{latexexample}{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}\\vspace{3.3pt}}\n\n"))
@@ -370,6 +387,25 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
   return result;
 }
 
+
+String Generator::getEnvironmentName(const String& language)
+{
+  String result(language.length());
+  for(const char* i = language; *i; ++i)
+    switch(*i)
+    {
+    case '+':
+      result.append("plus");
+      break;
+    default:
+      if(String::isAlphanumeric(*i))
+        result.append(String::toLowerCase(*i));
+    }
+  if(result.length() == 1)
+    result.append("language");
+  return result;
+}
+
 String OutputData::generate() const
 {
   String result(segments.size() * 256);
@@ -513,6 +549,7 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
   if(environment.isEmpty())
     //environment = "verbatim";
     environment = "plain";
+  environment = Generator::getEnvironmentName(environment);
 
   String result;
   //result.append("\n\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\n");
