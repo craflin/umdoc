@@ -113,6 +113,31 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write("\\definecolor{codeBlueColor}{RGB}{0,0,255}\n") ||
        !file.write("\\definecolor{codeGreenColor}{RGB}{0,128,0}\n"))
        return false;
+//    if(!file.write("\\lstdefinelanguage{XML}"
+//"{"
+//"  morestring=[b]\","
+//"  moredelim=[s][\\color{codeRedColor}]{<}{\\ },"
+//"  moredelim=[s][\\color{codeRedColor}]{</}{>},"
+//"  moredelim=[l][\\color{codeRedColor}]{/>},"
+//"  moredelim=[l][\\color{codeRedColor}]{>},"
+//"  morecomment=[s]{<?}{?>},"
+//"  morecomment=[s]{<!--}{-->},"
+//"  commentstyle=\\color{codeGreenColor},"
+//"  stringstyle=\\color{codeBlueColor},"
+//"  identifierstyle=\\color{red}"
+//"}"))
+//      return false;
+    if(!file.write("\\lstdefinelanguage{XML}"
+"{"
+"  morestring=[b]\","
+"  morecomment=[s]{<?}{?>},"
+"  morecomment=[s]{<!--}{-->},"
+"  commentstyle=\\color{codeGreenColor},"
+"  stringstyle=\\color{codeBlueColor},"
+"  identifierstyle=\\color{codeRedColor}"
+"}"))
+      return false;
+
     if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
     if(!file.write("\\lstnewenvironment{plain}{\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))

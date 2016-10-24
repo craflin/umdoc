@@ -207,3 +207,14 @@ class HelloWorldApp {
     }
 }
 ```
+
+```xml
+<umdoc>
+    <document>
+        <pdf file="cover.pdf"/>
+        <tableOfContents/>
+        <newPage/>
+        <md file="example.md"/>
+    </document>
+</umdoc>
+```
