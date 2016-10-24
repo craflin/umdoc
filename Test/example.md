@@ -13,7 +13,30 @@ The default behavior of *umdoc* is to look in the working directory for a `umdoc
 
 # Supported Markdown Features
 
-## Horizontal Rules
+## Titles
+
+```
+# Example Title
+
+## Example Title Level 2
+
+Example text.
+```
+
+results in:
+```latexexample
+# 1 ~ ~ ~Example Title {-}
+
+## 1.1 ~ ~ ~Example Title Level 2 {-}
+
+Example text.
+```
+
+## Cross References
+
+This references to section~[](#horizontal-rules).
+
+## Horizontal Rules {#horizontal-rules}
 
 Lines of asterisks (\*), hyphens (\-), or underscores (\_) are interpreted as a horizontal rule.
 

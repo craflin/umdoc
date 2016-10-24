@@ -46,13 +46,16 @@ public:
   class TitleSegment : public Segment
   {
   public:
-    TitleSegment(int indent, int level, const String& title) : Segment(indent), level(level), title(title) {}
+    TitleSegment(int indent, int level) : Segment(indent), level(level), unnumbered(false) {}
+    bool parseArguments(const String& title, String& error);
   public:
     virtual String generate(const OutputData& outputData) const;
     virtual bool merge(Segment& segment) {return false;}
   private:
     int level;
     String title;
+    String label;
+    bool unnumbered;
   };
 
   class SeparatorSegment : public Segment

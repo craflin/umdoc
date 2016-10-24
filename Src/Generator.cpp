@@ -108,7 +108,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 
     // prepare environments for syntax highlighting
     if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
-       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n\n") ||
+       !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n") ||
        !file.write("\\definecolor{codeRedColor}{RGB}{163,21,21}\n") ||
        !file.write("\\definecolor{codeBlueColor}{RGB}{0,0,255}\n") ||
        !file.write("\\definecolor{codeGreenColor}{RGB}{0,128,0}\n"))
@@ -246,13 +246,24 @@ bool Generator::matchInlineLink(const char* s, const char* end, const OutputData
   if(!linkEnd)
     linkEnd = s;
   ++s;
-  result.append("\\href{");
-  result.append(linkStart, linkEnd - linkStart);
-  result.append("}{");
+  String link;
+  link.attach(linkStart, linkEnd - linkStart);
   String name;
   name.attach(nameStart, nameEnd - nameStart);
-  result.append(texEscape(name, outputData));
-  result.append("}");
+  if(link.startsWith("#"))
+  {
+    result.append("\\ref{");
+    result.append(link.substr(1));
+    result.append("}");
+  }
+  else
+  {
+    result.append("\\href{");
+    result.append(link);
+    result.append("}{");
+    result.append(texEscape(name, outputData));
+    result.append("}");
+  }
   pos = s;
   return true;
 }
@@ -457,27 +468,40 @@ String OutputData::ParagraphSegment::generate(const OutputData& outputData) cons
 
 String OutputData::TitleSegment::generate(const OutputData& outputData) const
 {
+  String result;
   switch(level)
   {
   case 1:
-    return String("\n\\section{") + Generator::texEscape(title, outputData) + "}\n";
+    result = String("\n\\section{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 2:
-    return String("\n\\subsection{") + Generator::texEscape(title, outputData) + "}\n";
+    result = String("\n\\subsection{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 3:
-    return String("\n\\subsubsection{") + Generator::texEscape(title, outputData) + "}\n";
+    result = String("\n\\subsubsection{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 4:
-    return String("\n\\paragraph{") + Generator::texEscape(title, outputData) + "}\n";
+    result = String("\n\\paragraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 5:
-    return String("\n\\subparagraph{") + Generator::texEscape(title, outputData) + "}\n";
+    result = String("\n\\subparagraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   default:
     ASSERT(false);
   }
-  return String();
+  if(unnumbered)
+  {
+    const char* x = result.find('{');
+    if(x)
+      result = result.substr(0, x - (const char*)result) + "*" + result.substr(x - (const char*)result);
+  }
+  if(!label.isEmpty())
+  {
+    result.append("\\label{");
+    result.append(label);
+    result.append("}");
+  }
+  return result;
 }
 
 String OutputData::RuleSegment::generate(const OutputData& outputData) const
