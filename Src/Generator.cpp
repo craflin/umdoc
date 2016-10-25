@@ -115,11 +115,10 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        return false;
     if(!file.write("\\lstdefinelanguage{XML}"
 "{"
+"  basicstyle=\\ttfamily\\color{codeBlueColor},"
 "  morestring=[b]\","
 "  moredelim=[s][\\color{codeBlueColor}]{<}{\\ },"
 "  moredelim=[s][\\color{codeBlueColor}]{</}{>},"
-"  moredelim=[l][\\color{codeBlueColor}]{/>},"
-"  moredelim=[l][\\color{codeBlueColor}]{>},"
 "  morecomment=[s]{<?}{?>},"
 "  morecomment=[s]{<!--}{-->},"
 "  commentstyle=\\color{codeGreenColor},"
@@ -127,17 +126,6 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 "  identifierstyle=\\color{red}"
 "}"))
       return false;
-//    if(!file.write("\\lstdefinelanguage{XML}"
-//"{"
-//"  morestring=[b]\","
-//"  morecomment=[s]{<?}{?>},"
-//"  morecomment=[s]{<!--}{-->},"
-//"  otherkeywords={<,>},"
-//"  commentstyle=\\color{codeGreenColor},"
-//"  stringstyle=\\color{codeBlueColor},"
-//"  identifierstyle=\\color{codeRedColor}"
-//"}"))
-//      return false;
 
     if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
