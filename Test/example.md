@@ -241,3 +241,8 @@ class HelloWorldApp {
     </document>
 </umdoc>
 ```
+
+## Figure Images
+
+![Example Figure](circle.png)
+

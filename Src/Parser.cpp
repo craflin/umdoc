@@ -45,6 +45,8 @@ public:
 
   void addSegment(OutputData::Segment& segment);
 
+  bool matchFigureImage(const char* s, const char* end, String& title, String& path);
+
   bool parseMarkdown(const String& filePath, const String& fileContent);
   bool parseMarkdownLine(const String& line, size_t offset);
 };
@@ -87,6 +89,35 @@ void Parser::Private::addSegment(OutputData::Segment& newSegment)
 
   outputSegments.append(&newSegment);
   segments.append(&newSegment);
+}
+
+bool Parser::Private::matchFigureImage(const char* s, const char* end, String& title, String& path)
+{
+  if(*s != '!')
+    return false;
+  if(*(++s) != '[')
+    return false;
+  const char* titleStart = ++s;
+  while(*s != ']')
+    if(++s >= end)
+      return false;
+  const char* titleEnd = s++;
+  if(*s != '(')
+    return false;
+  const char* pathStart = ++s;
+  const char* pathEnd = 0;
+  while(*s != ')')
+  {
+    if(*s == ' ' && !pathEnd)
+      pathEnd = s;
+    if(++s >= end)
+      return false;
+  }
+  if(!pathEnd)
+    pathEnd = s;
+  title.attach(titleStart, titleEnd - titleStart);
+  path.attach(pathStart, pathEnd - pathStart);
+  return true;
 }
 
 bool Parser::Private::parseMarkdownLine(const String& line, size_t offset)
@@ -285,6 +316,17 @@ begin:
       addSegment(*blockquoteSegment);
       offset = p + 2 - (const char*)line;
       goto begin;
+    }
+    break;
+  case '!':
+    {
+      const char* i = remainingLine;
+      const char* end = i + remainingLine.length();
+      String title, path;
+      if(matchFigureImage(i, end, title, path))
+      {
+        segment = new OutputData::FigureSegment(indent, title, path);
+      }
     }
     break;
   case '\r':

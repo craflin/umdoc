@@ -70,6 +70,19 @@ public:
     int lines;
   };
 
+  class FigureSegment : public Segment
+  {
+  public:
+    FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
+  public:
+    virtual String generate(const OutputData& outputData) const;
+    virtual bool merge(Segment& segment) {return false;}
+  private:
+    String title;
+    String path;
+  };
+
+
   class RuleSegment : public Segment
   {
   public:

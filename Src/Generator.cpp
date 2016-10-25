@@ -274,7 +274,8 @@ bool Generator::matchInlineImage(const char* s, const char* end,const OutputData
     return false;
   if(*(++s) != '[')
     return false;
-  while(*(++s) != ']')
+  ++s;
+  while(*s != ']')
     if(++s >= end)
       return false;
   if(*(++s) != '(')
@@ -295,8 +296,9 @@ bool Generator::matchInlineImage(const char* s, const char* end,const OutputData
   path.attach(pathStart, pathEnd - pathStart);
   if(!File::isAbsolutePath(path))
     path = outputData.inputDirectory + "/" + path;
+  path = File::getRelativePath(outputData.outputDirectory, path);
   result.append("\\InlineImage{");
-  result.append(File::getRelativePath(outputData.outputDirectory, path));
+  result.append(path);
   result.append("}");
   pos = s;
   return true;
@@ -459,6 +461,16 @@ String OutputData::generate() const
 String OutputData::SeparatorSegment::generate(const OutputData& outputData) const
 {
   return String();
+}
+
+String OutputData::FigureSegment::generate(const OutputData& outputData) const
+{
+  String path = this->path;
+  if(!File::isAbsolutePath(path))
+    path = outputData.inputDirectory + "/" + path;
+  path = File::getRelativePath(outputData.outputDirectory, path);
+  String flags = "";
+  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title, outputData) + "}\\end{figure}\n";
 }
 
 String OutputData::ParagraphSegment::generate(const OutputData& outputData) const
