@@ -237,6 +237,7 @@ class HelloWorldApp {
         <pdf file="cover.pdf"/>
         <tableOfContents/>
         <newPage/>
+        <!-- some comment -->
         <md file="example.md"/>
     </document>
 </umdoc>
