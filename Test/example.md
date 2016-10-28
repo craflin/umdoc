@@ -247,3 +247,10 @@ class HelloWorldApp {
 
 ![Example Figure](circle.png)
 
+## Tables
+
+| This | is | a | table |
+         two lines
+                  what?
+| 1    | 2  | 3 | 4     |
+

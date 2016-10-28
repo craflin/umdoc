@@ -106,6 +106,9 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write("\\newcommand\\InlineImage[1]{\\raisebox{-0.1em}{\\includegraphics[height=0.9em]{#1}}}\n\n"))
       return false;
 
+    //if(!file.write("\\renewcommand{\\arraystretch}{1.2}\n\n"))
+    //    return false;
+
     // prepare environments for syntax highlighting
     if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
        !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n") ||
@@ -626,6 +629,37 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
   result.append(String("\\end{") + environment + "}\n");
   //result.append("\\end{minipage}\n");
   //result.append("\\end{lstlisting}");
+  return result;
+}
+
+String OutputData::TableSegment::generate(const OutputData& outputData) const
+{
+  String result("\n\\begin{tabular}{|");
+  for(usize i = 0; i < columns.size(); ++i)
+    result.append("l|");
+  result.append("}\n");
+  result.append("\\hline\n");
+  for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
+  {
+    RowData& rowData = *i;
+    for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i)
+    {
+      CellData& cellData = *i;
+      if(i != begin)
+        result.append(" & ");
+      result.append("\\parbox[t][][t]{3cm}{");
+      for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+      {
+        Segment* segment = *i;
+        if(!segment->isValid())
+          continue;
+        result.append(segment->generate(outputData));
+      }
+      result.append("}");
+    }
+    result.append(" \\\\\n\\hline\n");
+  }
+  result.append("\\end{tabular}");
   return result;
 }
 

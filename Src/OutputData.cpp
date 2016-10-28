@@ -31,6 +31,20 @@ OutputData::EnvironmentSegment::~EnvironmentSegment()
     delete *i;
 }
 
+OutputData::TableSegment::~TableSegment()
+{
+  for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
+  {
+    RowData& rowData = *i;
+    for(Array<CellData>::Iterator i = rowData.cellData.begin(), end = rowData.cellData.end(); i != end; ++i)
+    {
+      CellData& cellData = *i;
+      for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+        delete *i;
+    }
+  }
+}
+
 OutputData::~OutputData()
 {
   for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)

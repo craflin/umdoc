@@ -4,6 +4,7 @@
 #include <nstd/String.h>
 #include <nstd/List.h>
 #include <nstd/HashMap.h>
+#include <nstd/Array.h>
 
 class OutputData
 {
@@ -82,7 +83,6 @@ public:
     String path;
   };
 
-
   class RuleSegment : public Segment
   {
   public:
@@ -154,6 +154,38 @@ public:
     String language;
     List<String> lines;
     List<Segment*> segments;
+  };
+
+  class TableSegment : public Segment
+  {
+  public:
+    class ColumnData
+    {
+    public:
+      int indent;
+      String text;
+    };
+  public:
+    TableSegment(int indent) : Segment(indent) {}
+    ~TableSegment();
+    bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
+  public:
+    virtual String generate(const OutputData& outputData) const;
+    virtual bool merge(Segment& segment);
+  private:
+      class CellData
+      {
+      public:
+        List<Segment*> segments;
+      };
+      class RowData
+      {
+      public:
+        Array<CellData> cellData;
+      };
+  private:
+      List<int> columns;
+      List<RowData> rows;
   };
 
   class TexSegment : public Segment

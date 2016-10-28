@@ -48,7 +48,7 @@ public:
   bool matchFigureImage(const char* s, const char* end, String& title, String& path);
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
-  bool parseMarkdownLine(const String& line, size_t offset);
+  bool parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent = 0);
 };
 
 Parser::Private::~Private()
@@ -120,7 +120,7 @@ bool Parser::Private::matchFigureImage(const char* s, const char* end, String& t
   return true;
 }
 
-bool Parser::Private::parseMarkdownLine(const String& line, size_t offset)
+bool Parser::Private::parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent)
 {
   if(parserMode == environmentMode)
   {
@@ -134,7 +134,7 @@ begin:
   OutputData::Segment* segment = 0;
   const char* p = line;
   for(p += offset; *p == ' '; ++p);
-  indent = p - (const char*)line;
+  indent = p - (const char*)line + additionalIndent;
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char*)line));
 
@@ -329,6 +329,22 @@ begin:
       }
     }
     break;
+  case '|':
+    {
+      OutputData::TableSegment* tableSegment = new OutputData::TableSegment(indent);
+      List<OutputData::TableSegment::ColumnData> columns;
+      if(!tableSegment->parseArguments(remainingLine, columns, error.string))
+      {
+        delete tableSegment;
+        return false;
+      }
+      addSegment(*tableSegment);
+      for(List<OutputData::TableSegment::ColumnData>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
+        if(!parseMarkdownLine(i->text, 0, i->indent))
+          return false;
+      return true;
+    }
+    break;
   case '\r':
   case '\n':
   case '\0':
@@ -510,6 +526,43 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment)
   return false;
 }
 
+bool OutputData::TableSegment::merge(Segment& segment)
+{
+  TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
+  if(tableSegment && tableSegment->getIndent() == indent)
+  {
+    segment.invalidate();
+    
+    if(tableSegment->columns.size() > columns.size())
+    {
+      usize newColumnCount = tableSegment->columns.size();
+      for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
+        i->cellData.resize(newColumnCount);
+      for(usize i = columns.size(); i < newColumnCount; ++i)
+        columns.append(0);
+    }
+    for(List<int>::Iterator newI = tableSegment->columns.begin(), newIEnd = tableSegment->columns.end(), oldI = columns.begin(), oldIEnd = columns.end(); newI != newIEnd && oldI != oldIEnd; ++newI, ++oldI)
+      *oldI = *newI;
+
+    rows.append(RowData()).cellData.resize(columns.size());
+    return true;
+  }
+  usize column = 0;
+  for(List<int>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i, ++column)
+  {
+    if(segment.getIndent() == *i)
+    {
+      RowData& rowData = rows.back();
+      CellData& cellData = rowData.cellData[column];
+      if(cellData.segments.isEmpty() || !cellData.segments.back()->merge(segment))
+        cellData.segments.append(&segment);
+      segment.setParent(*this);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, bool>& knownEnvironments, String& error)
 {
   const char* start = line;
@@ -536,6 +589,36 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
     verbatim = *it;
   }
 
+  return true;
+}
+
+bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnData>& columns, String& error)
+{
+  const char* start = line;
+  const char* end = start + line.length();
+  for(const char* i = start; i < end; ++i)
+    if(*i == '|')
+    {
+      ++i;
+      while(i < end && String::isSpace(*i))
+        ++i;
+      if(i >= end)
+        break;
+      const char* columStart = i++;
+      for(; i < end && *i != '|'; ++i)
+        if(*i == '\\' && i[1] == '|')
+          ++i;
+      const char* columEnd = i;
+      if(columEnd == columStart)
+        break;
+      int columnIndent = indent + (columStart - start);;
+      this->columns.append(columnIndent);
+      ColumnData& columnData = columns.append(ColumnData());
+      columnData.indent = columnIndent;
+      columnData.text.attach(columStart, columEnd - columStart);
+      --i;
+    }
+  rows.append(RowData()).cellData.resize(this->columns.size());
   return true;
 }
 
