@@ -409,6 +409,33 @@ bool Parser::Private::parseMarkdown(const String& filePath, const String& fileCo
   return true;
 }
 
+void Parser::extractArguments(String& line, Map<String, Variant>& args)
+{
+  const char* attributeStart = line.findLast('{');
+  if(!attributeStart)
+    return;
+  ++attributeStart;
+  const char* end = String::findOneOf(attributeStart, "}\r\n");
+  if(!end && *end != '}')
+    return;
+  List<String> attributes;
+  line.substr(attributeStart - (const char*)line, end - attributeStart).split(attributes, " \t");
+  for(List<String>::Iterator i = attributes.begin(), end = attributes.end(); i != end; ++i)
+  {
+    if(i->startsWith("#"))
+      args.insert("#", i->substr(1));
+    else
+    {
+      const char* x = i->find('=');
+      if(x)
+        args.insert(i->substr(0, x - (const char*)*i), i->substr(x + 1 - (const char*)*i));
+      else
+        args.insert(*i, Variant());
+    }
+  }
+  line = line.substr(0, attributeStart - 1 - (const char*)line);
+}
+
 bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
 {
   if(newParagraph)
@@ -437,27 +464,8 @@ bool OutputData::SeparatorSegment::merge(Segment& segment, bool newParagraph)
 
 bool OutputData::TitleSegment::parseArguments(const String& title, String& error)
 {
-  const char* attributeStart = title.findLast('{');
-  if(attributeStart)
-  {
-    ++attributeStart;
-    const char* end = String::findOneOf(attributeStart, "}\r\n");
-    if(end && *end == '}')
-    {
-      List<String> attributes;
-      title.substr(attributeStart - (const char*)title, end - attributeStart).split(attributes, " \t");
-      for(List<String>::Iterator i = attributes.begin(), end = attributes.end(); i != end; ++i)
-      {
-        if(i->startsWith("#"))
-          label = i->substr(1);
-        else if(*i == "-" || *i == ".unnumbered")
-          unnumbered = true;
-      }
-      this->title = title.substr(0, attributeStart - 1 - (const char*)title);
-      return true;
-    }
-  }
   this->title = title;
+  Parser::extractArguments(this->title, arguments);
   return true;
 }
 

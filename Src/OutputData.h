@@ -5,6 +5,8 @@
 #include <nstd/List.h>
 #include <nstd/HashMap.h>
 #include <nstd/Array.h>
+#include <nstd/Map.h>
+#include <nstd/Variant.h>
 
 class OutputData
 {
@@ -47,7 +49,7 @@ public:
   class TitleSegment : public Segment
   {
   public:
-    TitleSegment(int indent, int level) : Segment(indent), level(level), unnumbered(false) {}
+    TitleSegment(int indent, int level) : Segment(indent), level(level) {}
     bool parseArguments(const String& title, String& error);
   public:
     virtual String generate(const OutputData& outputData) const;
@@ -55,8 +57,7 @@ public:
   private:
     int level;
     String title;
-    String label;
-    bool unnumbered;
+    Map<String, Variant> arguments;
   };
 
   class SeparatorSegment : public Segment

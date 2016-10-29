@@ -500,12 +500,13 @@ String OutputData::TitleSegment::generate(const OutputData& outputData) const
   default:
     ASSERT(false);
   }
-  if(unnumbered)
+  if(arguments.find("-") != arguments.end() || arguments.find(".unnumbered") != arguments.end())
   {
     const char* x = result.find('{');
     if(x)
       result = result.substr(0, x - (const char*)result) + "*" + result.substr(x - (const char*)result);
   }
+  String label = arguments.find("#")->toString();
   if(!label.isEmpty())
   {
     result.append("\\label{");
