@@ -1,7 +1,6 @@
 
 #pragma once
 
-
 #include <nstd/String.h>
 
 class InputData;

@@ -7,58 +7,16 @@
 #include "OutputData.h"
 #include "Generator.h"
 
-class Parser::Private
-{
-public:
-  enum ParserMode
-  {
-    normalMode,
-    environmentMode,
-    childMode,
-    verbatimMode,
-  };
-
-  class Error
-  {
-  public:
-    String file;
-    int line;
-    String string;
-
-  public:
-    Error() : line(0) {}
-  };
-
-public:
-  ParserMode parserMode;
-  OutputData* outputData;
-  Error error;
-  List<OutputData::Segment*> outputSegments;
-  List<OutputData::Segment*> segments;
-  Private* environmentParser;
-  Private* parentParser;
-
-public:
-  Private() : parserMode(normalMode), outputData(0), environmentParser(0), parentParser(0) {}
-  Private(Private* parentParser) : parserMode(childMode), outputData(0), environmentParser(0), parentParser(parentParser) {}
-  ~Private();
-
-  void addSegment(OutputData::Segment& segment);
-
-  bool matchFigureImage(const char* s, const char* end, String& title, String& path);
-
-  bool parseMarkdown(const String& filePath, const String& fileContent);
-  bool parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent = 0);
-};
-
-Parser::Private::~Private()
+Parser::~Parser()
 {
   delete environmentParser;
   for(List<OutputData::Segment*>::Iterator i = outputSegments.begin(), end = outputSegments.end(); i != end; ++i)
     delete *i;
 }
 
-void Parser::Private::addSegment(OutputData::Segment& newSegment)
+
+
+void Parser::addSegment(OutputData::Segment& newSegment)
 {
   if(!segments.isEmpty())
   {
@@ -99,7 +57,7 @@ void Parser::Private::addSegment(OutputData::Segment& newSegment)
   segments.append(&newSegment);
 }
 
-bool Parser::Private::matchFigureImage(const char* s, const char* end, String& title, String& path)
+bool Parser::matchFigureImage(const char* s, const char* end, String& title, String& path)
 {
   if(*s != '!')
     return false;
@@ -128,7 +86,7 @@ bool Parser::Private::matchFigureImage(const char* s, const char* end, String& t
   return true;
 }
 
-bool Parser::Private::parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent)
+bool Parser::parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent)
 {
   if(parserMode == environmentMode)
   {
@@ -311,7 +269,7 @@ begin:
         parserMode = verbatimMode;
       else
       {
-        environmentParser = new Private(this);
+        environmentParser = new Parser(this);
         parserMode = environmentMode;
       }
       break;
@@ -384,7 +342,7 @@ begin:
   return true;
 }
 
-bool Parser::Private::parseMarkdown(const String& filePath, const String& fileContent)
+bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
 {
   int line = 1;
   String lineStr;
@@ -698,12 +656,9 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
   return true;
 }
 
-Parser::Parser() : p(new Private) {}
-Parser::~Parser() {delete p;}
-
 bool Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
 {
-  p->outputData = &outputData;
+  this->outputData = &outputData;
 
   outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
   outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
@@ -725,24 +680,24 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     switch(component.type)
     {
     case InputData::Component::texType:
-      p->outputSegments.append(new OutputData::TexSegment(component.content));
+      outputSegments.append(new OutputData::TexSegment(component.content));
       break;
     case InputData::Component::texTocType:
-      p->outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
+      outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
       break;
     case InputData::Component::texNewPageType:
-      p->outputSegments.append(new OutputData::TexSegment("\\clearpage"));
+      outputSegments.append(new OutputData::TexSegment("\\clearpage"));
       break;
     case InputData::Component::texPartType:
-      p->outputSegments.append(new OutputData::TexPartSegment(component.content));
+      outputSegments.append(new OutputData::TexPartSegment(component.content));
       break;
     case InputData::Component::pdfType:
-      p->outputSegments.append(new OutputData::PdfSegment(component.filePath));
+      outputSegments.append(new OutputData::PdfSegment(component.filePath));
       outputData.hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
-      p->segments.clear();
-      if(!p->parseMarkdown(component.filePath, component.content))
+      segments.clear();
+      if(!parseMarkdown(component.filePath, component.content))
         return false;
       break;
     case InputData::Component::environmentType:
@@ -750,10 +705,6 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     }
   }
-  outputData.segments.swap(p->outputSegments);
+  outputData.segments.swap(outputSegments);
   return true;
 }
-
-String Parser::getErrorFile() const {return p->error.file;}
-int Parser::getErrorLine() const {return p->error.line;}
-String Parser::getErrorString() const {return p->error.string;}
