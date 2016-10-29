@@ -68,21 +68,29 @@ void Parser::Private::addSegment(OutputData::Segment& newSegment)
     if(!segments.isEmpty())
     {
       lastSegment = segments.back();
-      for(OutputData::Segment* segment = lastSegment;;)
+      bool lastIsSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment) != 0;
+      if(lastIsSeparator && dynamic_cast<OutputData::SeparatorSegment*>(&newSegment))
+        lastSegment->merge(newSegment, false);
+      else
       {
-        if(segment->merge(newSegment))
+        if(lastIsSeparator && segments.size() > 1)
+          lastSegment = *--(--segments.end());
+        for(OutputData::Segment* segment = lastSegment;;)
         {
-          if(!segments.back()->isValid())
-            segments.removeBack();
-          if(newSegment.isValid())
-            segments.append(&newSegment);
-          else
-            delete &newSegment;
-          return;
+          if(segment->merge(newSegment, lastIsSeparator))
+          {
+            if(!segments.back()->isValid())
+              segments.removeBack();
+            if(newSegment.isValid())
+              segments.append(&newSegment);
+            else
+              delete &newSegment;
+            return;
+          }
+          segment = segment->getParent();
+          if(!segment)
+            break;
         }
-        segment = segment->getParent();
-        if(!segment)
-          break;
       }
     }
   }
@@ -401,8 +409,10 @@ bool Parser::Private::parseMarkdown(const String& filePath, const String& fileCo
   return true;
 }
 
-bool OutputData::ParagraphSegment::merge(Segment& segment)
+bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
 {
+  if(newParagraph)
+    return false;
   ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
   if(paragraphSegment && paragraphSegment->getIndent() == getIndent())
   {
@@ -414,7 +424,7 @@ bool OutputData::ParagraphSegment::merge(Segment& segment)
   return false;
 }
 
-bool OutputData::SeparatorSegment::merge(Segment& segment)
+bool OutputData::SeparatorSegment::merge(Segment& segment, bool newParagraph)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
@@ -451,32 +461,32 @@ bool OutputData::TitleSegment::parseArguments(const String& title, String& error
   return true;
 }
 
-bool OutputData::BulletListSegment::merge(Segment& segment)
+bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph)
 {
   BulletListSegment* listSegment = dynamic_cast<BulletListSegment*>(&segment);
-  if(listSegment && listSegment->getIndent() == indent && listSegment->getSymbol() == symbol)
+  if(listSegment && listSegment->getIndent() == indent)
   {
     if(parent)
     {
       BulletListSegment* parentListSegment = dynamic_cast<BulletListSegment*>(parent);
       if(parentListSegment && parentListSegment->getIndent() == indent)
-        return parentListSegment->merge(segment);
+        return parentListSegment->merge(segment, newParagraph);
     }
 
     listSegment->setParent(*this);
-    siblingSegments.append(listSegment);
+    siblingSegments.append(listSegment); // todo: merge?
     return true;
   }
-  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
+  if(segment.getIndent() == this->childIndent)
   {
     segment.setParent(*this);
-    childSegments.append(&segment);
+    childSegments.append(&segment); // todo: merge?
     return true;
   }
   return false;
 }
 
-bool OutputData::NumberedListSegment::merge(Segment& segment)
+bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph)
 {
   NumberedListSegment* listSegment = dynamic_cast<NumberedListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == indent)
@@ -485,23 +495,23 @@ bool OutputData::NumberedListSegment::merge(Segment& segment)
     {
       NumberedListSegment* parentListSegment = dynamic_cast<NumberedListSegment*>(parent);
       if(parentListSegment && parentListSegment->getIndent() == indent)
-        return parentListSegment->merge(segment);
+        return parentListSegment->merge(segment, newParagraph);
     }
 
     listSegment->setParent(*this);
-    siblingSegments.append(listSegment);
+    siblingSegments.append(listSegment); // todo: merge?
     return true;
   }
-  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
+  if(segment.getIndent() == this->childIndent)
   {
     segment.setParent(*this);
-    childSegments.append(&segment);
+    childSegments.append(&segment); // todo: merge?
     return true;
   }
   return false;
 }
 
-bool OutputData::BlockquoteSegment::merge(Segment& segment)
+bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
 {
   BlockquoteSegment* blockSegment = dynamic_cast<BlockquoteSegment*>(&segment);
   if(blockSegment && blockSegment->getIndent() == indent)
@@ -510,55 +520,18 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment)
     {
       BlockquoteSegment* parentBlockquoteSegment = dynamic_cast<BlockquoteSegment*>(parent);
       if(parentBlockquoteSegment && parentBlockquoteSegment->getIndent() == indent)
-        return parentBlockquoteSegment->merge(segment);
+        return parentBlockquoteSegment->merge(segment, newParagraph);
     }
 
     blockSegment->setParent(*this);
-    siblingSegments.append(blockSegment);
+    siblingSegments.append(blockSegment); // todo: merge?
     return true;
   }
-  if(segment.getIndent() == this->childIndent || dynamic_cast<SeparatorSegment*>(&segment))
+  if(segment.getIndent() == this->childIndent)
   {
     segment.setParent(*this);
-    childSegments.append(&segment);
+    childSegments.append(&segment); // todo: merge?
     return true;
-  }
-  return false;
-}
-
-bool OutputData::TableSegment::merge(Segment& segment)
-{
-  TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
-  if(tableSegment && tableSegment->getIndent() == indent)
-  {
-    segment.invalidate();
-    
-    if(tableSegment->columns.size() > columns.size())
-    {
-      usize newColumnCount = tableSegment->columns.size();
-      for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
-        i->cellData.resize(newColumnCount);
-      for(usize i = columns.size(); i < newColumnCount; ++i)
-        columns.append(0);
-    }
-    for(List<int>::Iterator newI = tableSegment->columns.begin(), newIEnd = tableSegment->columns.end(), oldI = columns.begin(), oldIEnd = columns.end(); newI != newIEnd && oldI != oldIEnd; ++newI, ++oldI)
-      *oldI = *newI;
-
-    rows.append(RowData()).cellData.resize(columns.size());
-    return true;
-  }
-  usize column = 0;
-  for(List<int>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i, ++column)
-  {
-    if(segment.getIndent() == *i)
-    {
-      RowData& rowData = rows.back();
-      CellData& cellData = rowData.cellData[column];
-      if(cellData.segments.isEmpty() || !cellData.segments.back()->merge(segment))
-        cellData.segments.append(&segment);
-      segment.setParent(*this);
-      return true;
-    }
   }
   return false;
 }
@@ -592,7 +565,54 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
   return true;
 }
 
-bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnData>& columns, String& error)
+bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
+{
+  TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
+  if(tableSegment && tableSegment->getIndent() == indent && !newParagraph)
+  {
+    segment.invalidate();
+    
+    if(tableSegment->columns.size() > columns.size())
+    {
+      usize newColumnCount = tableSegment->columns.size();
+      for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
+        i->cellData.resize(newColumnCount);
+      for(usize i = columns.size(); i < newColumnCount; ++i)
+        columns.append(0);
+    }
+    for(usize i = 0; i < tableSegment->columns.size(); ++i)
+    {
+      ColumnInfo& columnInfo = columns[i];
+      const ColumnInfo& srcColumnInfo = tableSegment->columns[i];
+      columnInfo.indent = srcColumnInfo.indent;
+      if(tableSegment->isSeparatorLine && columnInfo.alignment == ColumnInfo::undefinedAlignment)
+        columnInfo.alignment = srcColumnInfo.alignment;
+    }
+
+    if(!tableSegment->isSeparatorLine)
+      rows.append(RowData()).cellData.resize(columns.size());
+    return true;
+  }
+  usize column = 0;
+  for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i, ++column)
+  {
+    const ColumnInfo& columnInfo = *i;
+    if(segment.getIndent() == columnInfo.indent)
+    {
+      if(rows.isEmpty())
+        rows.append(RowData()).cellData.resize(columns.size());
+      RowData& rowData = rows.back();
+      CellData& cellData = rowData.cellData[column];
+      if(cellData.segments.isEmpty() || newParagraph || !cellData.segments.back()->merge(segment, false))
+        cellData.segments.append(&segment);
+      segment.setParent(*this);
+      return true;
+    }
+  }
+  return false;
+}
+
+bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnData>& columnData, String& error)
 {
   const char* start = line;
   const char* end = start + line.length();
@@ -612,13 +632,61 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
       if(columEnd == columStart)
         break;
       int columnIndent = indent + (columStart - start);;
-      this->columns.append(columnIndent);
-      ColumnData& columnData = columns.append(ColumnData());
-      columnData.indent = columnIndent;
-      columnData.text.attach(columStart, columEnd - columStart);
+      columns.append(columnIndent);
+      ColumnData& column = columnData.append(ColumnData());
+      column.indent = columnIndent;
+      column.text.attach(columStart, columEnd - columStart);
       --i;
     }
-  rows.append(RowData()).cellData.resize(this->columns.size());
+
+  isSeparatorLine = true;
+  usize columnIndex = 0;
+  for(List<ColumnData>::Iterator i = columnData.begin(), end = columnData.end(); i != end; ++i, ++columnIndex)
+  {
+    const ColumnData& column = *i;
+    for(const char* i = column.text, * end = i + column.text.length(); i < end; ++i)
+    {
+      while(String::isSpace(*i) && i < end)
+        ++i;
+      bool leftTick = false, rightTick = false;
+      if(*i == ':')
+      {
+        ++i;
+        leftTick = true;
+      }
+      if(*i != '-' || i[1] != '-' || i[2] != '-')
+      {
+        isSeparatorLine = false;
+        break;
+      }
+      i += 3;
+      while(*i == '-' && i < end)
+        ++i;
+      if(*i == ':')
+      {
+        ++i;
+        rightTick = true;
+      }
+      while(String::isSpace(*i) && i < end)
+        ++i;
+      if(i != end)
+      {
+        isSeparatorLine = false;
+        break;
+      }
+      if(leftTick && rightTick)
+        columns[columnIndex].alignment = ColumnInfo::centerAlignment;
+      else if(rightTick)
+        columns[columnIndex].alignment = ColumnInfo::rightAlignment;
+      else if(leftTick)
+        columns[columnIndex].alignment = ColumnInfo::leftAlignment;
+    }
+    if(!isSeparatorLine)
+      break;
+  }
+
+  if(isSeparatorLine)
+    columnData.clear();
   return true;
 }
 

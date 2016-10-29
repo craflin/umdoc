@@ -245,12 +245,43 @@ class HelloWorldApp {
 
 ## Figure Images
 
+```
 ![Example Figure](circle.png)
+```
+
+results in:
+```latexexample
+![Example Figure](circle.png)
+```
 
 ## Tables
 
-| This | is | a | table |
-         two lines
-                  what?
-| 1    | 2  | 3 | 4     |
+```
+| 1   | 2   | 3   | 4   |
+| --- | --- | --- | --- |
+| 5   | 6   | 7   | 8   |
+| 9   | 10  | 11  | 12  |
+```
 
+results in:
+```latexexample
+| 1   | 2   | 3   | 4   |
+| --- | --- | --- | --- |
+| 5   | 6   | 7   | 8   |
+| 9   | 10  | 11  | 12  |
+```
+
+```
+| **left** | **right** | **center** |
+| :---     |      ---: |   :---:    |
+| a        |         b |     c      |
+| a        |         b |     c      |
+```
+
+results in:
+```latexexample
+| **left** | **right** | **center** |
+| :---     |      ---: |   :---:    |
+| a        |         b |     c      |
+| a        |         b |     c      |
+```

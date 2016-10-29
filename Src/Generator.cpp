@@ -107,7 +107,15 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       return false;
 
     //if(!file.write("\\renewcommand{\\arraystretch}{1.2}\n\n"))
-    //    return false;
+    //  return false;
+    //if(!file.write("\\usepackage{mdframed}\n\n"))
+    //  return false;
+    if(!file.write("\\usepackage{array}\n\n"))
+      return false;
+    //if(!file.write("\\renewcommand{\\arraystretch}{1.5}\n\n"))
+    //  return false;
+    if(!file.write("\\renewcommand{\\extrarowheight}{2pt}\n\n"))
+      return false;
 
     // prepare environments for syntax highlighting
     if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
@@ -634,9 +642,14 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
 
 String OutputData::TableSegment::generate(const OutputData& outputData) const
 {
-  String result("\n\\begin{tabular}{|");
-  for(usize i = 0; i < columns.size(); ++i)
-    result.append("l|");
+  String result("\n\\begin{center}\\begin{tabular}{|");
+  for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
+  {
+    const ColumnInfo& columnInfo = *i;
+    char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
+    result.append(a);
+    result.append("|");
+  }
   result.append("}\n");
   result.append("\\hline\n");
   for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
@@ -647,7 +660,7 @@ String OutputData::TableSegment::generate(const OutputData& outputData) const
       CellData& cellData = *i;
       if(i != begin)
         result.append(" & ");
-      result.append("\\parbox[t][][t]{3cm}{");
+      //result.append("\\parbox[t][][t]{3cm}{");
       for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
       {
         Segment* segment = *i;
@@ -655,11 +668,11 @@ String OutputData::TableSegment::generate(const OutputData& outputData) const
           continue;
         result.append(segment->generate(outputData));
       }
-      result.append("}");
+      //result.append("\\vspace{5pt}}");
     }
     result.append(" \\\\\n\\hline\n");
   }
-  result.append("\\end{tabular}");
+  result.append("\\end{tabular}\\end{center}");
   return result;
 }
 

@@ -17,7 +17,7 @@ public:
   public:
     virtual ~Segment() {};
     virtual String generate(const OutputData& outputData) const = 0;
-    virtual bool merge(Segment& segment) = 0;
+    virtual bool merge(Segment& segment, bool newParagraph) = 0;
 
     int getIndent() const {return indent;}
     Segment* getParent() const {return parent;}
@@ -39,7 +39,7 @@ public:
     const String& getText() const {return text;}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
     String text;
   };
@@ -51,7 +51,7 @@ public:
     bool parseArguments(const String& title, String& error);
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     int level;
     String title;
@@ -66,7 +66,7 @@ public:
     int getLines() const {return lines;}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
     int lines;
   };
@@ -77,7 +77,7 @@ public:
     FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String title;
     String path;
@@ -89,7 +89,7 @@ public:
     RuleSegment(int indent) : Segment(indent) {}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   };
 
   class BulletListSegment : public Segment
@@ -100,7 +100,7 @@ public:
     char getSymbol() const {return symbol;}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<BulletListSegment*> siblingSegments;
     List<Segment*> childSegments;
@@ -115,7 +115,7 @@ public:
     ~NumberedListSegment();
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<NumberedListSegment*> siblingSegments;
     List<Segment*> childSegments;
@@ -130,7 +130,7 @@ public:
     ~BlockquoteSegment();
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<BlockquoteSegment*> siblingSegments;
     List<Segment*> childSegments;
@@ -148,7 +148,7 @@ public:
     void swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     bool verbatim;
     String language;
@@ -166,12 +166,12 @@ public:
       String text;
     };
   public:
-    TableSegment(int indent) : Segment(indent) {}
+    TableSegment(int indent) : Segment(indent), isSeparatorLine(false) {}
     ~TableSegment();
     bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment);
+    virtual bool merge(Segment& segment, bool newParagraph);
   private:
       class CellData
       {
@@ -183,8 +183,24 @@ public:
       public:
         Array<CellData> cellData;
       };
+      class ColumnInfo
+      {
+      public:
+        enum Alignment
+        {
+          undefinedAlignment,
+          leftAlignment,
+          rightAlignment,
+          centerAlignment
+        };
+      public:
+        int indent;
+        Alignment alignment;
+        ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
+      };
   private:
-      List<int> columns;
+      bool isSeparatorLine;
+      Array<ColumnInfo> columns;
       List<RowData> rows;
   };
 
@@ -194,7 +210,7 @@ public:
     TexSegment(const String& content) : Segment(0), content(content) {}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String content;
   };
@@ -205,7 +221,7 @@ public:
     TexPartSegment(const String& title) : Segment(0), title(title) {}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String title;
   };
@@ -216,7 +232,7 @@ public:
     PdfSegment(const String& filePath) : Segment(0), filePath(filePath) {}
   public:
     virtual String generate(const OutputData& outputData) const;
-    virtual bool merge(Segment& segment) {return false;}
+    virtual bool merge(Segment& segmen, bool newParagrapht) {return false;}
   private:
     String filePath;
   };
