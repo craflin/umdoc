@@ -36,14 +36,17 @@ bool Reader::read(const String& inputFile, InputData& inputData)
     {
       String filePath = *element.attributes.find("file");
       File file;
-      String data;
-      if(!file.open(filePath))
-        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
-
-      if(!file.readAll(data))
-        return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
-
-      inputData.headerTexFiles.append(data);
+      if(!filePath.isEmpty())
+      {
+        String data;
+        if(!file.open(filePath))
+          return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
+        if(!file.readAll(data))
+          return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
+        inputData.headerTexFiles.append(data);
+      }
+      for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
+        inputData.headerTexFiles.append(i->toString());
     }
     else if(element.type == "document")
     {
@@ -58,12 +61,16 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = element.type == "md" ? InputData::Component::mdType : InputData::Component::texType;
           component.filePath = *element.attributes.find("file");
-          File file;
-          if(!file.open(component.filePath))
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
-
-          if(!file.readAll(component.value))
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
+          if(!component.filePath.isEmpty())
+          {
+            File file;
+            if(!file.open(component.filePath))
+              return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
+            if(!file.readAll(component.value))
+              return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
+          }
+          for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
+            component.value.append(i->toString());
         }
         else if(element.type == "tableOfContents" || element.type == "toc")
         {
