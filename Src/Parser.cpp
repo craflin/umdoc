@@ -680,7 +680,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     switch(component.type)
     {
     case InputData::Component::texType:
-      outputSegments.append(new OutputData::TexSegment(component.content));
+      outputSegments.append(new OutputData::TexSegment(component.value));
       break;
     case InputData::Component::texTocType:
       outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
@@ -689,7 +689,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       outputSegments.append(new OutputData::TexSegment("\\clearpage"));
       break;
     case InputData::Component::texPartType:
-      outputSegments.append(new OutputData::TexPartSegment(component.content));
+      outputSegments.append(new OutputData::TexPartSegment(component.value));
       break;
     case InputData::Component::pdfType:
       outputSegments.append(new OutputData::PdfSegment(component.filePath));
@@ -697,11 +697,11 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::mdType:
       segments.clear();
-      if(!parseMarkdown(component.filePath, component.content))
+      if(!parseMarkdown(component.filePath, component.value))
         return false;
       break;
     case InputData::Component::environmentType:
-      outputData.environments.append(component.name, component.content.toBool());
+      outputData.environments.append(component.name, component.value.toBool());
       break;
     }
   }

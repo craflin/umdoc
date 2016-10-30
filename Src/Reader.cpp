@@ -62,7 +62,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           if(!file.open(component.filePath))
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
 
-          if(!file.readAll(component.content))
+          if(!file.readAll(component.value))
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
         }
         else if(element.type == "tableOfContents" || element.type == "toc")
@@ -85,14 +85,14 @@ bool Reader::read(const String& inputFile, InputData& inputData)
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::texPartType;
-          component.content = *element.attributes.find("title");
+          component.value = *element.attributes.find("title");
         }
         else if(element.type == "environment")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::environmentType;
           component.name = *element.attributes.find("name");
-          component.content = *element.attributes.find("verbatim");
+          component.value = *element.attributes.find("verbatim");
         }
         else
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;

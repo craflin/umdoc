@@ -25,7 +25,7 @@ public:
     Type type;
     String name;
     String filePath;
-    String content;
+    String value;
   };
 
 public:
