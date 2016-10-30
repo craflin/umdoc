@@ -19,6 +19,7 @@ public:
       pdfType,
       mdType,
       environmentType,
+      setType,
     };
 
   public:

@@ -14,8 +14,6 @@ Parser::~Parser()
     delete *i;
 }
 
-
-
 void Parser::addSegment(OutputData::Segment& newSegment)
 {
   if(!segments.isEmpty())
@@ -680,7 +678,12 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     switch(component.type)
     {
     case InputData::Component::texType:
-      outputSegments.append(new OutputData::TexSegment(component.value));
+      {
+        String value = component.value;
+        for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
+          value.replace(String("%") + i.key() + "%", Generator::texEscape(*i, outputData));
+        outputSegments.append(new OutputData::TexSegment(value));
+      }
       break;
     case InputData::Component::texTocType:
       outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
@@ -702,6 +705,9 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::environmentType:
       outputData.environments.append(component.name, component.value.toBool());
+      break;
+    case InputData::Component::setType:
+      outputData.variables.append(component.name, component.value);
       break;
     }
   }

@@ -663,24 +663,26 @@ String OutputData::TableSegment::generate(const OutputData& outputData) const
   {
     RowData& rowData = *i;
     usize columnIndex = 0;
-    for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
     {
-      const ColumnInfo& columnInfo = columns[columnIndex];
-      CellData& cellData = *i;
-      if(i != begin)
-        result.append(" & ");
-      //String width = columnInfo.arguments.find("width")->toString();
-      //if(!width.isEmpty())
-      //  result.append(String("\\parbox[t][][t]{") + width + "}{");
-      for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+      for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
       {
-        Segment* segment = *i;
-        if(!segment->isValid())
-          continue;
-        result.append(segment->generate(outputData));
+        const ColumnInfo& columnInfo = columns[columnIndex];
+        CellData& cellData = *i;
+        if(i != begin)
+          result.append(" & ");
+        //String width = columnInfo.arguments.find("width")->toString();
+        //if(!width.isEmpty())
+        //  result.append(String("\\parbox[t][][t]{") + width + "}{");
+        for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+        {
+          Segment* segment = *i;
+          if(!segment->isValid())
+            continue;
+          result.append(segment->generate(outputData));
+        }
+        //if(!width.isEmpty())
+        //  result.append("\\vspace{5pt}}");
       }
-      //if(!width.isEmpty())
-      //  result.append("\\vspace{5pt}}");
     }
     result.append(" \\\\\n");
     if(i == rows.begin())

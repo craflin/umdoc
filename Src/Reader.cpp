@@ -94,6 +94,13 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           component.name = *element.attributes.find("name");
           component.value = *element.attributes.find("verbatim");
         }
+        else if(element.type == "set")
+        {
+          InputData::Component& component = inputData.document.append(InputData::Component());
+          component.type = InputData::Component::setType;
+          component.name = *element.attributes.find("name");
+          component.value = *element.attributes.find("value");
+        }
         else
             return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
       }

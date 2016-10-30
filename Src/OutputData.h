@@ -247,6 +247,7 @@ public:
   bool hasPdfSegments;
   List<Segment*> segments;
   HashMap<String, bool> environments;
+  HashMap<String, String> variables;
 
 public:
   OutputData() : hasPdfSegments(false) {}
