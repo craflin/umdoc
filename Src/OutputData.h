@@ -197,6 +197,7 @@ public:
       public:
         int indent;
         Alignment alignment;
+        Map<String, Variant> arguments;
         ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
       };
   private:

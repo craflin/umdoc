@@ -643,25 +643,35 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
 
 String OutputData::TableSegment::generate(const OutputData& outputData) const
 {
-  String result("\n\\begin{center}\\begin{tabular}{|");
+  String result("\n\\begin{center}\\begin{tabular}{");
   for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
   {
     const ColumnInfo& columnInfo = *i;
-    char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
-    result.append(a);
-    result.append("|");
+    String width = columnInfo.arguments.find("width")->toString();
+    if(!width.isEmpty())
+      result.append(String("p{") + width + "}");
+    else
+    {
+      char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
+      result.append(a);
+    }
+    //result.append("|");
   }
   result.append("}\n");
   result.append("\\hline\n");
   for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
   {
     RowData& rowData = *i;
-    for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i)
+    usize columnIndex = 0;
+    for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
     {
+      const ColumnInfo& columnInfo = columns[columnIndex];
       CellData& cellData = *i;
       if(i != begin)
         result.append(" & ");
-      //result.append("\\parbox[t][][t]{3cm}{");
+      //String width = columnInfo.arguments.find("width")->toString();
+      //if(!width.isEmpty())
+      //  result.append(String("\\parbox[t][][t]{") + width + "}{");
       for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
       {
         Segment* segment = *i;
@@ -669,10 +679,15 @@ String OutputData::TableSegment::generate(const OutputData& outputData) const
           continue;
         result.append(segment->generate(outputData));
       }
-      //result.append("\\vspace{5pt}}");
+      //if(!width.isEmpty())
+      //  result.append("\\vspace{5pt}}");
     }
-    result.append(" \\\\\n\\hline\n");
+    result.append(" \\\\\n");
+    if(i == rows.begin())
+      result.append("\\hline\n");
   }
+  if(rows.size() > 1)
+    result.append("\\hline\n");
   result.append("\\end{tabular}\\end{center}");
   return result;
 }

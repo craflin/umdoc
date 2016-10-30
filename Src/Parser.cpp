@@ -597,11 +597,11 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
       const char* columEnd = i;
       if(columEnd == columStart)
         break;
-      int columnIndent = indent + (columStart - start);;
-      columns.append(columnIndent);
+      ColumnInfo& columnInfo = columns.append(ColumnInfo(indent + (columStart - start)));
       ColumnData& column = columnData.append(ColumnData());
-      column.indent = columnIndent;
+      column.indent = columnInfo.indent;
       column.text.attach(columStart, columEnd - columStart);
+      Parser::extractArguments(column.text, columnInfo.arguments);
       --i;
     }
 
