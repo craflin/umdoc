@@ -3,6 +3,7 @@
 
 #include <nstd/String.h>
 #include <nstd/List.h>
+#include <nstd/HashMap.h>
 
 class InputData
 {
@@ -19,7 +20,6 @@ public:
       pdfType,
       mdType,
       environmentType,
-      setType,
     };
 
   public:
@@ -33,5 +33,6 @@ public:
   String inputFile;
   String className;
   List<String> headerTexFiles;
+  HashMap<String, String> variables;
   List<Component> document;
 };

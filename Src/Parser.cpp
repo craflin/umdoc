@@ -661,6 +661,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
   outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
   outputData.className = inputData.className;
+  outputData.variables = inputData.variables;
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
     outputData.headerTexFiles.append(*i);
@@ -705,9 +706,6 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::environmentType:
       outputData.environments.append(component.name, component.value.toBool());
-      break;
-    case InputData::Component::setType:
-      outputData.variables.append(component.name, component.value);
       break;
     }
   }

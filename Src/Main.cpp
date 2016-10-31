@@ -108,14 +108,15 @@ int main(int argc, char* argv[])
   String inputFile("umdoc.xml");
   String outputFile;
   String engine("lualatex");
-  //String engine("pdflatex");
   String auxDirectory;
+  HashMap<String, String> variables;
 
   {
     Process::Option options[] = {
         {'o', "output", Process::argumentFlag},
         {'e', "engine", Process::argumentFlag},
         {'a', "aux-directory", Process::argumentFlag},
+        {'h', "help", Process::optionFlag},
     };
     Process::Arguments arguments(argc, argv, options);
     int character;
@@ -133,6 +134,15 @@ int main(int argc, char* argv[])
         auxDirectory = argument;
         break;
       case '?':
+        if(argument.startsWith("--"))
+        {
+          const char* i = argument.find('=');
+          if(i)
+          {
+            variables.append(argument.substr(2, i - (const char*)argument - 2), argument.substr(i  - (const char*)argument + 1));
+            continue;
+          }
+        }
         Console::errorf("Unknown option: %s.\n", (const char*)argument);
         return 1;
       case ':':
@@ -193,6 +203,17 @@ int main(int argc, char* argv[])
       Console::errorf("%s:%d:%d: error: %s\n", (const char*)inputFile, reader.getErrorLine(), reader.getErrorColumn(), (const char*)reader.getErrorString());
       return 1;
     }
+  }
+
+  // set variables
+  for(HashMap<String, String>::Iterator i = variables.begin(), end = variables.end(); i != end; ++i)
+  {
+    if(inputData.variables.find(i.key()) == inputData.variables.end())
+    {
+      Console::errorf("Unknown option: %s.\n", (const char*)i.key());
+      return 1;
+    }
+    inputData.variables.append(i.key(), *i);
   }
 
   // parse input data

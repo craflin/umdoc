@@ -48,6 +48,8 @@ bool Reader::read(const String& inputFile, InputData& inputData)
       for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
         inputData.headerTexFiles.append(i->toString());
     }
+    else if(element.type == "set")
+      inputData.variables.append(*element.attributes.find("name"), *element.attributes.find("value"));
     else if(element.type == "document")
     {
       for(List<XML::Variant>::Iterator i = element.content.begin(), end = element.content.end(); i != end; ++i)
@@ -102,14 +104,9 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           component.value = *element.attributes.find("verbatim");
         }
         else if(element.type == "set")
-        {
-          InputData::Component& component = inputData.document.append(InputData::Component());
-          component.type = InputData::Component::setType;
-          component.name = *element.attributes.find("name");
-          component.value = *element.attributes.find("value");
-        }
+          inputData.variables.append(*element.attributes.find("name"), *element.attributes.find("value"));
         else
-            return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
+          return errorLine = element.line, errorColumn = element.column, errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
       }
       documentRead = true;
     }
