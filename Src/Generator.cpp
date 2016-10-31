@@ -267,7 +267,7 @@ bool Generator::matchInlineLink(const char* s, const char* end, const OutputData
   return true;
 }
 
-bool Generator::matchInlineImage(const char* s, const char* end,const OutputData& outputData, const char*& pos, String& result)
+bool Generator::matchInlineImage(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result)
 {
   if(*s != '!')
     return false;
@@ -302,6 +302,28 @@ bool Generator::matchInlineImage(const char* s, const char* end,const OutputData
   pos = s;
   return true;
 }
+
+bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos, String& result)
+{
+  if(*(s++) != '<')
+    return false;
+  while(String::isSpace(*s) && s < end)
+    ++s;
+  if(*(s++) != 'b')
+    return false;
+  if(*(s++) != 'r')
+    return false;
+  while(String::isSpace(*s) && s < end)
+    ++s;
+  if(*(s++) != '/')
+    return false;
+  if(*(s++) != '>')
+    return false;
+  pos = s;
+  result.append("\\\\");
+  return true;
+}
+
 /*
 String Generator::mardownUnescape(const String& str)
 {
@@ -409,6 +431,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
       if(matchInlineLink(i, end, outputData, i, result))
         continue;
       if(matchInlineImage(i, end, outputData, i, result))
+        continue;
+      if(matchLineBreak(i, end, i, result))
         continue;
       result.append(texEscapeChar(c));
       ++i;

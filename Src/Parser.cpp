@@ -288,9 +288,7 @@ begin:
       const char* end = i + remainingLine.length();
       String title, path;
       if(matchFigureImage(i, end, title, path))
-      {
         segment = new OutputData::FigureSegment(indent, title, path);
-      }
     }
     break;
   case '|':
