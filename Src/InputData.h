@@ -19,7 +19,6 @@ public:
       texPartType,
       pdfType,
       mdType,
-      environmentType,
     };
 
   public:
@@ -34,5 +33,6 @@ public:
   String className;
   List<String> headerTexFiles;
   HashMap<String, String> variables;
+  HashMap<String, String> environments;
   List<Component> document;
 };

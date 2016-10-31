@@ -498,7 +498,7 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
   return false;
 }
 
-bool OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, bool>& knownEnvironments, String& error)
+bool OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error)
 {
   const char* start = line;
   const char* end = start + line.length();
@@ -515,13 +515,13 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
 
   if(!language.isEmpty())
   {
-    HashMap<String, bool>::Iterator it = knownEnvironments.find(Generator::getEnvironmentName(language));
+    HashMap<String, EnvironmentInfo>::Iterator it = knownEnvironments.find(Generator::getEnvironmentName(language));
     if(it == knownEnvironments.end())
     {
       error = String("Unknown environment '") + language + "'";
       return false;
     }
-    verbatim = *it;
+    verbatim = it->verbatim;
   }
 
   return true;
@@ -660,15 +660,20 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
   outputData.className = inputData.className;
   outputData.variables = inputData.variables;
+  for(HashMap<String, String>::Iterator i = inputData.environments.begin(), end = inputData.environments.end(); i != end; ++i)
+  {
+    OutputData::EnvironmentInfo& environmentInfo = outputData.environments.append(i.key(), OutputData::EnvironmentInfo());
+    environmentInfo.verbatim = i->toBool();
+  }
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
     outputData.headerTexFiles.append(*i);
 
   if(outputData.className.isEmpty())
   {
-    outputData.environments.append("latexexample", false);
+    outputData.environments.append("latexexample", OutputData::EnvironmentInfo()).verbatim = false;
     for(usize i = 0; i < Generator::numOfDefaultListingsLanguages; ++i)
-      outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), true);
+      outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
 
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
@@ -701,9 +706,6 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       segments.clear();
       if(!parseMarkdown(component.filePath, component.value))
         return false;
-      break;
-    case InputData::Component::environmentType:
-      outputData.environments.append(component.name, component.value.toBool());
       break;
     }
   }

@@ -11,6 +11,12 @@
 class OutputData
 {
 public:
+  class EnvironmentInfo
+  {
+  public:
+    bool verbatim;
+  };
+
   class Segment
   {
   public:
@@ -144,7 +150,7 @@ public:
     EnvironmentSegment(int indent) : Segment(indent), verbatim(true) {}
     ~EnvironmentSegment();
     void addLine(const String& line) {lines.append(line);}
-    bool parseArguments(const String& line, const HashMap<String, bool>& knownEnvironments, String& error);
+    bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
     bool isVerbatim() const {return verbatim;}
     void swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
@@ -246,7 +252,7 @@ public:
   List<String> headerTexFiles;
   bool hasPdfSegments;
   List<Segment*> segments;
-  HashMap<String, bool> environments;
+  HashMap<String, EnvironmentInfo> environments;
   HashMap<String, String> variables;
 
 public:

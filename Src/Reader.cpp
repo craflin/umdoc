@@ -50,6 +50,8 @@ bool Reader::read(const String& inputFile, InputData& inputData)
     }
     else if(element.type == "set")
       inputData.variables.append(*element.attributes.find("name"), *element.attributes.find("value"));
+    else if(element.type == "environment")
+      inputData.environments.append(*element.attributes.find("name"), *element.attributes.find("verbatim"));
     else if(element.type == "document")
     {
       for(List<XML::Variant>::Iterator i = element.content.begin(), end = element.content.end(); i != end; ++i)
@@ -97,12 +99,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           component.value = *element.attributes.find("title");
         }
         else if(element.type == "environment")
-        {
-          InputData::Component& component = inputData.document.append(InputData::Component());
-          component.type = InputData::Component::environmentType;
-          component.name = *element.attributes.find("name");
-          component.value = *element.attributes.find("verbatim");
-        }
+          inputData.environments.append(*element.attributes.find("name"), *element.attributes.find("verbatim"));
         else if(element.type == "set")
           inputData.variables.append(*element.attributes.find("name"), *element.attributes.find("value"));
         else
