@@ -686,7 +686,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       }
       break;
     case InputData::Component::texTocType:
-      outputSegments.append(new OutputData::TexSegment("\\pagestyle{empty}\n\\tableofcontents"));
+      outputSegments.append(new OutputData::TexSegment("\\tableofcontents"));
       break;
     case InputData::Component::texNewPageType:
       outputSegments.append(new OutputData::TexSegment("\\clearpage"));
