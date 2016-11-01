@@ -366,7 +366,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
       {
         if(*(const char*)endSequence == '*' || *(const char*)endSequence == '_')
         {
-          if(String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1])))
+          if((String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
+            (*(const char*)endSequence == '_' && String::isAlphanumeric(i[endSequence.length()])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < endSequence.length(); ++j)
               result.append(texEscapeChar(*(const char*)endSequence));
@@ -396,7 +397,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
 
         if(c == '*' || c == '_')
         {
-          if(String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1])))
+          if((String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
+            (c == '_' && i != start && String::isAlphanumeric(i[-1])))
           { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
             for(size_t j = 0; j < sequence.length(); ++j)
               result.append(texEscapeChar(c));
