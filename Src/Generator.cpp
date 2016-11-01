@@ -138,7 +138,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 "}"))
       return false;
 
-    if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
+    if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily\\small,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
     if(!file.write("\\lstnewenvironment{plain}{\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
       return false;

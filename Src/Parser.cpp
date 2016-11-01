@@ -672,6 +672,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   if(outputData.className.isEmpty())
   {
     outputData.environments.append("latexexample", OutputData::EnvironmentInfo()).verbatim = false;
+    outputData.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
     for(usize i = 0; i < Generator::numOfDefaultListingsLanguages; ++i)
       outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
