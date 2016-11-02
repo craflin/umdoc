@@ -84,21 +84,20 @@ bool Parser::matchFigureImage(const char* s, const char* end, String& title, Str
   return true;
 }
 
-bool Parser::parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent)
+bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
 {
   if(parserMode == environmentMode)
   {
-    if(!environmentParser->parseMarkdownLine(line, offset))
+    if(!environmentParser->parseMarkdownLine(line, additionalIndent))
       return error = environmentParser->error, false;
     return true;
   }
 
-begin:
-  int indent = 0;
+  int indent = additionalIndent;
   OutputData::Segment* segment = 0;
   const char* p = line;
-  for(p += offset; *p == ' '; ++p);
-  indent = p - (const char*)line + additionalIndent;
+  for(; *p == ' '; ++p);
+  indent += p - (const char*)line;
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char*)line));
 
@@ -184,8 +183,9 @@ begin:
         int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char*)line;
-        goto begin;
+        usize offset = i - (const char*)remainingLine;
+        remainingLine.attach(i, remainingLine.length() - offset);
+        return parseMarkdownLine(remainingLine, indent + offset);
       }
     }
     break;
@@ -233,8 +233,9 @@ begin:
         int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char*)line;
-        goto begin;
+        usize offset = i - (const char*)remainingLine;
+        remainingLine.attach(i, remainingLine.length() - offset);
+        return parseMarkdownLine(remainingLine, indent + offset);
       }
     }
     break;
@@ -248,8 +249,9 @@ begin:
         int childIndent = i - (const char*)line;
         OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
         addSegment(*listSegment);
-        offset = i - (const char*)line;
-        goto begin;
+        usize offset = i - (const char*)remainingLine;
+        remainingLine.attach(i, remainingLine.length() - offset);
+        return parseMarkdownLine(remainingLine, indent + offset);
       }
     }
     break;
@@ -278,8 +280,10 @@ begin:
     {
       OutputData::BlockquoteSegment* blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
       addSegment(*blockquoteSegment);
-      offset = p + 2 - (const char*)line;
-      goto begin;
+      p += 2;
+      usize offset = p - (const char*)remainingLine;
+      remainingLine.attach(p, remainingLine.length() - offset);
+      return parseMarkdownLine(remainingLine, indent + offset);
     }
     break;
   case '!':
@@ -302,7 +306,7 @@ begin:
       }
       addSegment(*tableSegment);
       for(List<OutputData::TableSegment::ColumnData>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
-        if(!parseMarkdownLine(i->text, 0, i->indent))
+        if(!parseMarkdownLine(i->text, i->indent))
           return false;
       return true;
     }
@@ -325,8 +329,9 @@ begin:
         String numberStr;
         OutputData::NumberedListSegment* numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
         addSegment(*numberedListSegment);
-        offset = i - (const char*)line;
-        goto begin;
+        usize offset = i - (const char*)remainingLine;
+        remainingLine.attach(i, remainingLine.length() - offset);
+        return parseMarkdownLine(remainingLine, indent + offset);
       }
     }
   }

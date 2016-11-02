@@ -57,5 +57,5 @@ private:
   bool matchFigureImage(const char* s, const char* end, String& title, String& path);
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
-  bool parseMarkdownLine(const String& line, size_t offset, size_t additionalIndent = 0);
+  bool parseMarkdownLine(const String& line, usize additionalIndent);
 };
