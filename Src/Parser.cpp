@@ -395,6 +395,53 @@ void Parser::extractArguments(String& line, Map<String, Variant>& args)
   line = line.substr(0, attributeStart - 1 - (const char*)line);
 }
 
+bool Parser::extractStringArgument(String& line, String& result)
+{
+  const char* start = line;
+  const char* i = start;
+  const char* end = start + line.length();
+  while(String::isSpace(*i) && i < end)
+    ++i;
+  if(*i == '{')
+    return false;
+  if(*i == '"')
+  {
+    ++i;
+    result.clear();
+    for(; i < end; ++i)
+    {
+      if(*i == '\\' && i + 1 < end)
+      {
+        ++i;
+        result.append(*i);
+      }
+      else if(*i == '"')
+      {
+        ++i;
+        break;
+      }
+      else
+        result.append(*i);
+    }
+    while(String::isSpace(*i) && i < end)
+      ++i;
+    line = line.substr(i - start);
+    return true;
+  }
+  else if(i < end)
+  {
+    const char* strStart = i;
+    while(!String::isSpace(*i) && i < end)
+      ++i;
+    result = line.substr(strStart - start, i - strStart);
+    while(String::isSpace(*i) && i < end)
+      ++i;
+    line = line.substr(i - start);
+    return true;
+  }
+  return false;
+}
+
 bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
 {
   if(newParagraph)
@@ -505,18 +552,18 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
 
 bool OutputData::EnvironmentSegment::parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error)
 {
-  const char* start = line;
-  const char* end = start + line.length();
-  const char* i = start;
+  const char* i = line;
   while(*i == '`')
     ++i;
-  for(; i < end && String::isSpace(*i); ++i);
-  const char* languageStart = i;
-  for(; i < end && String::isAlpha(*i); ++i);
-  const char* languageEnd = i;
-  for(; i < end && String::isSpace(*i); ++i);
+  String argLine;
+  argLine.attach(i, line.length() - (i - (const char*)line));
+  String caption;
+  if(Parser::extractStringArgument(argLine, language))
+    Parser::extractStringArgument(argLine, caption);
+  Parser::extractArguments(argLine, arguments);
 
-  language = String(languageStart, languageEnd - languageStart);
+  if(!caption.isEmpty())
+    arguments.insert("caption", caption);
 
   if(!language.isEmpty())
   {

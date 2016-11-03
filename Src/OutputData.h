@@ -159,6 +159,7 @@ public:
   private:
     bool verbatim;
     String language;
+    Map<String, Variant> arguments;
     List<String> lines;
     List<Segment*> segments;
   };

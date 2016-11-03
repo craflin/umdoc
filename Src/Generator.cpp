@@ -135,7 +135,10 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 "  commentstyle=\\color{codeGreenColor},"
 "  stringstyle=\\color{codeRedColor},"
 "  identifierstyle=\\color{red}"
-"}"))
+"}\n\n"))
+      return false;
+
+    if(!file.write("\\newcommand\\EnvironmentCaption[1]{\\parbox{\\textwidth}{\\textbf{#1}}}\n\n"))
       return false;
 
     if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily\\small,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
@@ -147,7 +150,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       String language = String::fromCString(defaultListingsLanguages[i]);
       //if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}{\\lstset{language=" + language + ",frame=single,basicstyle=\//\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
       //  return false;
-      if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}{\\lstset{language=" + language + "}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+      if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}[1][]{\\lstset{language=" + language + ",#1}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
         return false;
     }
     if(!file.write("\n"))
@@ -156,7 +159,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     // create environment for latex examples
     //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\\HorizontalRule}{\n\\HorizontalRule\\end{minipage}}\n\n"))
     //  return false;
-    if(!file.write("\\NewEnviron{latexexample}{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}\\vspace{3.3pt}}\n\n"))
+    if(!file.write("\\NewEnviron{latexexample}[1][]{\\vspace{\\parskip}\\hspace{-3.4pt}\\fcolorbox{boxFrameColor}{white}{\\minipage{\\linewidth}\n\\vspace{3.3pt}\\BODY\n\\vspace{3.4pt}\\endminipage}\\vspace{3.3pt}}\n\n"))
       return false;
     //if(!file.write("\\newenvironment{latexexample}{\\vspace{\\parskip}\\begin{mdframed}[backgroundcolor=yellow!10]\\begin{minipage}{\\linewidth}}{\\end{minipage}\\end{mdframed}}\n\n"))
     //  return false;
@@ -635,14 +638,16 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
 {
   String environment = language;
   if(environment.isEmpty())
-    //environment = "verbatim";
     environment = "plain";
   environment = Generator::getEnvironmentName(environment);
 
+  String caption = arguments.find("caption")->toString();
+  String flags;
+  if(!caption.isEmpty())
+    flags += String("title=\\EnvironmentCaption{") + Generator::texEscape(caption, outputData) + "}";
+
   String result;
-  //result.append("\n\\vspace{\\parskip}\\begin{minipage}{\\linewidth}\n");
-  result.append(String("\n\\begin{") + environment + "}\n");
-  //String result(String("\\begin{lstlisting}[frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{white},rulecolor=\\color{white}]\n"));
+  result.append(String("\n\\begin{") + environment + "}[" +  flags + "]\n");
   if(verbatim)
   {
     for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
@@ -662,8 +667,6 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
     }
   }
   result.append(String("\\end{") + environment + "}\n");
-  //result.append("\\end{minipage}\n");
-  //result.append("\\end{lstlisting}");
   return result;
 }
 

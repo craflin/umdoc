@@ -213,7 +213,7 @@ Text with inline an inline image like this ![](circle.png).
 
 ## Fenced Code Blocks
 
-```c
+```c "main.c"
 #include <stdio.h>
 
 int main(void)

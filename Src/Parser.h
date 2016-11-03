@@ -20,6 +20,7 @@ public:
 
 public:
   static void extractArguments(String& line, Map<String, Variant>& args);
+  static bool extractStringArgument(String& line, String& result);
 
 private:
   enum ParserMode
