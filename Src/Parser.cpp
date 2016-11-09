@@ -349,6 +349,10 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
   String lineStr;
   error.file = filePath;
   error.line = 1;
+
+  bool inComment = false;
+  String preCommentLine;
+
   for(const char* p = fileContent, * end; *p; (p = end), ++line)
   {
     end = String::findOneOf(p, "\r\n");
@@ -356,8 +360,43 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
       end = p + String::length(p);
     
     lineStr.attach(p, end - p);
-    if(!parseMarkdownLine(lineStr, 0))
-      return false;
+    char endChar = *end;
+    *(char*)end = '\0';
+
+    for(;;)
+    {
+      if(inComment)
+      {
+        const char* commentEnd = lineStr.find("-->");
+        if(commentEnd)
+        {
+          lineStr = preCommentLine + lineStr.substr(commentEnd + 3 - (const char*)lineStr);
+          inComment = false;
+          continue;
+        }
+        else
+          break;
+      }
+      else
+      {
+        const char* commentStart = lineStr.find("<!--");
+        if(commentStart)
+        {
+          preCommentLine = lineStr.substr(0, commentStart - (const char*)lineStr);
+          lineStr =  lineStr.substr(commentStart + 4- (const char*)lineStr);
+          inComment = true;
+          continue;
+        }
+        else
+        {
+          if(!parseMarkdownLine(lineStr, 0))
+            return false;
+          break;
+        }
+      }
+    }
+
+    *(char*)end = endChar;
 
     if(*end == '\r' && end[1] == '\n')
       ++end;

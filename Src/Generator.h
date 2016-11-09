@@ -29,5 +29,4 @@ private:
   static bool matchInlineLink(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result);
   static bool matchInlineImage(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result);
   static bool matchLineBreak(const char* s, const char* end, const char*& pos, String& result);
-  static bool matchComment(const char* s, const char* end, const char*& pos);
 };

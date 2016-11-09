@@ -327,20 +327,6 @@ bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos,
   return true;
 }
 
-bool Generator::matchComment(const char* s, const char* end, const char*& pos)
-{
-  if(String::compare(s, "<!--", 4) != 0)
-    return false;
-  s += 4;
-  const char* commentEnd = String::find(s, "-->");
-  if(!commentEnd)
-    return false;
-  if(commentEnd > end)
-    return false;
-  pos = commentEnd + 3;
-  return true;
-}
-
 /*
 String Generator::mardownUnescape(const String& str)
 {
@@ -452,8 +438,6 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
       if(matchInlineImage(i, end, outputData, i, result))
         continue;
       if(matchLineBreak(i, end, i, result))
-        continue;
-      if(matchComment(i, end, i))
         continue;
       result.append(texEscapeChar(c));
       ++i;
