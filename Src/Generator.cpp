@@ -219,7 +219,7 @@ String Generator::texEscapeChar(char c)
     case '_':
       return "{\\_\\-}"; // allow line break after _
     case '-':
-      return "-{}"; // do not merge -- into a long -
+      return "{\\textendash}"; // do not merge -- into a long -
     case '/':
       return "{/\\-}"; // allow line break after /
     case '$':
