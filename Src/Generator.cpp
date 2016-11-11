@@ -81,6 +81,23 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write("\\setlength\\parskip{5pt}\n\n"))
        return false;
 
+    if(!file.write("\\usepackage{titlesec}\n\n") ||
+       !file.write("\\setcounter{secnumdepth}{4}\n") ||
+       //!file.write("\\titleformat{\\section}{\\fontsize{7em}{7em}\\selectfont\\bfseries}{\\thesection}{0.1em}{\\LARGE\\scshape}\n") ||
+       //!file.write("\\titleformat{\\part}{\\fontsize{5em}{5em}\\selectfont\\bfseries}{\\makebox[7.5cm][r]{\\thepart}}{0.8em}{\\LARGE\\scshape}\n") ||
+       //!file.write("\\titleformat{\\subsection}{\\normalfont\\Large\\bfseries}{\\thesubsection}{1em}{}\n") ||
+       //!file.write("\\titleformat{\\subsubsection}{\\normalfont\\large\\bfseries}{\\thesubsubsection}{1em}{}\n") ||
+       !file.write("\\titleformat{\\paragraph}{\\normalfont\\normalsize\\bfseries}{\\theparagraph}{1em}{}\n") ||
+       !file.write("\\titleformat{\\subparagraph}{\\normalfont\\normalsize\\bfseries}{\\thesubparagraph}{1em}{}\n") ||
+       //!file.write("\\titlespacing*{\\part}{-1.5cm}{10pt}{5pt}\n") ||
+       //!file.write("\\titlespacing*{\\section}{-1.5cm}{30pt}{5pt}\n") ||
+       //!file.write("\\titlespacing*{\\subsection}{-1.5cm}{10pt}{5pt}\n") ||
+       //!file.write("\\titlespacing*{\\subsubsection}{-1.5cm}{10pt}{5pt}\n") ||
+       //!file.write("\\titlespacing*{\\paragraph}{-1.5cm}{10pt}{5pt}\n") ||
+       //!file.write("\\titlespacing*{\\subparagraph}{-0cm}{10pt}{5pt}\n\n"))
+       false)
+      return false;
+
     // package insert graphics at the desired position
     if(!file.write("\\usepackage{float}\n\n"))
       return false;
@@ -110,7 +127,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     //  return false;
     //if(!file.write("\\usepackage{mdframed}\n\n"))
     //  return false;
-    if(!file.write("\\usepackage{array}\n\n"))
+    if(!file.write("\\usepackage{array}\n"))
       return false;
     //if(!file.write("\\renewcommand{\\arraystretch}{1.5}\n\n"))
     //  return false;
