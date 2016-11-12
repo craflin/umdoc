@@ -1,0 +1,15 @@
+<umdoc>
+
+    <document>
+
+        <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Document Generator} \author{Colin Graf} \date{Version 0.1\\ \today}\maketitle</tex>
+        <newPage/>
+
+        <tableOfContents/>
+        <newPage/>
+
+        <md file="umdoc.md"/>
+
+    </document>
+
+</umdoc>

@@ -22,6 +22,16 @@ targets = {
       cppFlags += { "-Wno-delete-non-virtual-dtor" }
     }
   }
+  
+  manual = {
+    dependencies = { "umdoc" }
+    outputDir = "Build/$(configuration)"
+    root = "Doc"
+    files = { "Doc/*" }    
+    input = files
+    output = "$(outputDir)/umdoc.pdf"
+    command = "Build/$(configuration)/umdoc Doc/umdoc.xml -o $(output) -a $(buildDir)"
+  }
 
   include "Ext/libnstd/libnstd.mare"
   libnstd += {
