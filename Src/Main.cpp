@@ -110,6 +110,7 @@ int main(int argc, char* argv[])
   String engine("lualatex");
   String auxDirectory;
   HashMap<String, String> variables;
+  bool stopAfterTex;
 
   {
     Process::Option options[] = {
@@ -117,6 +118,7 @@ int main(int argc, char* argv[])
         {'e', "engine", Process::argumentFlag},
         {'a', "aux-directory", Process::argumentFlag},
         {'h', "help", Process::optionFlag},
+        {'t', "tex", Process::optionFlag},
     };
     Process::Arguments arguments(argc, argv, options);
     int character;
@@ -132,6 +134,9 @@ int main(int argc, char* argv[])
         break;
        case 'a':
         auxDirectory = argument;
+        break;
+      case 't':
+        stopAfterTex = true;
         break;
       case '?':
         if(argument.startsWith("--"))
@@ -161,9 +166,9 @@ int main(int argc, char* argv[])
   {
     const tchar* end = inputFile.findLastOf("\\/.");
     if(end && *end == '.')
-      outputFile = inputFile.substr(0, end - inputFile) + ".pdf";
+      outputFile = inputFile.substr(0, end - inputFile) + (stopAfterTex ? String(".tex") : String(".pdf"));
     else
-      outputFile = inputFile + ".pdf";
+      outputFile = inputFile + (stopAfterTex ? String(".tex") : String(".pdf"));
   }
 
   if(auxDirectory.isEmpty())
@@ -248,12 +253,14 @@ int main(int argc, char* argv[])
   // generate tmp tex file
   {
     Generator generator;
-    if(!generator.generate(engine, outputData, tmpTexFile))
+    if(!generator.generate(engine, outputData, stopAfterTex ? outputFile : tmpTexFile))
     {
       Console::errorf("%s: error: %s\n", (const char*)tmpTexFile, (const char*)generator.getErrorString());
       return 1;
     }
   }
+  if(stopAfterTex)
+    return 0;
 
   // covnert tmp tex file to tmp pdf
   if(!latex2pdf(tmpTexFile, engine, auxDirectory))
