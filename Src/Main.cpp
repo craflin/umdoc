@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
   String engine("lualatex");
   String auxDirectory;
   HashMap<String, String> variables;
-  bool stopAfterTex;
+  bool stopAfterTex = false;
 
   {
     Process::Option options[] = {
@@ -157,7 +157,7 @@ int main(int argc, char* argv[])
         inputFile = argument;
         break;
       default:
-        Console::errorf("Usage: %s [<input-file>] [-o <output-file>] [-e <latex-engine>] [-a <aux-directory>]\n", argv[0]);
+        Console::errorf("Usage: %s [<input-file>] [-a <aux-directory>] [-e <latex-engine>]\n             [-o <output-file>] [-t] [--<variable>=<value>]\n", argv[0]);
         return 1;
       }
   }
