@@ -76,12 +76,12 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
             component.value.append(i->toString());
         }
-        else if(element.type == "tableOfContents" || element.type == "toc")
+        else if(element.type == "toc" || element.type == "tableOfContents")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::texTocType;
         }
-        else if(element.type == "newPage")
+        else if(element.type == "break" || element.type == "newPage")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::texNewPageType;
