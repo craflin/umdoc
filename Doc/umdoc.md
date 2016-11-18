@@ -4,8 +4,6 @@
 *umdoc* is a Markdown to *LaTeX* to *PDF* converter.
 It is small command line tool, which converts a Markdown file or set of Markdown files with optional layout information written in *LaTeX* into an input file (`.tex` file) for a *LaTeX* engine like `lualatex` or `pdflatex`. This file is than converted into a *PDF* document using such an engine.
 
-The Markdown dialect understood by *umdoc* was influenced by *[GitHub](http://github.com) flavored Markdown* and some [Pandoc](http://pandoc.org) Markdown extensions.
-
 The tool can be used in various ways:
 
 1. It can directly convert a Markdown file (ending with `.md`) into *LaTeX* or *PDF*:
@@ -29,7 +27,6 @@ The *umdoc* tool creates a *PDF* document by default. The `-t` option tells *umd
 There are plenty of options out there if you want to write documentation that can be delivered on paper or in form of a *PDF*. A WYSIWYG word processor can be used, you can use a sophisticated markup language like *LaTeX* or a anything in between.
 But writing documentation should be simple and convenient. If you collaborate with others, you want to use something that can easily be version controlled and merged with version control systems like *Git*. Hence, using tools that rely on a more or less unreadable format are not an option.
 Markup languages have other disadvantages. You have to know them to use them. Markdown on the other hand can easily be learned simply by looking at a Markdown document. 
-<!-- Using a markup language like *LaTeX* might be an option, but it will most definitely cause other issues since it requires extensive knowledge about the language to be used properly. -->
 So, using something like Markdown and converting it into a neatly formatted document seems like the perfect solution if your documentation needs can be met with basic text formatting constructs.
 But, if it actually comes to converting Markdown into a document, you will realize that it is not as easy as it should be.
 
@@ -43,19 +40,7 @@ This is because Markdown was designed to be converted into inner text *HTML* and
 
 All this cannot not be accomplished with traditional Markdown without heavily relying on *HTML*. Hence, you require some extensions to the Markdown language and a way to define the layout of the document to be created.
 
-*umdoc* tries to overcome the shortcomings of traditional Markdown by ... todo <!-- with some Markdown extensions inspired by GitHub flavored Markdown and Pandoc. Additionally, layout information can be specified using an *umdoc* specific *XML* file (see section~[]()). -->
-
-<!-- If you are a software developer, than you probably think that writing and maintaining documentation should be as easy as writing software, if not easier. For this very reason using plain text README files... -->
-
-<!-- 
-# Alternatives
-
-* markdown was not designed to be converted into pdf
-* viele einfache tools
-* customizability
-* pandoc
-
--->
+*umdoc* tries to overcome the shortcomings of traditional Markdown with some Markdown extensions inspired by *[GitHub](http://github.com) flavored Markdown* and [Pandoc](http://pandoc.org). Additionally, layout information can be specified using an *umdoc* specific *XML* file (see section~[](#umdoc-xml-file)).
 
 ##### Project Goals
 
@@ -76,7 +61,8 @@ In contrary, goals that the project does not try a achieve are:
 
 # Installation
 
-The *umdoc* tool consists of a single binary without any notable dependencies except *LaTeX*. To install it, simply download the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable. You can also call the *umdoc* tool directly if you do not want to touch your *PATH* variable.
+The *umdoc* tool consists of a single binary without any notable dependencies except *LaTeX*.
+To install it, simply download the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable. You can also call the *umdoc* tool directly if you do not want to touch your *PATH* variable.
 
 Additionally, you have to install a *TeX* distribution like [*MiKTeX*](http://miktex.org) on Windows or [*TeX Live*](http://www.tug.org/texlive/) on Linux or Windows. Most Linux distributions provide packages for *TeX Live* that you can install with the packaging system of that distribution (*APT*, *RPM*, etc.).
 
@@ -192,7 +178,7 @@ Overwriting the class name disables all default style extensions. Hence, the *La
 ### Custom Environments {#umdoc-xml-file-custom-environments}
 
 The spectrum of supported environments or "languages" in fenced code blocks (see section~[](#fenced-code-blocks)) can be extended with custom *LaTeX* environments.
-Therefore, you *LaTeX* class (see section~[](#latex-class)) or one of the *LaTeX* "header files" (see section~[](#umdoc-xml-tex-header)) has to declare an environment. To use them in a Markdown file, *umdoc* has to be made aware of such an environment using the `<environment>` element:
+Therefore, your *LaTeX* class (see section~[](#latex-class)) or one of the *LaTeX* "header files" (see section~[](#umdoc-xml-tex-header)) has to declare an environment. To use them in a Markdown file, *umdoc* has to be made aware of such an environment using the `<environment>` element:
 
 ```xml
 <environment name="<name>" verbatim="<bool>"/>
@@ -220,8 +206,7 @@ A `<tex>` element can be used to insert the contents of a `.tex` file into the g
 <tex file="<file>"/>
 ```
 
-The attribute `file` specifies the path to the `.tex` file. The path is relative to the location of the *umdoc* *XML* file.
-
+The attribute `file` specifies the path to the `.tex` file. The path is relative to the location of the *umdoc* *XML* file. The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
 ### The `<document>` element: {#umdoc-xml-document}
 
@@ -263,32 +248,62 @@ The `<document>` defines the structure of the document to be generated. The foll
 
 A manual page break can be inserted using the `<break/>` element. This is most useful after inserting the table of contents (see section~[](#umdoc-xml-toc)) or after inserting a Markdown or `.tex` file.
 
-The `<break>` element translates to the `\\clearpage` *LaTeX* command.
+The `<break>` element translates to the *LaTeX* command `\\clearpage`.
 
 #### Markdown Files {#umdoc-xml-markdown}
 
-todo
+A Markdown file can be inserted with:
+
+```xml
+<md file="<file>"/>
+```
+
+The attribute `file` specifies the path to the Markdown (`.md`) file. The path is relative to the location of the *umdoc* *XML* file. The content of the file is interpreted and converted to *LaTeX* respectively to the supported Markdown features (see section~[](#supported-markdown-features))
 
 #### Segment Titles {#umdoc-xml-part}
 
-todo
+A segment title, which is hierarchically above the highest section title of a Markdown file (see section~[](#markdown-titles)), can be inserted with:
+
+```xml
+<part title="<title>"/>
+```
+
+The `title` attribute supports basic markdown styling (see section~[](#markdown-styling)).
+
+The `<part>` element translates to the *LaTeX* command `\\part`.
 
 #### *PDF* Files {#umdoc-xml-pdf}
 
-todo
+A PDF document can be inserted into the generated document with:
+
+```xml
+<pdf file="<file>"/>
+```
+
+The attribute `file` specifies the path to the *PDF* file. The path is relative to the location of the *umdoc* *XML* file.
+
+The `<part>` element translates to the *LaTeX* command `\\includepdf` that is provided by the *pdfpages* package.
 
 #### `.tex` Files {#umdoc-xml-tex-in-document}
 
-todo
+A `<tex>` element inserts the contents of a `.tex` file directly into the generated `.tex` file:
+
+```xml
+<tex file="<file>"/>
+```
+
+The attribute `file` specifies the path to the `.tex` file. The path is relative to the location of the *umdoc* *XML* file. The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
 #### Table of Contents {#umdoc-xml-toc}
 
-todo
+An automatically generated table of contents can be inserted using the element `<toc/>`.
+
+This translates to the *LaTeX* command `\\tableofcontents`.
 
   
 # Supported Markdown Features {#supported-markdown-features}
 
-## Titles
+## Titles {#markdown-titles}
 
 ```
 # Example Title
@@ -307,9 +322,53 @@ results in:
 Example text.
 ```
 
-## Cross References
+## Basic Markdown Styling {#markdown-styling}
+
+### Cross References
 
 This references to section~[](#horizontal-rules).
+
+### Inline Links
+
+```
+This is an [example link](https://github.com/craflin/umdoc).
+```
+
+results in:
+```latexexample
+This is an [example link](https://github.com/craflin/umdoc).
+```
+
+### Code Spans
+
+```
+Some text with code like `printf()`. Code span with backticks `` `test` ``.
+```
+
+results in:
+```latexexample
+Some text with code like `printf()`. Code span with backticks `` `test` ``.
+```
+
+### Inline Images
+
+```
+Text with inline an inline image like this ![](circle.png).
+```
+
+results in:
+```latexexample
+Text with inline an inline image like this ![](circle.png).
+```
+
+## Comments
+
+*XML* style comments (`<\!-- comment -->`) are removed from the input file before parsing.
+Hence, these comments can be used anywhere in the file (except in comments) and they can span multiple lines.
+
+## Character Escaping
+
+todo
 
 ## Horizontal Rules {#horizontal-rules}
 
@@ -346,28 +405,6 @@ ______
 results in:
 ```latexexample
 ___
-```
-
-## Inline Links
-
-```
-This is an [example link](https://github.com/craflin/umdoc).
-```
-
-results in:
-```latexexample
-This is an [example link](https://github.com/craflin/umdoc).
-```
-
-## Code Spans
-
-```
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
-```
-
-results in:
-```latexexample
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
 ```
 
 ## Bullet Lists
@@ -475,17 +512,6 @@ results in:
 3. item c
 ```
 
-## Inline Images
-
-```
-Text with inline an inline image like this ![](circle.png).
-```
-
-results in:
-```latexexample
-Text with inline an inline image like this ![](circle.png).
-```
-
 ## Fenced Code Blocks {#fenced-code-blocks}
 
 ```c "main.c"
@@ -582,12 +608,6 @@ results in:
                 * item a
                 * item b
 ```
-
-## Comments
-
-*XML* style comments (`<\!-- comment -->`) are removed from the input file before parsing.
-Hence, these comments can be used anywhere in the file (except in comments) and they can span multiple lines.
-
 
 
 

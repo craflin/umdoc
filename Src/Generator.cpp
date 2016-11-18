@@ -755,5 +755,5 @@ String OutputData::PdfSegment::generate(const OutputData& outputData) const
   String path = filePath;
   if(!File::isAbsolutePath(path))
     path = outputData.inputDirectory + "/" + path;
-    return String("\n\\includepdf[pages=-]{") + File::getRelativePath(outputData.outputDirectory, path) + "}\n";
+  return String("\n\\includepdf[pages=-]{") + File::getRelativePath(outputData.outputDirectory, path) + "}\n";
 }
