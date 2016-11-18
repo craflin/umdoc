@@ -541,10 +541,9 @@ String OutputData::TitleSegment::generate(const OutputData& outputData) const
     result = String("\n\\paragraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
   case 5:
+  default:
     result = String("\n\\subparagraph{") + Generator::texEscape(title, outputData) + "}\n";
     break;
-  default:
-    ASSERT(false);
   }
   if(arguments.find("-") != arguments.end() || arguments.find(".unnumbered") != arguments.end())
   {
