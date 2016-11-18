@@ -305,24 +305,61 @@ This translates to the *LaTeX* command `\\tableofcontents`.
 
 ## Titles {#markdown-titles}
 
+*umdoc* supports Atx-style and Setext-style titles.
+
 ```
 # Example Title
 
 ## Example Title Level 2
+
+### Example Title Level 3
+
+Example text.
+```
+
+or
+
+```
+Example Title
+=============
+
+Example Title Level 2
+---------------------
+
+### Example Title Level 3
 
 Example text.
 ```
 
 results in:
 ```latexexample
-# 1 ~ ~ ~Example Title {-}
+1 ~ ~ ~Example Title {-}
+=============
 
-## 1.1 ~ ~ ~Example Title Level 2 {-}
+1.1 ~ ~ ~Example Title Level 2 {-}
+---------------------
+
+### 1.1.1 ~ ~ ~Example Title Level 3 {-}
 
 Example text.
 ```
 
+Depending on the header level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Headers of a level above 5 will also be translated to `\\subparagraph`.
+
 ## Basic Markdown Styling {#markdown-styling}
+
+### Italic and Bold Text
+
+Placing the character `\*` or `\_` around a string will turn it to italic. Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold. But, `\*` and `\_` will be left unchanged when they are surrounded by spaces. Additionally the `\_` character will be left unchanged if it occurs in a word.
+
+```
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use stand alone * or _ characters and the _ character is ignore when it occurs in_word. You can use * or ** to for in**word**highlighting.
+```
+
+results in:
+```latexexample
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use stand alone * or _ characters and the _ character is ignore when it occurs in_word. You can use * or ** to for in**word**highlighting.
+```
 
 ### Cross References
 
