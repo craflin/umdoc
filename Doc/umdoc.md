@@ -353,12 +353,12 @@ Depending on the header level, this translate to the *LaTeX* commands `\\section
 Placing the character `\*` or `\_` around a string will turn it to italic. Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold. But, `\*` and `\_` will be left unchanged when they are surrounded by spaces. Additionally the `\_` character will be left unchanged if it occurs in a word.
 
 ```
-The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use stand alone * or _ characters and the _ character is ignore when it occurs in_word. You can use * or ** to for in**word**highlighting.
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** to for in**word**highlighting.
 ```
 
 results in:
 ```latexexample
-The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use stand alone * or _ characters and the _ character is ignore when it occurs in_word. You can use * or ** to for in**word**highlighting.
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** to for in**word**highlighting.
 ```
 
 ### Cross References
