@@ -344,7 +344,7 @@ results in:
 Example text.
 ```
 
-Depending on the header level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Headers of a level above 5 will also be translated to `\\subparagraph`.
+Depending on the titel level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
 
 ## Basic Markdown Styling {#markdown-styling}
 
@@ -353,13 +353,15 @@ Depending on the header level, this translate to the *LaTeX* commands `\\section
 Placing the character `\*` or `\_` around a string will turn it to italic. Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold. But, `\*` and `\_` will be left unchanged when they are surrounded by spaces. Additionally the `\_` character will be left unchanged if it occurs in a word.
 
 ```
-The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** to for in**word**highlighting.
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** for in**word**highlighting.
 ```
 
 results in:
 ```latexexample
-The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** to for in**word**highlighting.
+The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** for in**word**highlighting.
 ```
+
+Italic text translates to the *LaTeX* command `\\emph` and bold text to `\\textbf`.
 
 ### Cross References
 
