@@ -332,7 +332,7 @@ Example text.
 ```
 
 results in:
-```latexexample
+```boxed
 1 ~ ~ ~Example Title {-}
 =============
 
@@ -357,7 +357,7 @@ The following is *italic* and so is _this_. __This__ is bold and so is **this**.
 ```
 
 results in:
-```latexexample
+```boxed
 The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** for in**word**highlighting.
 ```
 
@@ -372,7 +372,7 @@ Some text with code like `printf()`. Code span with backticks `` `test` ``.
 ```
 
 results in:
-```latexexample
+```boxed
 Some text with code like `printf()`. Code span with backticks `` `test` ``.
 ```
 
@@ -387,7 +387,7 @@ This is an [example link](https://github.com/craflin/umdoc). You can also create
 ```
 
 results in:
-```latexexample
+```boxed
 This is an [example link](https://github.com/craflin/umdoc). You can also create [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
 ```
 
@@ -407,7 +407,7 @@ Text with inline an inline image like this ![](circle.png).
 ```
 
 results in:
-```latexexample
+```boxed
 Text with inline an inline image like this ![](circle.png).
 ```
 
@@ -453,7 +453,7 @@ ______
 ```
 
 results in:
-```latexexample
+```boxed
 ___
 ```
 
@@ -484,7 +484,7 @@ or
 ```
 
 results in:
-```latexexample
+```boxed
 - item a
 - item b
 - item c
@@ -502,7 +502,7 @@ List items can have multiple paragraphs.
 ```
 
 results in:
-```latexexample
+```boxed
 * item a
 
   line 2
@@ -522,7 +522,7 @@ Lists can be nested.
 ```
 
 results in:
-```latexexample
+```boxed
 * item a
   * subitem a
   * subitem a
@@ -539,7 +539,7 @@ results in:
 ```
 
 results in:
-```latexexample
+```boxed
 1. item a
 2. item b
 3. item c
@@ -554,7 +554,7 @@ results in:
 ```
 
 results in:
-```latexexample
+```boxed
 1. item a
    1. subitem a
    2. subitem a
@@ -601,7 +601,7 @@ class HelloWorldApp {
 ```
 
 results in:
-```latexexample
+```boxed
 ![Example Figure](circle.png)
 ```
 
@@ -615,7 +615,7 @@ results in:
 ```
 
 results in:
-```latexexample
+```boxed
 | 1   | 2   | 3   | 4   |
 | --- | --- | --- | --- |
 | 5   | 6   | 7   | 8   |
@@ -630,7 +630,7 @@ results in:
 ```
 
 results in:
-```latexexample
+```boxed
 | **left** | **right** | **center** |
 | :---     |      ---: |   :---:    |
 | a        |         b |     c      |
@@ -647,7 +647,7 @@ results in:
 ```
 
 results in:
-```latexexample
+```boxed
 | left  | right {width=12cm} |
 | ----  | ----------------- |
 | lorem ipsum | line 1      | 
