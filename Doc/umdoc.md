@@ -395,10 +395,21 @@ This is an [example link](https://github.com/craflin/umdoc). You can also create
 
 A link translates to the *LaTeX* command `\\hyperref` from the *hyperref* package.
 
-### Cross References
+### Cross References {#markdown-cross-references}
 
-This references to section~[](#horizontal-rules).
+Cross references to section titles can be used by labeling the title and linking to it using the syntax of inline links (see section~[](#markdown-inline-links)). Section titles can be labeled by adding `{#<label>}` to the end of the title. It is then possible to link to it using `#<label>` as the `<url>` in the inline link. The section number will be used as `<text>` of the link if it is left blank.
 
+```
+This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
+```
+
+results in:
+
+```boxed
+This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
+```
+
+A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref` and a reference without a `<text>` to the command `\\ref`.
 
 ### Inline Images
 
@@ -420,7 +431,7 @@ Hence, these comments can be used anywhere in the file (except in comments) and 
 
 todo
 
-## Horizontal Rules {#horizontal-rules}
+## Horizontal Rules
 
 Lines of asterisks (\*), hyphens (\-), or underscores (\_) are interpreted as a horizontal rule.
 
