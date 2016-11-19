@@ -58,6 +58,11 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write("}\n\n"))
        return false;
 
+    // turn \\hyperref links blue (while keeping other in-document links black)
+    if(!file.write("\\let\\oldhyperref\\hyperref\n") ||
+      !file.write("\\renewcommand{\\hyperref}[2][]{\\oldhyperref[#1]{\\color{blue}#2}}\n\n"))
+       return false;
+
     // package to include images
     if(!file.write("\\usepackage{graphicx}\n\n"))
        return false;
@@ -271,16 +276,34 @@ bool Generator::matchInlineLink(const char* s, const char* end, const OutputData
   name.attach(nameStart, nameEnd - nameStart);
   if(link.startsWith("#"))
   {
-    result.append("\\ref{");
-    result.append(link.substr(1));
-    result.append("}");
+    if(name.isEmpty())
+    {
+      result.append("\\ref{");
+      result.append(link.substr(1));
+      result.append("}");
+    }
+    else
+    {
+      result.append("\\hyperref[");
+      result.append(link.substr(1));
+      result.append("]{");
+      result.append(texEscape(name, outputData));
+      result.append("}");
+    }
   }
   else
   {
     result.append("\\href{");
     result.append(link);
     result.append("}{");
-    result.append(texEscape(name, outputData));
+    if(name.isEmpty())
+    {
+      result.append("\\mbox{");
+      result.append(texEscape(link, outputData));
+      result.append("}");
+    }
+    else
+      result.append(texEscape(name, outputData));
     result.append("}");
   }
   pos = s;

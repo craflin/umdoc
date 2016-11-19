@@ -282,7 +282,7 @@ A PDF document can be inserted into the generated document with:
 
 The attribute `file` specifies the path to the *PDF* file. The path is relative to the location of the *umdoc* *XML* file.
 
-The `<part>` element translates to the *LaTeX* command `\\includepdf` that is provided by the *pdfpages* package.
+The `<part>` element translates to the *LaTeX* command `\\includepdf` from the *pdfpages* package.
 
 #### `.tex` Files {#umdoc-xml-tex-in-document}
 
@@ -378,20 +378,27 @@ Some text with code like `printf()`. Code span with backticks `` `test` ``.
 
 This translates to the *LaTeX* command `\\texttt`.
 
-### Cross References
+### Inline Links {#markdown-inline-links}
 
-This references to section~[](#horizontal-rules).
-
-### Inline Links
+A link can be inserted using the syntax `(<text>)[<url>]`:
 
 ```
-This is an [example link](https://github.com/craflin/umdoc).
+This is an [example link](https://github.com/craflin/umdoc). You can also create [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
 ```
 
 results in:
 ```latexexample
-This is an [example link](https://github.com/craflin/umdoc).
+This is an [example link](https://github.com/craflin/umdoc). You can also create [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
 ```
+
+<!-- The `<text>` is optional and `<url>` will be used if it left blank. -->
+
+A link translates to the *LaTeX* command `\\hyperref` from the *hyperref* package.
+
+### Cross References
+
+This references to section~[](#horizontal-rules).
+
 
 ### Inline Images
 
