@@ -344,7 +344,7 @@ results in:
 Example text.
 ```
 
-Depending on the titel level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
+Depending on the title level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
 
 ## Basic Markdown Styling {#markdown-styling}
 
@@ -363,6 +363,21 @@ The following is *italic* and so is _this_. __This__ is bold and so is **this**.
 
 Italic text translates to the *LaTeX* command `\\emph` and bold text to `\\textbf`.
 
+### Code Spans
+
+Text can be formatted with a fixed width font by surrounding it with single or double back ticks `` ` ``:
+
+```
+Some text with code like `printf()`. Code span with backticks `` `test` ``.
+```
+
+results in:
+```latexexample
+Some text with code like `printf()`. Code span with backticks `` `test` ``.
+```
+
+This translates to the *LaTeX* command `\\texttt`.
+
 ### Cross References
 
 This references to section~[](#horizontal-rules).
@@ -378,17 +393,6 @@ results in:
 This is an [example link](https://github.com/craflin/umdoc).
 ```
 
-### Code Spans
-
-```
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
-```
-
-results in:
-```latexexample
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
-```
-
 ### Inline Images
 
 ```
@@ -402,7 +406,7 @@ Text with inline an inline image like this ![](circle.png).
 
 ## Comments
 
-*XML* style comments (`<\!-- comment -->`) are removed from the input file before parsing.
+*XML* style comments (`<\!-- some text -->`) are removed from the input file before parsing.
 Hence, these comments can be used anywhere in the file (except in comments) and they can span multiple lines.
 
 ## Character Escaping
