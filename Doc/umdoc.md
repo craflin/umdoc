@@ -404,7 +404,6 @@ This references to section~[](#markdown-cross-references) and here is a referenc
 ```
 
 results in:
-
 ```boxed
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
 ```
@@ -413,13 +412,20 @@ A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref`
 
 ### Inline Images
 
+A small image or AN icon can be inserted into a text using the syntax `\!\[<title>](<file>)`:
+
 ```
-Text with inline an inline image like this ![](circle.png).
+This is an example text with an inline image like this ![](circle.png).
 ```
 
 results in:
 ```boxed
-Text with inline an inline image like this ![](circle.png).
+This is an example text with an inline image like this ![](circle.png).
+```
+
+This translates to the custom *LaTeX* command `\\InlineImage` by the default *umdoc* style it is defined with:
+```
+\newcommand\InlineImage[1]{\raisebox{-0.1em}{\includegraphics[height=0.9em]{#1}}}
 ```
 
 ## Comments
