@@ -464,7 +464,20 @@ Here starts a new paragraph.
 
 ## Block quotes
 
-todo 
+Block quotes can be inserted with a line staring with a `>` character.
+
+```
+> test 1
+> test 2 
+```
+
+results in:
+```boxed
+> test 1
+> test 2 
+```
+
+This translates to the *LaTeX* environment `quoting`.
 
 ## Horizontal Rules
 
