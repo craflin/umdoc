@@ -686,7 +686,8 @@ String OutputData::EnvironmentSegment::generate(const OutputData& outputData) co
     flags += String("title=\\EnvironmentCaption{") + Generator::texEscape(caption, outputData) + "}";
 
   String result;
-  result.append(String("\n\\begin{") + environment + "}[" +  flags + "]\n");
+  result.append(String("\n\\begin{") + environment + "}");
+  result.append(flags.isEmpty() ? String("\n") : String("[") +  flags + "]\n");
   if(verbatim)
   {
     for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
