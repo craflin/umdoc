@@ -435,11 +435,32 @@ Hence, these comments can be used anywhere in the file (except in comments) and 
 
 ## Character Escaping
 
-todo
+The following characters: 
+
+`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\! ``
+
+can be escaped with a black slash (`\\`) to prevent them from being interpreted as markdown formatting characters.
 
 ## Paragraphs
 
-todo
+Paragraphs can be separated with an empty line.
+
+```
+This is the first sentence of a paragraph.
+And this is the second.
+
+Here starts a new paragraph.
+```
+
+results in:
+```boxed
+This is the first sentence of a paragraph.
+And this is the second.
+
+~
+
+Here starts a new paragraph.
+```
 
 ## Block quotes
 
@@ -447,7 +468,7 @@ todo
 
 ## Horizontal Rules
 
-Lines of asterisks (\*), hyphens (\-), or underscores (\_) are interpreted as a horizontal rule.
+Lines of asterisks (`\*`), hyphens (`\-`), or underscores (`\_`) are interpreted as a horizontal rule.
 
 ```
 ***
