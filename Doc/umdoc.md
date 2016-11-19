@@ -423,7 +423,7 @@ results in:
 This is an example text with an inline image like this ![](circle.png).
 ```
 
-This translates to the custom *LaTeX* command `\\InlineImage` by the default *umdoc* style it is defined with:
+This translates to the custom *LaTeX* command `\\InlineImage`. By the default *umdoc* style it is defined with:
 ```
 \newcommand\InlineImage[1]{\raisebox{-0.1em}{\includegraphics[height=0.9em]{#1}}}
 ```
@@ -516,7 +516,12 @@ results in:
 ___
 ```
 
-## Bullet Lists
+This translates to the custom *LaTeX* command `\\HorizontalRule`. By the default *umdoc* style it is defined with:
+```
+\newcommand\HorizontalRule{\raisebox{3.5pt}[1.5ex]{\rule{\linewidth}{0.4pt}}}
+```
+
+## Bullet Lists {#markown-bullet-list}
 
 Lines starting with asterisk (\*), plus (\+), or hyphen (\-) are interpreted as bullet list items.
 
@@ -591,6 +596,8 @@ results in:
 
 ## Numbered Lists
 
+A line starting with number followed by a dot (`.`) is interpreted as an element of a numbered list.
+
 ```
 1. item a
 2. item b
@@ -603,6 +610,10 @@ results in:
 2. item b
 3. item c
 ```
+
+This translates to something ???
+
+Like bullet lists (see section~[](#markown-bullet-list)) numbered lists can be nested.
 
 ```
 1. item a
