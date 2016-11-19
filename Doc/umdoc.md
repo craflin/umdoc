@@ -431,6 +431,14 @@ Hence, these comments can be used anywhere in the file (except in comments) and 
 
 todo
 
+## Paragraphs
+
+todo
+
+## Block quotes
+
+todo 
+
 ## Horizontal Rules
 
 Lines of asterisks (\*), hyphens (\-), or underscores (\_) are interpreted as a horizontal rule.
