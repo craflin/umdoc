@@ -554,6 +554,8 @@ results in:
 - item c
 ```
 
+Bullet lists translate to the *LaTeX* environment `itemize`.
+
 List items can have multiple paragraphs.
 
 ```
@@ -611,9 +613,9 @@ results in:
 3. item c
 ```
 
-This translates to something ???
+This translates to the *LaTeX* environment `enumerate`.
 
-Like bullet lists (see section~[](#markown-bullet-list)) numbered lists can be nested.
+Like bullet lists (see section~[](#markown-bullet-list)) numbered list items can have multiple paragraphs and they can be nested.
 
 ```
 1. item a
