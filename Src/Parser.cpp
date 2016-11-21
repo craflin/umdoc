@@ -105,19 +105,34 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   {
     if(String::compare(p, "```", 3) == 0)
     {
+      const char* i = p +3;
+      while(*i == '`')
+        ++i;
+      int backticks = (int)(i - p);
+
       if(parserMode == childMode)
       {
         OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)parentParser->segments.back();
-        parentSegment->swapSegments(outputSegments);
-        parentParser->environmentParser = 0;
-        parentParser->parserMode = normalMode;
-        delete this;
+        if(backticks >= parentSegment->getBackticks())
+        {
+          parentSegment->swapSegments(outputSegments);
+          parentParser->environmentParser = 0;
+          parentParser->parserMode = parentParser->parentParser ? childMode : normalMode;
+          delete this;
+          return true;
+        }
       }
-      else
-        parserMode = normalMode;
-      return true;
+      if(parserMode == verbatimMode)
+      {
+        OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)segments.back();
+        if(backticks >= environmentSegment->getBackticks())
+        {
+          parserMode = parentParser ? childMode : normalMode;
+          return true;
+        }
+      }
     }
-    else if(parserMode == verbatimMode)
+    if(parserMode == verbatimMode)
     {
       OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)segments.back();
       environmentSegment->addLine(line);
@@ -258,7 +273,11 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   case '`':
     if(String::compare(p + 1, "``", 2) == 0)
     {
-      OutputData::EnvironmentSegment* environmentSegment = new OutputData::EnvironmentSegment(indent);
+      const char* i = p + 3;
+      while(*i == '`')
+        ++i;
+      int backticks = (int)(i - p);
+      OutputData::EnvironmentSegment* environmentSegment = new OutputData::EnvironmentSegment(indent, backticks);
       if(!environmentSegment->parseArguments(remainingLine, outputData->environments, error.string))
       {
         delete environmentSegment;
@@ -269,7 +288,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         parserMode = verbatimMode;
       else
       {
-        environmentParser = new Parser(this);
+        environmentParser = new Parser(this, outputData);
         parserMode = environmentMode;
       }
       break;
@@ -792,7 +811,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::pdfType:
       outputSegments.append(new OutputData::PdfSegment(component.filePath));
-      outputData.hasPdfSegments = true;
+      this->outputData->hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
       segments.clear();

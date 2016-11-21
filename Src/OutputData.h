@@ -147,16 +147,18 @@ public:
   class EnvironmentSegment : public Segment
   {
   public:
-    EnvironmentSegment(int indent) : Segment(indent), verbatim(true) {}
+    EnvironmentSegment(int indent, int backticks) : Segment(indent), backticks(backticks), verbatim(true) {}
     ~EnvironmentSegment();
     void addLine(const String& line) {lines.append(line);}
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
     bool isVerbatim() const {return verbatim;}
+    int getBackticks() const {return backticks;}
     void swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
     virtual String generate(const OutputData& outputData) const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
+    int backticks;
     bool verbatim;
     String language;
     Map<String, Variant> arguments;

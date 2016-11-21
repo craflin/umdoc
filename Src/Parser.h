@@ -9,7 +9,7 @@ class Parser
 {
 public:
   Parser() : parserMode(normalMode), outputData(0), environmentParser(0), parentParser(0) {}
-  Parser(Parser* parentParser) : parserMode(childMode), outputData(0), environmentParser(0), parentParser(parentParser) {}
+  Parser(Parser* parentParser, OutputData* outputData) : parserMode(childMode), outputData(outputData), environmentParser(0), parentParser(parentParser) {}
   ~Parser();
 
   bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
