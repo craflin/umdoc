@@ -412,7 +412,7 @@ A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref`
 
 ### Inline Images
 
-A small image or AN icon can be inserted into a text using the syntax `\!\[<title>](<file>)`:
+A small image or an icon can be inserted into a text using the syntax `\!\[<title>](<file>)`:
 
 ```
 This is an example text with an inline image like this ![](circle.png).
@@ -427,6 +427,8 @@ This translates to the custom *LaTeX* command `\\InlineImage`. By the default *u
 ```
 \newcommand\InlineImage[1]{\raisebox{-0.1em}{\includegraphics[height=0.9em]{#1}}}
 ```
+
+ `<file> is a path relative to the location of the *umdoc* *XML* file.
 
 ## Comments
 
@@ -703,6 +705,8 @@ int main(void)
 
 ## Figure Images
 
+An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure image.
+
 ```
 ![Example Figure](circle.png)
 ```
@@ -711,9 +715,15 @@ results in:
 ```boxed
 ![Example Figure](circle.png)
 ```
+
+This translate to the *LaTeX* environment `figure` where the command `\\includesgraphics` is used to insert the image `\\caption` to set the title.
+
+`<file> is a path relative to the location of the *umdoc* *XML* file.
 
 ## Tables
 
+A table can be inserted by formatting the table with the character `|`. The second line separates table header from the table content.
+
 ```
 | 1   | 2   | 3   | 4   |
 | --- | --- | --- | --- |
@@ -728,6 +738,8 @@ results in:
 | 5   | 6   | 7   | 8   |
 | 9   | 10  | 11  | 12  |
 ```
+
+The second line can specify the alignment of the table column using the character `:`.
 
 ```
 | **left** | **right** | **center** |
@@ -744,29 +756,32 @@ results in:
 | a        |         b |     c      |
 ```
 
-```
-| left  | right {width=5cm} |
-| ----  | ----------------- |
-| lorem ipsum | line 1      | 
+The width of column can be specified by adding the attribute `width` to the header cell. Cells can consist of multiple paragraphs.
 
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+```
+| left {width=5cm} | right {width=7cm} |
+| ----  | ----------------- |
+| cell 1 | cell 2 | 
+
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+           eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+  eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
 results in:
 ```boxed
-| left  | right {width=12cm} |
+| left {width=5cm} | right {width=7cm} |
 | ----  | ----------------- |
-| lorem ipsum | line 1      | 
+| cell 1 | cell 2 | 
 
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                
-                * item a
-                * item b
+           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+           eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do 
+  eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
-
-
-
+Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
 
