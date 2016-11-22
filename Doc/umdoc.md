@@ -636,6 +636,48 @@ results in:
 
 ## Fenced Code Blocks {#fenced-code-blocks}
 
+Fenced code blocks inserts custom environment into the generated *LaTeX* document. The code block starts with three or more back ticks (`` ` ``).
+
+````
+```
+test
+```
+````
+
+results in:
+```
+test
+```
+
+The environment to be used can be specified with an argument after back ticks and a caption can be inserted with second argument.
+
+````
+```<language> "<caption>"
+<code>
+```
+````
+
+translates to:
+```
+\begin{<language>}[title=\\EnvironmentCaption{<caption>}]
+<code>
+\end{<language>}
+```
+
+The custom command `\\EnvironmentCaption` is by the default *umdoc* style default as:
+```
+\newcommand\EnvironmentCaption[1]{\parbox{\textwidth}{\textbf{#1}}}
+```
+
+`<language>` is case insensitive. If `<language>` is just a single character like (`c` or `r`) the word `language` will be appended. If it contains the special character `+` it will be replaced `plus`. If the `<language>` argument is omitted, the environment `plain` will be used for basic verbatim code.
+
+The default *umdoc* style supports the following languages using the *LaTeX* package `listings`: `ABAP`, `ACM`, `ACMscript`, `ACSL`, `Ada`, `Algol`, `Ant`, `Assembler`, `Awk`, `bash`, `Basic`, `C`, `C++`, `Caml`, `CIL`, `Clean`, `Cobol`, `Comal 80`, `command.com`, `Comsol`, `csh`, `Delphi`, `Eiffel`, `Elan`, `erlang`, `Euphoria`, `Fortran`, `GCL`, `Gnuplot`, `hansl`, `Haskell`, `HTML`, `IDL`, `inform`, `Java`, `JVMIS`, `ksh`, `Lingo`, `Lisp`, `LLVM`, `Logo`, `Lua`, `make`, `Matlab`, `Mathematica`, `Mercury`, `MetaPost`, `Miranda`, `Mizar`, `ML`, `Modula-2`, `MuPAD`, `NASTRAN`, `Oberon-2`, `OCL`, `Octave`, `Oz`, `Perl`, `Pascal`, `PHP`, `PL/I`, `Plasm`, `PostScript`, `POV`, `Prolog`, `Promela`, `PSTricks`, `Python`, `R`, `Reduce`, `Rexx`, `RSL`, `Ruby`, `S`, `SAS`, `Scala`, `Scilab`, `sh`, `SHELXL`, `SPARQL`, `Simula`, `SQL`, `tcl`, `TeX`, `VBScript`, `Verilog`, `VHDL`, `VRML`, `XML`, `XSLT`
+
+Additionally, it supports the language `XML` and the non-verbatim environment `boxed`, which places a box around Markdown code.
+
+##### Example
+
+````
 ```c "main.c"
 #include <stdio.h>
 
@@ -645,25 +687,18 @@ int main(void)
     return 0;
 }
 ```
+````
 
-```java
-class HelloWorldApp {
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
-    }
+results in:
+
+```c "main.c"
+#include <stdio.h>
+
+int main(void)
+{
+    printf("Hello World\n");
+    return 0;
 }
-```
-
-```xml
-<umdoc>
-    <document>
-        <pdf file="cover.pdf"/>
-        <tableOfContents/>
-        <newPage/>
-        <!-- some comment -->
-        <md file="example.md"/>
-    </document>
-</umdoc>
 ```
 
 ## Figure Images
