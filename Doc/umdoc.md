@@ -15,22 +15,28 @@ umdoc [-t] example.md
 umdoc [-t] example.xml
 ```
 
-3. It can simply be launched in a working directory where it expects to find an *umdoc* *XML* file with the name `umdoc.xml`:
+3. It can simply be launched in a working directory where it expects to find an *umdoc* *XML* file with the name `umdoc.xml`, which is converted *LaTeX* or *PDF*:
    ```
 umdoc [-t]
 ```
 
-The *umdoc* tool creates a *PDF* document by default. The `-t` option tells *umdoc* to stop after creating the `.tex` file. (See section~[](#usage) for a full list of accepted command line arguments.)
+The *umdoc* tool creates a *PDF* document by default. The `-t` option tells *umdoc* to stop after creating the *LaTeX* file. (See section~[](#usage) for a full list of accepted command line arguments.)
 
 ## Motivation
 
-There are plenty of options out there if you want to write documentation that can be delivered on paper or in form of a *PDF*. A WYSIWYG word processor can be used, you can use a sophisticated markup language like *LaTeX* or a anything in between.
-But writing documentation should be simple and convenient. If you collaborate with others, you want to use something that can easily be version controlled and merged with version control systems like *Git*. Hence, using tools that rely on a more or less unreadable format are not an option.
-Markup languages have other disadvantages. You have to know them to use them. Markdown on the other hand can easily be learned simply by looking at a Markdown document. 
-So, using something like Markdown and converting it into a neatly formatted document seems like the perfect solution if your documentation needs can be met with basic text formatting constructs.
+There are plenty of options out there if you want to write documentation that can be delivered on paper or in form of a *PDF*.
+A WYSIWYG word processor can be used, you can use a sophisticated markup language like *LaTeX* or a anything in between.
+But, writing documentation should be simple and convenient.
+If you collaborate with others, you want to use something that can easily be version controlled and merged with version control systems like *Git*.
+Hence, using tools that rely on a more or less unreadable format are not an option.
+Markup languages have other disadvantages.
+You have to know them to use them.
+Markdown on the other hand can easily be learned simply by looking at a Markdown document. 
+So, using Markdown and converting it into a neatly formatted document seems like the perfect solution if your documentation needs can be met with basic text formatting constructs.
 But, if it actually comes to converting Markdown into a document, you will realize that it is not as easy as it should be.
 
-This is because Markdown was designed to be converted into inner text *HTML* and not into pages. To create a document, you will probably require:
+This is because Markdown was designed to be converted into inner text *HTML* and not into pages.
+To create a document, you will probably require:
 * The possibility to define the basic layout of document (cover page, table of contents, etc.).
 * The possibility to define a page header and footer.
 * Support for tables
@@ -38,9 +44,11 @@ This is because Markdown was designed to be converted into inner text *HTML* and
 * Cross references
 * Syntax highlighting
 
-All this cannot not be accomplished with traditional Markdown without heavily relying on *HTML*. Hence, you require some extensions to the Markdown language and a way to define the layout of the document to be created.
+All this cannot not be accomplished with traditional Markdown without heavily relying on *HTML*.
+Hence, you require some extensions to the Markdown language and a way to define the layout of the document to be created.
 
-*umdoc* tries to overcome the shortcomings of traditional Markdown with some Markdown extensions inspired by *[GitHub](http://github.com) flavored Markdown* and [Pandoc](http://pandoc.org). Additionally, layout information can be specified using an *umdoc* specific *XML* file (see section~[](#umdoc-xml-file)).
+*umdoc* tries to overcome the shortcomings of traditional Markdown with some Markdown extensions inspired by *[GitHub](http://github.com) flavored Markdown* and [Pandoc](http://pandoc.org).
+Additionally, layout information can be specified using an *umdoc* specific *XML* file (see section~[](#umdoc-xml-file)).
 
 ##### Project Goals
 
@@ -61,14 +69,16 @@ In contrary, goals that the project does not try a achieve are:
 
 # Installation
 
-The *umdoc* tool consists of a single binary without any notable dependencies except *LaTeX*.
-To install it, simply download the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable. You can also call the *umdoc* tool directly if you do not want to touch your *PATH* variable.
+The *umdoc* tool consists of a single binary without any notable dependencies except a *LaTeX* engine.
+To install it, simply download the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable.
+You can also call the *umdoc* tool directly if you do not want to touch your *PATH* variable.
 
-Additionally, you have to install a *TeX* distribution like [*MiKTeX*](http://miktex.org) on Windows or [*TeX Live*](http://www.tug.org/texlive/) on Linux or Windows. Most Linux distributions provide packages for *TeX Live* that you can install with the packaging system of that distribution (*APT*, *RPM*, etc.).
+Additionally, you have to install a *TeX* distribution like [*MiKTeX*](http://miktex.org) on Windows or [*TeX Live*](http://www.tug.org/texlive/) on Linux or Windows.
+Most Linux distributions provide packages for *TeX Live* that you can install with the packaging system of that distribution (*APT*, *RPM*, etc.).
 
 # Compilation
 
-If you do not trust binaries or if you want to participate in development, you can compile *umdoc* for yourself.
+If you do not trust binaries or if you want to participate in the development of *umdoc*, you can compile *umdoc* for yourself.
 
 ## Windows
 
@@ -80,21 +90,22 @@ If you do not trust binaries or if you want to participate in development, you c
 
 ## Linux
 
-* Ensure you have `g++` installed.
+* Ensure you have `git` and `g++` installed.
 * Clone the Git repository. `git clone git@github.com:craflin/umdoc.git`
 * Initialize submodules. `git submodule update --init`
 * Call `./generate` to compile *umdoc*.
 
 # Usage {#usage}
 
-The *umdoc* executable can be launched like this:
+The *umdoc* executable can be launched with the following arguments:
 
 ```
 umdoc [<input-file>] [-a <aux-directory>] [-e <latex-engine>] [-o <output-file>] [-t]
       [--<variable>=<value>]
 ```
 
-The default behavior of *umdoc* is to look in the working directory for a `umdoc.xml` file, which is converted into a `.tex` and into a *PDF* in the same directory. The default behavior can be changed by specifying the input file with `<input-file>` and/or the output file with `-o <output-file>`.
+The default behavior of *umdoc* is to look in the working directory for a `umdoc.xml` file, which is converted into a *LaTeX* and into a *PDF* in the same directory.
+This behavior can be changed by specifying the input file with `<input-file>` and/or the output file with `-o <output-file>`.
 
 ##### Options
 
@@ -104,23 +115,26 @@ The default behavior of *umdoc* is to look in the working directory for a `umdoc
   
 * `-o <output-file>`, `--output=<output-file>`
 
-  The name or the path of the output *PDF* file. The default is derived from the input file where the file name extension is replaced by `.pdf`. If `-t` is set, this option specifies the name or the path of output `.tex` file and the extension of the input file is replaced `.tex` in the default case.
+  The name or the path of the output *PDF* file. The default is derived from the input file where the file name extension is replaced by `.pdf`.
+  If `-t` is set, this option specifies the name or the path of output *LaTeX* (`.tex`) file and the extension of the input file is replaced `.tex` in the default case.
   
 * `-e <latex-engine>`, `--engine=<latex-engine>`
 
-  The launch command of the *LaTeX* engine to be used to convert the created `.tex` document into *PDF*. The default is `lualatex`.
+  The launch command of the *LaTeX* engine to be used to convert the created *LaTeX* document into *PDF*.
+  The default is `lualatex`.
 
 * `-a <aux-directory>`, `--aux-directory=<aux-directory>`
 
-  A directory for intermediate files like the created `.tex` file or files created from the *LaTeX* engine. The default is the directory of the output file plus the base name of the output file.
+  A directory for intermediate files like the created *LaTeX* file or files created from the *LaTeX* engine.
+  The default is the directory of the output file plus the base name of the output file.
 
 * `-t`, `--tex`
 
-  Stop after creating the `.tex` file. If `-t` is set, `-o` specifies the name or the path of the `.tex` output file.
+  Stop after creating the *LaTeX* (`.tex`) file. If `-t` is set, `-o` specifies the name or the path of the *LaTeX* output file.
 
 * `--<placeholder>=<value>`
 
-  Overwrite the *umdoc* *XML* file placeholder `<placeholder>` with value `<value>`. (see section~[](#umdoc-xml-file-placeholder))
+  Overwrite the *umdoc* *XML* file placeholder `<placeholder>` with value `<value>` (see section~[](#umdoc-xml-file-placeholder)).
 
 ## The *umdoc* *XML* File {#umdoc-xml-file}
 
@@ -135,11 +149,11 @@ The *XML* file defines an `<umdoc>` element in which the following elements can 
 
 * `<set>`
 
-  Defines a placeholder string (see section~[](#umdoc-xml-file-placeholder)), which can be used to insert a string into `.tex` "header files" (see section~[](#umdoc-xml-tex-header)) and into in document `.tex` files (see section~[](#umdoc-xml-tex-in-document)).
+  Defines a placeholder string (see section~[](#umdoc-xml-file-placeholder)), which can be used to insert a string into *LaTeX* header files (see section~[](#umdoc-xml-tex-header)) and into in document *LaTeX* files (see section~[](#umdoc-xml-tex-in-document)).
 
 * `<tex>`
 
-  Inserts a `.tex` "header file" in the generated `.tex` document (see section~[](#umdoc-xml-tex-header)).
+  Inserts a *LaTeX* header file into the generated *LaTeX* document (see section~[](#umdoc-xml-tex-header)).
 
 * `<document>`
 
@@ -167,50 +181,57 @@ An *umdoc* *XML* file might look like this:
   
 ### *LaTeX* Class Name {#latex-class}
 
-By default *umdoc* uses the *LaTeX* class `article` with some style extensions. This can be overwritten within the `<umdoc>` element:
+By default *umdoc* uses the *LaTeX* class `article` with various style extensions.
+This can be overwritten within the `<umdoc>` element:
 
 ```xml
 <umdoc class="<class_name>">
 ```
 
-Overwriting the class name disables all default style extensions. Hence, the *LaTeX* class `<class_name>` has to provide an implementation for all the *LaTeX* commands that are required for the Markdown features used in a Markdown file (see section~[](#supported-markdown-features)).
+Overwriting the class name disables all default style extensions.
+Hence, the *LaTeX* class `<class_name>` has to provide an implementation of all the *LaTeX* commands that are required for the Markdown features used in a Markdown file (see section~[](#supported-markdown-features)).
   
 ### Custom Environments {#umdoc-xml-file-custom-environments}
 
 The spectrum of supported environments or "languages" in fenced code blocks (see section~[](#fenced-code-blocks)) can be extended with custom *LaTeX* environments.
-Therefore, your *LaTeX* class (see section~[](#latex-class)) or one of the *LaTeX* "header files" (see section~[](#umdoc-xml-tex-header)) has to declare an environment. To use them in a Markdown file, *umdoc* has to be made aware of such an environment using the `<environment>` element:
+Therefore, your *LaTeX* class (see section~[](#latex-class)) or one of the *LaTeX* header files (see section~[](#umdoc-xml-tex-header)) has to declare the environment.
+To use them in a Markdown file, *umdoc* has to be made aware of such an environment using the `<environment>` element:
 
 ```xml
 <environment name="<name>" verbatim="<bool>"/>
 ```
 
 ``verbatim`` can be set to `true` or `false`. 
-If it is set to `true`, the code in the fanced code block will be passed unchanged to the *LaTeX* environment. 
-If it is set to `false`, the code in the fenced code block will be consered to be Markdown and converted to *LaTeX* as such.
+If it is set to `true`, the code in the fenced code block will be passed unchanged to the *LaTeX* environment. 
+If it is set to `false`, the code in the fenced code block will be considered to be Markdown and converted to *LaTeX* as such.
 
 ### Placeholders {#umdoc-xml-file-placeholder}
 
-The *umdoc* *XML* file can define placeholders, which are replaced in inserted `.tex` files:
+The *umdoc* *XML* file can define placeholders, which are replaced in inserted *LaTeX* files (see section~[](#umdoc-xml-tex-header) and section~[](#umdoc-xml-tex-in-document)):
 
 ```xml
 <set name="<name>" value="<value>"/>
 ```
 
-For each defined placeholder the occurrence `%name%` is replaced by `<value>` in inserted `.tex` files. The value of a placeholder can be overwritten using a `--<name>=<value>` command line argument when calling the *umdoc* executable.
+For each defined placeholder the occurrence `%name%` is replaced by `<value>` in inserted *LaTeX* files.
+The value of a placeholder can be overwritten using a `--<placeholder>=<value>` command line argument when calling the *umdoc* executable.
 
-### `.tex` "Header Files" {#umdoc-xml-tex-header}
+### *LaTeX* Header Files {#umdoc-xml-tex-header}
 
-A `<tex>` element can be used to insert the contents of a `.tex` file into the generated `.tex` file before the `\begin{document}` section:
+A `<tex>` element can be used to insert the contents of a `.tex` file into the generated *LaTeX* file before the `\begin{document}` section of the generated file:
 
 ```xml
 <tex file="<file>"/>
 ```
 
-The attribute `file` specifies the path to the `.tex` file. The path is relative to the location of the *umdoc* *XML* file. The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
+The attribute `file` specifies the path to the *LaTeX* file.
+The path is relative to the location of the *umdoc* *XML* file.
+The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
 ### The `<document>` element: {#umdoc-xml-document}
 
-The `<document>` defines the structure of the document to be generated. The following elements can be used within this element:
+The `<document>` defines the structure of the document to be generated.
+The following elements can be used within this element:
 
 * `<break>`
 
@@ -234,11 +255,11 @@ The `<document>` defines the structure of the document to be generated. The foll
 
 * `<set>`
 
-  Defines a placeholder string (see section~[](#umdoc-xml-file-placeholder)), which can be used to insert a string into `.tex` "header files" (see section~[](#umdoc-xml-tex-header)) and into in document `.tex` files (see section~[](#umdoc-xml-tex-in-document)).
+  Defines a placeholder string (see section~[](#umdoc-xml-file-placeholder)), which can be used to insert a string into *LaTeX* header files (see section~[](#umdoc-xml-tex-header)) and into in document *LaTeX* files (see section~[](#umdoc-xml-tex-in-document)).
 
 * `<tex>`
 
-  Inserts a `.tex` file in the generated `.tex` document (see section~[](#umdoc-xml-tex-in-document)).
+  Inserts a *LaTeX* (`.tex`) file in the generated *LaTeX* document (see section~[](#umdoc-xml-tex-in-document)).
 
 * `<toc>`
 
@@ -246,7 +267,8 @@ The `<document>` defines the structure of the document to be generated. The foll
 
 #### Manual Page Breaks {#umdoc-xml-page-break}
 
-A manual page break can be inserted using the `<break/>` element. This is most useful after inserting the table of contents (see section~[](#umdoc-xml-toc)) or after inserting a Markdown or `.tex` file.
+A manual page break can be inserted using the `<break/>` element.
+This is most useful after inserting the table of contents (see section~[](#umdoc-xml-toc)) or after inserting a Markdown or *LaTeX* file.
 
 The `<break>` element translates to the *LaTeX* command `\\clearpage`.
 
@@ -258,7 +280,9 @@ A Markdown file can be inserted with:
 <md file="<file>"/>
 ```
 
-The attribute `file` specifies the path to the Markdown (`.md`) file. The path is relative to the location of the *umdoc* *XML* file. The content of the file is interpreted and converted to *LaTeX* respectively to the supported Markdown features (see section~[](#supported-markdown-features))
+The attribute `file` specifies the path to the Markdown (`.md`) file.
+The path is relative to the location of the *umdoc* *XML* file.
+The content of the file is interpreted and converted to *LaTeX* respectively to the supported Markdown features (see section~[](#supported-markdown-features)).
 
 #### Segment Titles {#umdoc-xml-part}
 
@@ -268,31 +292,34 @@ A segment title, which is hierarchically above the highest section title of a Ma
 <part title="<title>"/>
 ```
 
-The `title` attribute supports basic markdown styling (see section~[](#markdown-styling)).
+The `title` attribute supports basic Markdown styling (see section~[](#markdown-styling)).
 
 The `<part>` element translates to the *LaTeX* command `\\part`.
 
 #### *PDF* Files {#umdoc-xml-pdf}
 
-A PDF document can be inserted into the generated document with:
+A *PDF* document can be inserted into the generated document with:
 
 ```xml
 <pdf file="<file>"/>
 ```
 
-The attribute `file` specifies the path to the *PDF* file. The path is relative to the location of the *umdoc* *XML* file.
+The attribute `file` specifies the path to the *PDF* file.
+The path is relative to the location of the *umdoc* *XML* file.
 
 The `<part>` element translates to the *LaTeX* command `\\includepdf` from the *pdfpages* package.
 
-#### `.tex` Files {#umdoc-xml-tex-in-document}
+#### *LaTeX* Files {#umdoc-xml-tex-in-document}
 
-A `<tex>` element inserts the contents of a `.tex` file directly into the generated `.tex` file:
+A `<tex>` element inserts the contents of a *LaTeX* (`.tex`) file directly into the generated *LaTeX* file:
 
 ```xml
 <tex file="<file>"/>
 ```
 
-The attribute `file` specifies the path to the `.tex` file. The path is relative to the location of the *umdoc* *XML* file. The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
+The attribute `file` specifies the path to the *LaTeX* file.
+The path is relative to the location of the *umdoc* *XML* file.
+The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
 #### Table of Contents {#umdoc-xml-toc}
 
@@ -300,7 +327,6 @@ An automatically generated table of contents can be inserted using the element `
 
 This translates to the *LaTeX* command `\\tableofcontents`.
 
-  
 # Supported Markdown Features {#supported-markdown-features}
 
 ## Titles {#markdown-titles}
@@ -344,13 +370,17 @@ results in:
 Example text.
 ```
 
-Depending on the title level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`. Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
+Depending on the title level, this translate to the *LaTeX* commands `\\section`, `\\subsection`, `\\subsubsection`, `\\paragraph`, and `\\subparagraph`.
+Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
 
 ## Basic Markdown Styling {#markdown-styling}
 
 ### Italic and Bold Text
 
-Placing the character `\*` or `\_` around a string will turn it to italic. Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold. But, `\*` and `\_` will be left unchanged when they are surrounded by spaces. Additionally the `\_` character will be left unchanged if it occurs in a word.
+Placing the character `\*` or `\_` around a string will turn it to italic.
+Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold.
+But, `\*` and `\_` will be left unchanged when they are surrounded by spaces.
+Additionally, the `\_` character will be left unchanged if it occurs in a word.
 
 ```
 The following is *italic* and so is _this_. __This__ is bold and so is **this**. You can use * or _ characters surrounded by spaces and the _ character is left unchanged when it occurs in_word. You can use * or ** for in**word**highlighting.
@@ -365,30 +395,30 @@ Italic text translates to the *LaTeX* command `\\emph` and bold text to `\\textb
 
 ### Code Spans
 
-Text can be formatted with a fixed width font by surrounding it with single or double back ticks `` ` ``:
+Text can be formatted with a fixed width font by surrounding it with single or double back ticks `` ` ``.
 
 ```
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
+Some text with code like `printf()`. Code span with back ticks `` `test` ``.
 ```
 
 results in:
 ```boxed
-Some text with code like `printf()`. Code span with backticks `` `test` ``.
+Some text with code like `printf()`. Code span with back ticks `` `test` ``.
 ```
 
 This translates to the *LaTeX* command `\\texttt`.
 
 ### Inline Links {#markdown-inline-links}
 
-A link can be inserted using the syntax `(<text>)[<url>]`:
+A link can be inserted using the syntax `(<text>)[<url>]`.
 
 ```
-This is an [example link](https://github.com/craflin/umdoc). You can also create [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
+This is an [example link](https://github.com/craflin/umdoc). You can also create a link to a [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
 ```
 
 results in:
 ```boxed
-This is an [example link](https://github.com/craflin/umdoc). You can also create [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
+This is an [example link](https://github.com/craflin/umdoc). You can also create a link to a [email address](mailto:some@email.com) links. Links without a text look like this: [](https://github.com/craflin/umdoc)
 ```
 
 <!-- The `<text>` is optional and `<url>` will be used if it left blank. -->
@@ -397,7 +427,10 @@ A link translates to the *LaTeX* command `\\hyperref` from the *hyperref* packag
 
 ### Cross References {#markdown-cross-references}
 
-Cross references to section titles can be used by labeling the title and linking to it using the syntax of inline links (see section~[](#markdown-inline-links)). Section titles can be labeled by adding `{#<label>}` to the end of the title. It is then possible to link to it using `#<label>` as the `<url>` in the inline link. The section number will be used as `<text>` of the link if it is left blank.
+Cross references to section titles can be used by labeling the title and linking to it using the syntax of inline links (see section~[](#markdown-inline-links)).
+Section titles can be labeled by adding `{#<label>}` to the end of the title.
+A link to such a title can be created by using `#<label>` as the `<url>` in the inline link.
+The section number will be used as `<text>` of the link if it is left blank.
 
 ```
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
@@ -412,7 +445,7 @@ A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref`
 
 ### Inline Images
 
-A small image or an icon can be inserted into a text using the syntax `\!\[<title>](<file>)`:
+A small image or an icon can be inserted using the syntax `\!\[<title>](<file>)`.
 
 ```
 This is an example text with an inline image like this ![](circle.png).
@@ -466,7 +499,7 @@ Here starts a new paragraph.
 
 ## Block quotes
 
-Block quotes can be inserted with a line staring with a `>` character.
+Block quotes can be inserted using a line staring with a `>` character.
 
 ```
 > test 1
@@ -525,7 +558,7 @@ This translates to the custom *LaTeX* command `\\HorizontalRule`. By the default
 
 ## Bullet Lists {#markown-bullet-list}
 
-Lines starting with asterisk (\*), plus (\+), or hyphen (\-) are interpreted as bullet list items.
+Lines starting with asterisk (`\*`), plus (`\+`), or hyphen (`\-`) are interpreted as bullet list items.
 
 ```
 * item a
@@ -638,7 +671,7 @@ results in:
 
 ## Fenced Code Blocks {#fenced-code-blocks}
 
-Fenced code blocks inserts custom environment into the generated *LaTeX* document. The code block starts with three or more back ticks (`` ` ``).
+A fenced code block inserts a custom environment into the generated *LaTeX* document. The code block starts with three or more back ticks (`` ` ``).
 
 ````
 ```
@@ -651,7 +684,7 @@ results in:
 test
 ```
 
-The environment to be used can be specified with an argument after back ticks and a caption can be inserted with second argument.
+The environment to be used can be specified with an argument after back ticks and a caption can be inserted with a second argument.
 
 ````
 ```<language> "<caption>"
@@ -671,7 +704,10 @@ The custom command `\\EnvironmentCaption` is by the default *umdoc* style defaul
 \newcommand\EnvironmentCaption[1]{\parbox{\textwidth}{\textbf{#1}}}
 ```
 
-`<language>` is case insensitive. If `<language>` is just a single character like (`c` or `r`) the word `language` will be appended. If it contains the special character `+` it will be replaced `plus`. If the `<language>` argument is omitted, the environment `plain` will be used for basic verbatim code.
+`<language>` is case insensitive.
+If `<language>` is just a single character like (`c` or `r`) the word `language` will be appended.
+If it contains the special character `+` it will be replaced `plus`.
+If the `<language>` argument is omitted, the environment `plain` will be used for basic verbatim code.
 
 The default *umdoc* style supports the following languages using the *LaTeX* package `listings`: `ABAP`, `ACM`, `ACMscript`, `ACSL`, `Ada`, `Algol`, `Ant`, `Assembler`, `Awk`, `bash`, `Basic`, `C`, `C++`, `Caml`, `CIL`, `Clean`, `Cobol`, `Comal 80`, `command.com`, `Comsol`, `csh`, `Delphi`, `Eiffel`, `Elan`, `erlang`, `Euphoria`, `Fortran`, `GCL`, `Gnuplot`, `hansl`, `Haskell`, `HTML`, `IDL`, `inform`, `Java`, `JVMIS`, `ksh`, `Lingo`, `Lisp`, `LLVM`, `Logo`, `Lua`, `make`, `Matlab`, `Mathematica`, `Mercury`, `MetaPost`, `Miranda`, `Mizar`, `ML`, `Modula-2`, `MuPAD`, `NASTRAN`, `Oberon-2`, `OCL`, `Octave`, `Oz`, `Perl`, `Pascal`, `PHP`, `PL/I`, `Plasm`, `PostScript`, `POV`, `Prolog`, `Promela`, `PSTricks`, `Python`, `R`, `Reduce`, `Rexx`, `RSL`, `Ruby`, `S`, `SAS`, `Scala`, `Scilab`, `sh`, `SHELXL`, `SPARQL`, `Simula`, `SQL`, `tcl`, `TeX`, `VBScript`, `Verilog`, `VHDL`, `VRML`, `XML`, `XSLT`
 
@@ -722,7 +758,8 @@ This translate to the *LaTeX* environment `figure` where the command `\\includes
 
 ## Tables
 
-A table can be inserted by formatting the table with the character `|`. The second line separates table header from the table content.
+A table can be inserted by formatting the table with the character `|`.
+The second line separates table header from the table content.
 
 ```
 | 1   | 2   | 3   | 4   |
@@ -756,7 +793,7 @@ results in:
 | a        |         b |     c      |
 ```
 
-The width of column can be specified by adding the attribute `width` to the header cell. Cells can consist of multiple paragraphs.
+The width of column can be specified by adding the attribute `width` to the header cell and cells can consist of multiple paragraphs.
 
 ```
 | left {width=5cm} | right {width=7cm} |
@@ -783,5 +820,6 @@ results in:
   eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
-Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
+Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line
+ The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
 
