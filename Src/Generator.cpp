@@ -78,7 +78,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 
     // mordern fonts
     if(!file.write("\\usepackage[default,osf]{sourcesanspro}\n") ||
-       !file.write("\\usepackage[scaled=.95]{sourcecodepro}\n\n"))
+       !file.write("\\usepackage[scaled=.8]{sourcecodepro}\n\n"))
        return false;
 
     // change parindent and parskip
@@ -140,7 +140,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       return false;
 
     // prepare environments for syntax highlighting
-    if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{230,230,230}\n") ||
+    if(!file.write("\\definecolor{boxBackgroundColor}{RGB}{245,245,245}\n") ||
        !file.write("\\definecolor{boxFrameColor}{RGB}{128,128,128}\n") ||
        !file.write("\\definecolor{codeRedColor}{RGB}{163,21,21}\n") ||
        !file.write("\\definecolor{codeBlueColor}{RGB}{0,0,255}\n") ||
@@ -163,7 +163,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write("\\newcommand\\EnvironmentCaption[1]{\\parbox{\\textwidth}{\\textbf{#1}}}\n\n"))
       return false;
 
-    if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily\\small,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
+    if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
     if(!file.write("\\lstnewenvironment{plain}{\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
       return false;
@@ -190,6 +190,11 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(outputData.hasPdfSegments)
       if(!file.write("\\usepackage{pdfpages}\n\n"))
         return false;
+
+    // turn \\hyperref links blue (while keeping other in-document links black)
+    if(!file.write("\\let\\oldtexttt\\texttt\n") ||
+      !file.write("\\renewcommand{\\texttt}[1]{\\fcolorbox{boxFrameColor}{boxBackgroundColor}{\\raisebox{0pt}[0.45em][0pt]{\\oldtexttt{#1}}}}\n\n"))
+       return false;
   }
 
   if(!file.write("\n"))

@@ -203,7 +203,7 @@ To use them in a Markdown file, *umdoc* has to be made aware of such an environm
 
 ``verbatim`` can be set to `true` or `false`. 
 If it is set to `true`, the code in the fenced code block will be passed unchanged to the *LaTeX* environment. 
-If it is set to `false`, the code in the fenced code block will be considered to be Markdown and converted to *LaTeX* as such.
+If `verbatim` is set to `false`, the code in the fenced code block will be considered to be Markdown and converted to *LaTeX* as such.
 
 ### Placeholders {#umdoc-xml-file-placeholder}
 
@@ -377,8 +377,8 @@ Titles of a level beyond level 5 will also be translated to `\\subparagraph`.
 
 ### Italic and Bold Text
 
-Placing the character `\*` or `\_` around a string will turn it to italic.
-Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn a string to bold.
+Placing the character `\*` or `\_` around some text will turn it to italic.
+Two consecutive `\*` or `\_` characters (`\*\*` or `\_\_`) will turn the text to bold.
 But, `\*` and `\_` will be left unchanged when they are surrounded by spaces.
 Additionally, the `\_` character will be left unchanged if it occurs in a word.
 
@@ -461,7 +461,7 @@ This translates to the custom *LaTeX* command `\\InlineImage`. By the default *u
 \newcommand\InlineImage[1]{\raisebox{-0.1em}{\includegraphics[height=0.9em]{#1}}}
 ```
 
- `<file> is a path relative to the location of the *umdoc* *XML* file.
+ `<file>` is a path relative to the location of the *umdoc* *XML* file.
 
 ## Comments
 
@@ -754,7 +754,7 @@ results in:
 
 This translate to the *LaTeX* environment `figure` where the command `\\includesgraphics` is used to insert the image `\\caption` to set the title.
 
-`<file> is a path relative to the location of the *umdoc* *XML* file.
+`<file>` is a path relative to the location of the *umdoc* *XML* file.
 
 ## Tables
 
