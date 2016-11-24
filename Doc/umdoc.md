@@ -213,7 +213,7 @@ The *umdoc* *XML* file can define placeholders, which are replaced in inserted *
 <set name="<name>" value="<value>"/>
 ```
 
-For each defined placeholder the occurrence `%name%` is replaced by `<value>` in inserted *LaTeX* files.
+For each defined placeholder the occurrence of `%name%` is replaced by `<value>` in the inserted *LaTeX* files.
 The value of a placeholder can be overwritten using a `--<placeholder>=<value>` command line argument when calling the *umdoc* executable.
 
 ### *LaTeX* Header Files {#umdoc-xml-tex-header}
