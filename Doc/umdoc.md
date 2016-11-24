@@ -501,7 +501,7 @@ And this is the second.
 Here starts a new paragraph.
 ```
 
-## Block quotes
+## Block Quotes
 
 Block quotes can be inserted using a line staring with a `>` character.
 
