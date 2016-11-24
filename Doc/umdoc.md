@@ -228,9 +228,9 @@ The attribute `file` specifies the path to the *LaTeX* file.
 The path is relative to the location of the *umdoc* *XML* file.
 The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
-### The `<document>` element: {#umdoc-xml-document}
+### Document Structure {#umdoc-xml-document}
 
-The `<document>` defines the structure of the document to be generated.
+The `<document>` element defines the structure of the document to be generated.
 The following elements can be used within this element:
 
 * `<break>`
@@ -259,7 +259,7 @@ The following elements can be used within this element:
 
 * `<tex>`
 
-  Inserts a *LaTeX* (`.tex`) file in the generated *LaTeX* document (see section~[](#umdoc-xml-tex-in-document)).
+  Inserts a *LaTeX* (`.tex`) file into the generated *LaTeX* document (see section~[](#umdoc-xml-tex-in-document)).
 
 * `<toc>`
 
