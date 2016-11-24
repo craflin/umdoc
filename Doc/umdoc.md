@@ -406,7 +406,11 @@ results in:
 Some text with code like `printf()`. Code span with back ticks `` `test` ``.
 ```
 
-This translates to the *LaTeX* command `\\texttt`.
+This translates to the *LaTeX* command `\\texttt`. The default *umdoc* style redefines `\\texttt` as:
+```
+\let\oldtexttt\texttt
+\renewcommand{\texttt}[1]{\fcolorbox{boxFrameColor}{boxBackgroundColor}{\raisebox{0pt}[0.45em][0pt]{\oldtexttt{#1}}}}
+```
 
 ### Inline Links {#markdown-inline-links}
 
