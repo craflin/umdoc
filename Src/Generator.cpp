@@ -221,17 +221,17 @@ String Generator::texEscapeChar(char c)
   switch(c)
   {
     case '\\':
-      return "{\\textbackslash}";
+      return String("{\\textbackslash}");
     case '<':
-      return "{\\textless}";
+      return String("{\\textless}");
     case '>':
-      return "{\\textgreater}";
+      return String("{\\textgreater}");
     case '_':
-      return "{\\_\\-}"; // allow line break after _
+      return String("{\\_\\-}"); // allow line break after _
     case '-':
-      return "{\\textendash}"; // do not merge -- into a long -
+      return String("{\\textendash}"); // do not merge -- into a long -
     case '/':
-      return "{/\\-}"; // allow line break after /
+      return String("{/\\-}"); // allow line break after /
     case '$':
     case '%':
     case '}':
@@ -416,8 +416,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
         {
           if((String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
             (*(const char*)endSequence == '_' && String::isAlphanumeric(i[endSequence.length()])))
-          { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-            for(size_t j = 0; j < endSequence.length(); ++j)
+          { // "[...] if you surround an * or _ with spaces, itï¿½ll be treated as a literal asterisk or underscore."
+            for(usize j = 0; j < endSequence.length(); ++j)
               result.append(texEscapeChar(*(const char*)endSequence));
             i += endSequence.length();
             continue;
@@ -447,8 +447,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
         {
           if((String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
             (c == '_' && i != start && String::isAlphanumeric(i[-1])))
-          { // "[...] if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore."
-            for(size_t j = 0; j < sequence.length(); ++j)
+          { // "[...] if you surround an * or _ with spaces, itï¿½ll be treated as a literal asterisk or underscore."
+            for(usize j = 0; j < sequence.length(); ++j)
               result.append(texEscapeChar(c));
             i += sequence.length();
             continue;
@@ -740,7 +740,7 @@ String OutputData::TableSegment::generate(const OutputData& outputData) const
     {
       for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
       {
-        const ColumnInfo& columnInfo = columns[columnIndex];
+        //const ColumnInfo& columnInfo = columns[columnIndex];
         CellData& cellData = *i;
         if(i != begin)
           result.append(" & ");

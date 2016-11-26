@@ -19,8 +19,8 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
     const char* end = texFile.findLastOf("\\/.");
     if(end)
     {
-      tocFile = texFile.substr(0, end - texFile) + ".toc";
-      auxFile = texFile.substr(0, end - texFile) + ".aux";
+      tocFile = texFile.substr(0, end - (const char*)texFile) + ".toc";
+      auxFile = texFile.substr(0, end - (const char*)texFile) + ".aux";
     }
     else
     {
@@ -36,7 +36,7 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
     bool rerun = false;
 
     Process process;
-    if(process.open(engine + " --interaction=scrollmode  --halt-on-error --file-line-error --aux-directory=\"" + auxDirectory + "\" --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
+    if(process.open(engine + " --interaction=scrollmode --halt-on-error --file-line-error --aux-directory=\"" + auxDirectory + "\" --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
       return false;
 
     // Well I tried to set textinfo.max_print_line in an lua init script. This does not work since it is overwritten from kpathsea when it is reading its config file (texmf.cnf).
@@ -56,6 +56,8 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
       case -1:
         return false;
       case 0:
+        if(!bufferedLine.isEmpty() || !unhandledData.isEmpty())
+          Console::print(bufferedLine + unhandledData + "\n");
         goto done;
       default:
         unhandledData.append(buffer, i);
@@ -65,7 +67,7 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
           const char* lineEnd = unhandledData.findOneOf("\r\n");
           if(lineEnd)
           {
-            size_t lineLen = lineEnd - unhandledData;
+            usize lineLen = lineEnd - (const char*)unhandledData;
             if(lineLen == 79)
               bufferedLine.append(unhandledData.substr(0, lineLen));
             else
@@ -87,9 +89,13 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
         break;
       }
 
-    if(bufferedLine.isEmpty() || !unhandledData.isEmpty())
-      Console::print(bufferedLine + unhandledData);
   done: ;
+
+    uint32 exitCode;
+    if(!process.join(exitCode))
+      return false;
+    if(exitCode != 0)
+      return false;
 
     if((!tocFileExists && File::exists(tocFile)) ||
        (!auxFileExists && File::exists(auxFile)))
@@ -164,18 +170,18 @@ int main(int argc, char* argv[])
 
   if(outputFile.isEmpty())
   {
-    const tchar* end = inputFile.findLastOf("\\/.");
+    const char* end = inputFile.findLastOf("\\/.");
     if(end && *end == '.')
-      outputFile = inputFile.substr(0, end - inputFile) + (stopAfterTex ? String(".tex") : String(".pdf"));
+      outputFile = inputFile.substr(0, end - (const char*)inputFile) + (stopAfterTex ? String(".tex") : String(".pdf"));
     else
       outputFile = inputFile + (stopAfterTex ? String(".tex") : String(".pdf"));
   }
 
   if(auxDirectory.isEmpty())
   {
-    const tchar* end = outputFile.findLastOf("\\/.");
+    const char* end = outputFile.findLastOf("\\/.");
     if(end && *end == '.')
-      auxDirectory = outputFile.substr(0, end - outputFile);
+      auxDirectory = outputFile.substr(0, end - (const char*)outputFile);
     else
       auxDirectory = outputFile;
   }
@@ -190,9 +196,9 @@ int main(int argc, char* argv[])
   String tmpPdfFile;
   {
     String inputFileBasename = File::basename(inputFile);
-    const tchar* end = inputFileBasename.findLast('.');
+    const char* end = inputFileBasename.findLast('.');
     if(end)
-      inputFileBasename = inputFileBasename.substr(0, end - inputFileBasename);
+      inputFileBasename = inputFileBasename.substr(0, end - (const char*)inputFileBasename);
     tmpTexFile = auxDirectory + "/" + inputFileBasename + ".tex";
     tmpPdfFile = auxDirectory + "/" + inputFileBasename + ".pdf";
   }
@@ -201,7 +207,7 @@ int main(int argc, char* argv[])
   String inputFileDir = File::dirname(inputFile);
   if(inputFileDir != ".")
   {
-    // convert input and output files to absolute paths
+    // convert input and output files to absolute paths:wq:wq
     inputFile = File::getAbsolutePath(inputFile);
     outputFile = File::getAbsolutePath(outputFile);
     auxDirectory = File::getAbsolutePath(auxDirectory);
