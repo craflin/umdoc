@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
   String inputFileDir = File::dirname(inputFile);
   if(inputFileDir != ".")
   {
-    // convert input and output files to absolute paths:wq:wq
+    // convert input and output files to absolute paths
     inputFile = File::getAbsolutePath(inputFile);
     outputFile = File::getAbsolutePath(outputFile);
     auxDirectory = File::getAbsolutePath(auxDirectory);
@@ -267,6 +267,16 @@ int main(int argc, char* argv[])
   }
   if(stopAfterTex)
     return 0;
+
+  // change working directory to aux dir
+  if(auxDirectory != ".")
+  {
+    if(!Directory::change(auxDirectory))
+    {
+      Console::errorf("%s: error: %s\n", (const char*)inputFile, (const char*)Error::getErrorString());
+      return 1;
+    }
+  }
 
   // covnert tmp tex file to tmp pdf
   if(!latex2pdf(tmpTexFile, engine, auxDirectory))
