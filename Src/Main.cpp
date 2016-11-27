@@ -68,7 +68,11 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
           if(lineEnd)
           {
             usize lineLen = lineEnd - (const char*)unhandledData;
+#ifdef _WIN32
             if(lineLen == 79)
+#else
+            if(lineLen == 80)
+#endif
               bufferedLine.append(unhandledData.substr(0, lineLen));
             else
             {
