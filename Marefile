@@ -1,6 +1,8 @@
 
 buildDir = "Build/$(configuration)/.$(target)"
 
+version = "0.1"
+
 targets = {
 
   umdoc = cppApplication + {
@@ -9,6 +11,7 @@ targets = {
     includePaths = { "Ext/libnstd/include" }
     libPaths = { "Build/$(configuration)/.libnstd" }
     libs = { "nstd" }
+    defines = { "VERSION=\"$(version)\"" }
     root = "Src"
     files = {
       "Src/*.cpp" = cppSource

@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
         {'a', "aux-directory", Process::argumentFlag},
         {'h', "help", Process::optionFlag},
         {'t', "tex", Process::optionFlag},
+        {1000, "version", Process::optionFlag},
     };
     Process::Arguments arguments(argc, argv, options);
     int character;
@@ -163,6 +164,9 @@ int main(int argc, char* argv[])
       case ':':
         Console::errorf("Option %s required an argument.\n", (const char*)argument);
         return 1;
+      case 1000:
+        Console::errorf("umdoc %s\n", VERSION);
+        return 0;
       case '\0':
         inputFile = argument;
         break;

@@ -132,6 +132,10 @@ This behavior can be changed by specifying the input file with `<input-file>` an
 
   Stop after creating the *LaTeX* (`.tex`) file. If `-t` is set, `-o` specifies the name or the path of the *LaTeX* output file.
 
+* `--version`
+
+  Print version and exit.
+
 * `--<placeholder>=<value>`
 
   Overwrite the *umdoc* *XML* file placeholder `<placeholder>` with value `<value>` (see section~[](#umdoc-xml-file-placeholder)).
