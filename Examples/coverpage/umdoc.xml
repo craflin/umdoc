@@ -1,0 +1,9 @@
+<umdoc class="">
+
+    <document>    
+        <pdf file="cover.pdf" />
+        <part title="Title of Part I" />
+        <md file="example.md" />
+    </document>
+
+</umdoc>

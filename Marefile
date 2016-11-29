@@ -3,6 +3,9 @@ buildDir = "Build/$(configuration)/.$(target)"
 
 version = "0.1"
 
+examples = "Examples/*/umdoc.xml"
+examples = "$(patsubst Examples/%/umdoc.xml,%,$(examples))"
+
 targets = {
 
   umdoc = cppApplication + {
@@ -34,6 +37,17 @@ targets = {
     input = files
     output = "$(outputDir)/umdoc.pdf"
     command = "Build/$(configuration)/umdoc Doc/umdoc.xml -o $(output) -a $(buildDir)"
+  }
+  
+  "$(examples)" = {
+    dependencies = { "umdoc" }
+    folder = "Examples"
+    outputDir = "Build/$(configuration)/Examples"
+    root = "Examples/$(target)"
+    files = { "Examples/$(target)/*" }  
+    input = files
+    output = "$(outputDir)/$(target).pdf"
+    command = "Build/$(configuration)/umdoc Examples/$(target)/umdoc.xml -o $(output) -a $(buildDir)"
   }
 
   include "Ext/libnstd/libnstd.mare"
