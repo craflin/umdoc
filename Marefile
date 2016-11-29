@@ -40,8 +40,8 @@ targets = {
   }
   
   "$(examples)" = {
-    dependencies = { "umdoc" }
     folder = "Examples"
+    dependencies = { "umdoc" }
     outputDir = "Build/$(configuration)/Examples"
     root = "Examples/$(target)"
     files = { "Examples/$(target)/*" }  
@@ -52,6 +52,7 @@ targets = {
 
   include "Ext/libnstd/libnstd.mare"
   libnstd += {
+    folder = "Ext"
     enableDocument = "true"
   }
 }
