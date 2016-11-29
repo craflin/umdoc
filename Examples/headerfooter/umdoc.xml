@@ -1,0 +1,9 @@
+<umdoc>
+
+    <tex file="style.tex"/>
+
+    <document>
+        <md file="example.md"/>
+    </document>
+
+</umdoc>
