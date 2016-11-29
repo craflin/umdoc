@@ -1,0 +1,10 @@
+<umdoc>
+
+    <tex file="style.tex"/>
+    <environment name="important" verbatim="false"/>
+
+    <document>
+        <md file="example.md"/>
+    </document>
+
+</umdoc>

@@ -1,0 +1,14 @@
+
+
+
+\NewEnviron{important}{\fcolorbox{black}{red}{%
+\bgroup%
+\def\arraystretch{0}%
+\begin{tabular}{p{1.8cm}p{13.14cm}}%
+&\\[5pt]
+Important: & \BODY\\
+&\\[2pt]
+\end{tabular}%
+\egroup}\par\vspace{0.18cm}\par
+
+\setlength\leftskip{0cm}}
