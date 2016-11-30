@@ -8,6 +8,10 @@ examples = "$(patsubst Examples/%/umdoc.xml,%,$(examples))"
 
 targets = {
 
+  all = {
+    dependencies = { "umdoc", "manual", "$(examples)" }
+  }
+
   umdoc = cppApplication + {
     dependencies = { "libnstd" }
     outputDir = "Build/$(configuration)"
