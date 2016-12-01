@@ -70,7 +70,7 @@ In contrary, goals that the project does not try a achieve are:
 # Installation
 
 The *umdoc* tool consists of a single binary without any notable dependencies except a *LaTeX* engine.
-To install it, simply download the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable.
+To install it, simply [download](https://github.com/craflin/umdoc/releases) the binary for your platform, place it somewhere on your system and ensure that it can be found with the *PATH* environment variable.
 You can also call the *umdoc* tool directly if you do not want to touch your *PATH* variable.
 
 Additionally, you have to install a *TeX* distribution like [*MiKTeX*](http://miktex.org) on Windows or [*TeX Live*](http://www.tug.org/texlive/) on Linux or Windows.
