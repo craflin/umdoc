@@ -8,9 +8,20 @@
 
 bool Reader::read(const String& inputFile, InputData& inputData)
 {
-  // todo: if inputFile.endsWitdh(".md") skip xml stuff
-
   inputData.inputFile = inputFile;
+
+  if(File::extension(inputFile).compareIgnoreCase("md") == 0)
+  {
+    InputData::Component& component = inputData.document.append(InputData::Component());
+    component.type = InputData::Component::mdType;
+    component.filePath = inputFile;
+    File file;
+    if(!file.open(component.filePath))
+      return errorString = String::fromPrintf("Could not open file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
+    if(!file.readAll(component.value))
+      return errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
+    return true;
+  }
 
   XML::Parser xmlParser;
   XML::Element xmlFile;

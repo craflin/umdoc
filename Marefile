@@ -9,7 +9,7 @@ examples = "$(patsubst Examples/%/umdoc.xml,%,$(examples))"
 targets = {
 
   all = {
-    dependencies = { "umdoc", "manual", "$(examples)" }
+    dependencies = { "umdoc", "manual", "$(examples)", "md2tex" }
   }
 
   umdoc = cppApplication + {
@@ -52,6 +52,17 @@ targets = {
     input = files
     output = "$(outputDir)/$(target).pdf"
     command = "Build/$(configuration)/umdoc Examples/$(target)/umdoc.xml -o $(output) -a $(buildDir)"
+  }
+  
+  md2tex = {
+    folder = "Examples"
+    dependencies = { "umdoc" }
+    outputDir = "Build/$(configuration)/Examples"
+    root = "Examples/$(target)"
+    files = { "Examples/$(target)/*" }  
+    input = files
+    output = "$(outputDir)/$(target).pdf"
+    command = "Build/$(configuration)/umdoc Examples/$(target)/example.md -o $(output) -a $(buildDir)"
   }
 
   include "Ext/libnstd/libnstd.mare"
