@@ -194,12 +194,6 @@ int main(int argc, char* argv[])
       auxDirectory = outputFile;
   }
 
-  if(!Directory::exists(auxDirectory) && !Directory::create(auxDirectory))
-  {
-    Console::errorf("%s: error: %s\n", (const char*)auxDirectory, (const char*)Error::getErrorString());
-    return 1;
-  }
-
   String tmpTexFile;
   String tmpPdfFile;
   {
@@ -267,6 +261,11 @@ int main(int argc, char* argv[])
   }
 
   // generate tmp tex file
+  if(!Directory::exists(auxDirectory) && !Directory::create(auxDirectory))
+  {
+    Console::errorf("%s: error: %s\n", (const char*)auxDirectory, (const char*)Error::getErrorString());
+    return 1;
+  }
   {
     Generator generator;
     if(!generator.generate(engine, outputData, stopAfterTex ? outputFile : tmpTexFile))
