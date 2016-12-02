@@ -70,4 +70,34 @@ targets = {
     folder = "Ext"
     enableDocument = "true"
   }
+
+  package = {
+    dependencies = { "all" }
+    root = "Build/$(configuration)"
+    buildDir = "Build/$(configuration)/.$(target)"
+    outputDir = "Build/$(configuration)"
+    files = {
+      "Build/$(configuration)/umdoc$(if $(Win32),.exe) Build/$(configuration)/umdoc.pdf" = copyFile + {
+        folder = "umdoc-$(version)"
+      }
+      "$(foreach name,$(examples) md2tex,Build/$(configuration)/Examples/$(name).pdf)" = copyFile + {
+        folder = "umdoc-$(version)/Examples"
+      }
+      "Examples/*/*" = copyFile + {
+        folder = "umdoc-$(version)/Examples/$(notdir $(dir $(file))"
+      }
+    }
+    output = "$(outputDir)/umdoc-$(version).zip"
+    input = "$(buildDir)/umdoc-$(version)"
+    command = "cmd /C \"cd $(buildDir) && 7z a ../$(notdir $(output)) $(patsubst $(buildDir)/%,%,$(input))\" >NUL"
+    message = "Creating $(output)"
+  }
+
+}
+
+copyFile = {
+  input = "$(file)"
+  output = "$(buildDir)$(if $(folder),/$(folder))/$(notdir $(file))"
+  command = "copy $(subst /,\\,$(input)) $(subst /,\\,$(output)) >NUL"
+  message = "$(patsubst $(buildDir)/%,%,$(output))"
 }
