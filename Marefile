@@ -89,7 +89,7 @@ targets = {
     }
     input = "$(buildDir)/umdoc-$(version)"
     if host == "Win32" {
-      output = "$(outputDir)/umdoc-$(version).zip"
+      output = "$(outputDir)/umdoc-$(version)-win32.zip"
       command = "cmd /C \"cd $(buildDir) && 7z a ../$(notdir $(output)) $(patsubst $(buildDir)/%,%,$(input))\" >NUL"
     }
     else {
