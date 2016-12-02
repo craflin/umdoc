@@ -89,11 +89,11 @@ targets = {
     }
     input = "$(buildDir)/umdoc-$(version)"
     if host == "Win32" {
-      output = "$(outputDir)/umdoc-$(version)-win32.zip"
+      output = "$(outputDir)/umdoc-$(version)-$(lower $(platform)).zip"
       command = "cmd /C \"cd $(buildDir) && 7z a ../$(notdir $(output)) $(patsubst $(buildDir)/%,%,$(input))\" >NUL"
     }
     else {
-      output = "$(outputDir)/umdoc-$(version).tar.gz"
+      output = "$(outputDir)/umdoc-$(version)-$(lower $(platform))-$(architecture).tar.gz"
       command = "tar -C$(buildDir) -czf $(output) $(patsubst $(buildDir)/%,%,$(input))"
     }
     message = "Creating $(output)"
