@@ -2,7 +2,7 @@
 
     <document>
 
-        <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Markdown to \emph{LaTeX} to \emph{PDF} Converter} \author{Colin Graf} \date{Version 0.1\\ \today}\maketitle</tex>
+        <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Markdown to \emph{LaTeX} to \emph{PDF} Converter} \author{Colin Graf} \date{Version 0.1\\ \today}\maketitle\thispagestyle{empty}</tex>
         <break/>
         <tex>\sloppy</tex>
 
