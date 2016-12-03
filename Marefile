@@ -35,12 +35,13 @@ targets = {
   
   manual = {
     dependencies = { "umdoc" }
+    folder = "Doc"
     outputDir = "Build/$(configuration)"
     root = "Doc"
     files = { "Doc/*" }    
     input = files
     output = "$(outputDir)/umdoc.pdf"
-    command = "Build/$(configuration)/umdoc Doc/umdoc.xml -o $(output) -a $(buildDir)"
+    command = "Build/$(configuration)/umdoc Doc/manual.xml -o $(output) -a $(buildDir)/tex"
   }
   
   "$(examples)" = {
