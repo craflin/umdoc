@@ -73,7 +73,7 @@ targets = {
   }
 
   package = {
-    dependencies = { "all" }
+    dependencies = { "umdoc", "manual", "$(examples)", "md2tex" }
     root = "Build/$(configuration)"
     buildDir = "Build/$(configuration)/.$(target)"
     outputDir = "Build/$(configuration)"
