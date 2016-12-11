@@ -1,8 +1,10 @@
 <umdoc>
 
+    <set name="packageVersion" value="git"/>
+
     <document>
 
-        <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Markdown to \emph{LaTeX} to \emph{PDF} Converter} \author{Colin Graf} \date{Version 0.1\\ \today}\maketitle\thispagestyle{empty}</tex>
+        <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Markdown to \emph{LaTeX} to \emph{PDF} Converter} \author{Colin Graf} \date{Version %packageVersion%\\ \today}\maketitle\thispagestyle{empty}</tex>
         <break/>
         <tex>\sloppy</tex>
 
