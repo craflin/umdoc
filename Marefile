@@ -40,8 +40,8 @@ targets = {
     root = "Doc"
     files = { "Doc/*" }    
     input = files
-    output = "$(outputDir)/umdoc.pdf"
-    command = "Build/$(configuration)/umdoc Doc/manual.xml --packageVersion=$(version) -o $(output) -a $(buildDir)/tex"
+    output = "$(outputDir)/umdoc-$(version).pdf"
+    command = "Build/$(configuration)/umdoc Doc/manual.xml --packageVersion=$(version) -o $(output) -a $(buildDir)"
   }
   
   "$(examples)" = {
