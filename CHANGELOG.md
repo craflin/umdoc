@@ -1,4 +1,8 @@
 
+# 0.1.2 (unreleased)
+
+* Added support for footnotes
+
 # 0.1.1
 
 * Fixed not working conversion of Markdown to *PDF* without a configuration file 

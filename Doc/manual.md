@@ -471,6 +471,16 @@ This translates to the custom *LaTeX* command `\\InlineImage`. By the default *u
 
  `<file>` is a path relative to the location of the *umdoc* *XML* file.
 
+### Footnotes
+
+A footnote like this[^This is a example footnote.] can be inserted using the syntax `\[^<text>]`.
+
+```
+A footnote like this[^This is a example footnote.].
+```
+
+This translates to the *LaTeX* command `\\footnote`.
+
 ## Comments
 
 *XML* style comments (`<\!-- some text -->`) are removed from the input file before parsing.

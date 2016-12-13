@@ -41,7 +41,7 @@ targets = {
     files = { "Doc/*" }    
     input = files
     output = "$(outputDir)/umdoc-$(version).pdf"
-    command = "Build/$(configuration)/umdoc Doc/manual.xml --packageVersion=$(version) -o $(output) -a $(buildDir)"
+    command = "Build/$(configuration)/umdoc Doc/manual.xml --packageVersion=$(version) -o $(output) -a $(buildDir)/tex"
   }
   
   "$(examples)" = {
@@ -52,7 +52,7 @@ targets = {
     files = { "Examples/$(target)/*" }  
     input = files
     output = "$(outputDir)/$(target).pdf"
-    command = "Build/$(configuration)/umdoc Examples/$(target)/umdoc.xml -o $(output) -a $(buildDir)"
+    command = "Build/$(configuration)/umdoc Examples/$(target)/umdoc.xml -o $(output) -a $(buildDir)/tex"
   }
   
   md2tex = {
@@ -63,7 +63,7 @@ targets = {
     files = { "Examples/$(target)/*" }  
     input = files
     output = "$(outputDir)/$(target).pdf"
-    command = "Build/$(configuration)/umdoc Examples/$(target)/example.md -o $(output) -a $(buildDir)"
+    command = "Build/$(configuration)/umdoc Examples/$(target)/example.md -o $(output) -a $(buildDir)/tex"
   }
 
   include "Ext/libnstd/libnstd.mare"

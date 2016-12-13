@@ -236,6 +236,8 @@ String Generator::texEscapeChar(char c)
       return String("{\\textendash}"); // do not merge -- into a long -
     case '/':
       return String("{/\\-}"); // allow line break after /
+    case '^':
+      return String("\\^\\ ");
     case '$':
     case '%':
     case '}':
@@ -376,6 +378,28 @@ bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos,
   return true;
 }
 
+bool Generator::matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result)
+{
+  if(*(s++) != '[')
+    return false;
+  if(*(s++) != '^')
+    return false;
+  const char* textStart = s;
+  while(*s != ']')
+  {
+    if(++s >= end)
+      return false;
+  }
+  const char* textEnd = s++;
+  String text;
+  text.attach(textStart, textEnd - textStart);
+  pos = s;
+  result.append("\\footnote{");
+  result.append(text);
+  result.append("}");
+  return true;
+}
+
 /*
 String Generator::mardownUnescape(const String& str)
 {
@@ -487,6 +511,8 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
       if(matchInlineImage(i, end, outputData, i, result))
         continue;
       if(matchLineBreak(i, end, i, result))
+        continue;
+      if(matchInlineFootnote(i, end, i, result))
         continue;
       result.append(texEscapeChar(c));
       ++i;
