@@ -473,7 +473,7 @@ This translates to the custom *LaTeX* command `\\InlineImage`. By the default *u
 
 ### Footnotes
 
-A footnote like this[^This is a example footnote.] can be inserted using the syntax `\[^<text>]`.
+A footnote can be inserted using the syntax `\[^<text>]`.
 
 ```
 A footnote like this[^This is a example footnote.].
