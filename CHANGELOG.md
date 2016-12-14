@@ -2,6 +2,7 @@
 # 0.1.2 (unreleased)
 
 * Added support for footnotes
+* Allow line breaks after or before some special characters
 
 # 0.1.1
 

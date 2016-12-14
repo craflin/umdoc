@@ -231,11 +231,11 @@ String Generator::texEscapeChar(char c)
     case '>':
       return String("{\\textgreater}");
     case '_':
-      return String("{\\_\\-}"); // allow line break after _
+      return String("{\\_\\allowbreak}"); // allow line break after _
     case '-':
       return String("{\\textendash}"); // do not merge -- into a long -
     case '/':
-      return String("{/\\-}"); // allow line break after /
+      return String("{/\\allowbreak}"); // allow line break after /
     case '^':
       return String("\\^\\ ");
     case '$':
@@ -514,7 +514,14 @@ String Generator::texEscape(const String& str, const OutputData& outputData)
         continue;
       if(matchInlineFootnote(i, end, i, result))
         continue;
-      result.append(texEscapeChar(c));
+      if(c == ':' && String::isAlpha(i[1]) && i > start && !String::isAlphanumeric(i[-1]))
+        result.append(texEscapeChar(c) + "{\\allowbreak}");  // allow line breaks after e.g. "::"
+      else if(String::isAlpha(c) && String::isLowerCase(c) && String::isAlpha(i[1]) && String::isUpperCase(i[1]))
+        result.append(texEscapeChar(c) + "{\\allowbreak}");  // allow line breaks in camel case
+      else if(String::find("<({[", c) && i > start && String::isAlphanumeric(i[-1]))
+        result.append(String("{\\allowbreak}") + texEscapeChar(c));  // allow line breaks before <, (, { or [
+      else
+        result.append(texEscapeChar(c));
       ++i;
       break;
     }
