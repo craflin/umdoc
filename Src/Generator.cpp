@@ -46,7 +46,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write(" a4paper,\n") ||
        !file.write(" left=25mm,\n") ||
        !file.write(" right=25mm,\n") ||
-       !file.write(" top=38mm,\n") ||
+       !file.write(" top=25mm,\n") ||
        !file.write(" bottom=25mm,\n") ||
        !file.write("}\n\n"))
        return false;
