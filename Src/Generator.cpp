@@ -237,7 +237,7 @@ String Generator::texEscapeChar(char c)
     case '/':
       return String("{/\\allowbreak}"); // allow line break after /
     case '^':
-      return String("\\^\\ ");
+      return String("\\textasciicircum");
     case '$':
     case '%':
     case '}':
