@@ -717,7 +717,7 @@ translates to:
 \end{<language>}
 ```
 
-The custom command `\\EnvironmentCaption` is by the default *umdoc* style default as:
+The custom command `\\EnvironmentCaption` is by the default *umdoc* style defined with:
 ```
 \newcommand\EnvironmentCaption[1]{\parbox{\textwidth}{\textbf{#1}}}
 ```
