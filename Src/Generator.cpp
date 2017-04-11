@@ -93,7 +93,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        //!file.write("\\titleformat{\\subsection}{\\normalfont\\Large\\bfseries}{\\thesubsection}{1em}{}\n") ||
        //!file.write("\\titleformat{\\subsubsection}{\\normalfont\\large\\bfseries}{\\thesubsubsection}{1em}{}\n") ||
        !file.write("\\titleformat{\\paragraph}{\\normalfont\\normalsize\\bfseries}{\\theparagraph}{1em}{}\n") ||
-       !file.write("\\titleformat{\\subparagraph}{\\normalfont\\normalsize\\bfseries}{\\thesubparagraph}{1em}{}\n") ||
+       !file.write("\\titleformat{\\subparagraph}{\\normalfont\\normalsize\\bfseries}{\\thesubparagraph}{1em}{}\n\n") ||
        //!file.write("\\titlespacing*{\\part}{-1.5cm}{10pt}{5pt}\n") ||
        //!file.write("\\titlespacing*{\\section}{-1.5cm}{30pt}{5pt}\n") ||
        //!file.write("\\titlespacing*{\\subsection}{-1.5cm}{10pt}{5pt}\n") ||
@@ -101,6 +101,14 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        //!file.write("\\titlespacing*{\\paragraph}{-1.5cm}{10pt}{5pt}\n") ||
        //!file.write("\\titlespacing*{\\subparagraph}{-0cm}{10pt}{5pt}\n\n"))
        false)
+      return false;
+
+    // workaround for titlesec section numbering issue http://tex.stackexchange.com/questions/299969/titlesec-loss-of-section-numbering-with-the-new-update-2016-03-15
+    if(!file.write("\\usepackage{etoolbox}\n") ||
+       !file.write("\\makeatletter\n") ||
+       !file.write("\\patchcmd{\\ttlh@hang}{\\parindent\\z@}{\\parindent\\z@\\leavevmode}{}{}\n") ||
+       !file.write("\\patchcmd{\\ttlh@hang}{\\noindent}{}{}{}\n") ||
+       !file.write("\\makeatother\n\n"))
       return false;
 
     // package insert graphics at the desired position
