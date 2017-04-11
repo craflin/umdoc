@@ -1,8 +1,10 @@
 
-# 0.1.2 (unreleased)
+# 0.1.2
 
 * Added support for footnotes
 * Allow line breaks after or before some special characters
+* Fixed resource file including issue
+* Fixed issue with titlesec section numbering on Ubuntu 16.04
 
 # 0.1.1
 
