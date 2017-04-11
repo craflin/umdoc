@@ -347,9 +347,6 @@ bool Generator::matchInlineImage(const char* s, const char* end, const OutputDat
   ++s;
   String path;
   path.attach(pathStart, pathEnd - pathStart);
-  if(!File::isAbsolutePath(path))
-    path = outputData.inputDirectory + "/" + path;
-  path = File::getRelativePath(outputData.outputDirectory, path);
   result.append("\\InlineImage{");
   result.append(path);
   result.append("}");
@@ -576,9 +573,6 @@ String OutputData::SeparatorSegment::generate(const OutputData& outputData) cons
 String OutputData::FigureSegment::generate(const OutputData& outputData) const
 {
   String path = this->path;
-  if(!File::isAbsolutePath(path))
-    path = outputData.inputDirectory + "/" + path;
-  path = File::getRelativePath(outputData.outputDirectory, path);
   String flags = "";
   return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title, outputData) + "}\\end{figure}\n";
 }
@@ -818,7 +812,5 @@ String OutputData::TexPartSegment::generate(const OutputData& outputData) const
 String OutputData::PdfSegment::generate(const OutputData& outputData) const
 {
   String path = filePath;
-  if(!File::isAbsolutePath(path))
-    path = outputData.inputDirectory + "/" + path;
-  return String("\n\\includepdf[pages=-]{") + File::getRelativePath(outputData.outputDirectory, path) + "}\n";
+  return String("\n\\includepdf[pages=-]{") + path + "}\n";
 }
