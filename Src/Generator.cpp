@@ -22,10 +22,6 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
   {
     if(!file.write(String("\\documentclass{") + outputData.className + "}\n\n"))
       return false;
-    String classFile = outputData.inputDirectory + "/" + outputData.className + ".cls";
-    if(File::exists(classFile))
-      if(!File::copy(classFile, outputData.outputDirectory + "/" + outputData.className + ".cls", false))
-        return false;
   }
   else
   {

@@ -249,8 +249,6 @@ public:
   };
 
 public:
-  String inputDirectory;
-  String outputDirectory;
   String className;
   List<String> headerTexFiles;
   bool hasPdfSegments;

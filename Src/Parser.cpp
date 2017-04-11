@@ -766,8 +766,6 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
 {
   this->outputData = &outputData;
 
-  outputData.inputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(inputData.inputFile) ? inputData.inputFile : Directory::getCurrent() + "/" + inputData.inputFile));
-  outputData.outputDirectory = File::simplifyPath(File::dirname(File::isAbsolutePath(outputFile) ? outputFile : Directory::getCurrent() + "/" + outputFile));
   outputData.className = inputData.className;
   outputData.variables = inputData.variables;
   for(HashMap<String, String>::Iterator i = inputData.environments.begin(), end = inputData.environments.end(); i != end; ++i)
