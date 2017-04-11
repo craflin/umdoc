@@ -794,7 +794,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       {
         String value = component.value;
         for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-          value.replace(String("%") + i.key() + "%", Generator::texEscape(*i, outputData));
+          value.replace(String("%") + i.key() + "%", Generator::texEscape(*i));
         outputSegments.append(new OutputData::TexSegment(value));
       }
       break;

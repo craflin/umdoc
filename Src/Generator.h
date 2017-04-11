@@ -18,7 +18,7 @@ public:
 
 public:
   static String texEscapeChar(char c);
-  static String texEscape(const String& str, const OutputData& outputData);
+  static String texEscape(const String& str);
   static String getEnvironmentName(const String& language);
 
 private:
@@ -26,8 +26,8 @@ private:
 
 private:
   //static String mardownUnescape(const String& str);
-  static bool matchInlineLink(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result);
-  static bool matchInlineImage(const char* s, const char* end, const OutputData& outputData, const char*& pos, String& result);
+  static bool matchInlineLink(const char* s, const char* end, const char*& pos, String& result);
+  static bool matchInlineImage(const char* s, const char* end, const char*& pos, String& result);
   static bool matchLineBreak(const char* s, const char* end, const char*& pos, String& result);
   static bool matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result);
 };
