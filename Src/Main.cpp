@@ -207,7 +207,7 @@ int main(int argc, char* argv[])
 
   // change working directory to the directory of the input fle
   String inputFileDir = File::dirname(inputFile);
-  if(inputFileDir != "." || auxDirectory != ".")
+  if(inputFileDir != ".")
   {
     // convert input and output files to absolute paths:wq:wq
     inputFile = File::getAbsolutePath(inputFile);
@@ -215,9 +215,7 @@ int main(int argc, char* argv[])
     auxDirectory = File::getAbsolutePath(auxDirectory);
     tmpTexFile = File::getAbsolutePath(tmpTexFile);
     tmpPdfFile = File::getAbsolutePath(tmpPdfFile);
-  }
-  if(inputFileDir != ".")
-  {
+
     if(!Directory::change(inputFileDir))
     {
       Console::errorf("%s: error: %s\n", (const char*)inputFile, (const char*)Error::getErrorString());
