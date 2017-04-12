@@ -176,7 +176,7 @@ public:
       String text;
     };
   public:
-    TableSegment(int indent) : Segment(indent), isSeparatorLine(false) {}
+    TableSegment(int indent) : Segment(indent), isSeparatorLine(false), captionSegment(0) {}
     ~TableSegment();
     bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
   public:
@@ -213,6 +213,7 @@ public:
       bool isSeparatorLine;
       Array<ColumnInfo> columns;
       List<RowData> rows;
+      ParagraphSegment* captionSegment;
   };
 
   class TexSegment : public Segment

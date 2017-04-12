@@ -681,6 +681,17 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
       return true;
     }
   }
+
+  if(newParagraph && indent == 0 && segment.getIndent() == 0 && !captionSegment)
+  {
+    ParagraphSegment* paragraphSegment = dynamic_cast<ParagraphSegment*>(&segment);
+    if(paragraphSegment && (paragraphSegment->getText().startsWith(":") ||  paragraphSegment->getText().startsWith("Table:")))
+    {
+      captionSegment = paragraphSegment;
+      return true;
+    }
+  }
+
   return false;
 }
 

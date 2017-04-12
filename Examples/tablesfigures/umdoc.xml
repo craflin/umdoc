@@ -1,0 +1,9 @@
+<umdoc>
+
+    <document>
+        <tex>\listoffigures</tex>
+        <tex>\listoftables</tex>
+        <md file="example.md"/>
+    </document>
+
+</umdoc>

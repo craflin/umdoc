@@ -1,7 +1,8 @@
 
 # 0.1.3 (unreleased)
 
-* ...
+* Added support for tables with caption
+* Added *tablesfigure* example, which demonstrations generating a list of figures or tables 
 
 # 0.1.2
 

@@ -752,7 +752,20 @@ String OutputData::EnvironmentSegment::generate() const
 
 String OutputData::TableSegment::generate() const
 {
-  String result("\n\\begin{center}\\begin{tabular}{");
+  String result;
+  String caption;
+  if(captionSegment)
+  {
+    result.append("\n\\begin{table}[H]\\centering");
+    caption = captionSegment->getText();
+    if(caption.startsWith(":"))
+      caption = caption.substr(1);
+    else // Table:
+      caption = caption.substr(6);
+  }
+  else
+    result.append("\n\\begin{center}");
+  result.append("\\begin{tabular}{");
   for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
   {
     const ColumnInfo& columnInfo = *i;
@@ -799,7 +812,11 @@ String OutputData::TableSegment::generate() const
   }
   if(rows.size() > 1)
     result.append("\\hline\n");
-  result.append("\\end{tabular}\\end{center}");
+  result.append("\\end{tabular}");
+  if(captionSegment)
+    result.append(String("\\caption{") + Generator::texEscape(caption) + "}\\end{table}");
+  else
+    result.append("\\end{center}");
   return result;
 }
 

@@ -757,9 +757,9 @@ int main(void)
 }
 ```
 
-## Figure Images
+## Figures with Caption
 
-An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure image.
+An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure with a captionb.
 
 ```
 ![Example Figure](circle.png)
@@ -838,6 +838,25 @@ results in:
   eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
-Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line
- The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
+Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
 
+## Tables with Caption
+
+A table is considered to have a caption if the paragraph following the table starts with `:` or `Table:`.
+
+```
+|a|b|
+|c|d|
+
+Table: Example Table
+```
+
+results in:
+```boxed
+|a|b|
+|c|d|
+
+Table: Example Table
+```
+
+Tables with caption translate to the *LaTeX* environment `table`.

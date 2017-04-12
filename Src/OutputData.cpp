@@ -43,6 +43,7 @@ OutputData::TableSegment::~TableSegment()
         delete *i;
     }
   }
+  delete captionSegment;
 }
 
 OutputData::~OutputData()
