@@ -62,10 +62,10 @@ The *umdoc* project tries to achieve the following goals:
 
 ##### Project Non-Goals
 
-In contrary, goals that the project does not try a achieve are:
+In contrary, goals that the project does not try to achieve are:
 
 * Support of all Markdown features and dialects.
-* Create output in other formats than *PDF*.
+* Create output in other formats than *LaTeX* or *PDF*.
 
 # Installation
 
@@ -774,7 +774,7 @@ This translate to the *LaTeX* environment `figure` where the command `\\includes
 
 `<file>` is a path relative to the location of the *umdoc* *XML* file.
 
-## Tables
+## Tables {#tables}
 
 A table can be inserted by formatting the table with the character `|`.
 The second line separates table header from the table content.
@@ -859,4 +859,4 @@ results in:
 Table: Example Table
 ```
 
-Tables with caption translate to the *LaTeX* environment `table`.
+Tables with caption translate to a *LaTeX* table as in section~[](#tables) surrounded by the environment `table`.
