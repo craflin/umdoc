@@ -78,7 +78,7 @@ targets = {
     buildDir = "Build/$(configuration)/.$(target)"
     outputDir = "Build/$(configuration)"
     files = {
-      "Build/$(configuration)/umdoc$(if $(Win32),.exe) Build/$(configuration)/umdoc.pdf" = copyFile + {
+      "Build/$(configuration)/umdoc$(if $(Win32),.exe) Build/$(configuration)/umdoc.pdf NOTICE LICENSE" = copyFile + {
         folder = "umdoc-$(version)"
       }
       "$(foreach name,$(examples) md2tex,Build/$(configuration)/Examples/$(name).pdf)" = copyFile + {
