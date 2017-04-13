@@ -173,8 +173,8 @@ An *umdoc* *XML* file might look like this:
     <tex file="style.tex"/>
     <document>
         <pdf file="coverpage.pdf"/>
-        <toc/>
-        <break/>
+        <tableOfContents/>
+        <pageBreak/>
         <md file="01_introduction.md"/>
         <md file="02_platform.md"/>
         <md file="03_implementation.md"/>
@@ -237,7 +237,7 @@ The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 The `<document>` element defines the structure of the document to be generated.
 The following elements can be used within this element:
 
-* `<break>`
+* `<pageBreak>`
 
   Inserts a manual page break (see section~[](#umdoc-xml-page-break)).
 
@@ -265,24 +265,24 @@ The following elements can be used within this element:
 
   Inserts a *LaTeX* (`.tex`) file into the generated *LaTeX* document (see section~[](#umdoc-xml-tex-in-document)).
 
-* `<toc>`
+* `<tableOfContents>`
 
   Inserts a table of contents (see section~[](#umdoc-xml-toc)).
 
-* `<lof>`
+* `<listOfFigures>`
 
   Inserts a list of figures (see section~[](#umdoc-xml-lof)).
 
-* `<lot>`
+* `<listOfTables>`
 
-  Inserts a list of tables (see section~[](#umdoc-xml-lof)).
+  Inserts a list of tables (see section~[](#umdoc-xml-lot)).
 
 #### Manual Page Breaks {#umdoc-xml-page-break}
 
-A manual page break can be inserted using the `<break/>` element.
+A manual page break can be inserted using the `<pageBreak/>` element.
 This is most useful after inserting the table of contents (see section~[](#umdoc-xml-toc)) or after inserting a Markdown or *LaTeX* file.
 
-The `<break>` element translates to the *LaTeX* command `\\clearpage`.
+The `<pageBreak>` element translates to the *LaTeX* command `\\clearpage`.
 
 #### Markdown Files {#umdoc-xml-markdown}
 
@@ -335,19 +335,19 @@ The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 
 #### Table of Contents {#umdoc-xml-toc}
 
-An automatically generated table of contents can be inserted using the element `<toc/>`.
+An automatically generated table of contents can be inserted using the element `<tableOfContents/>`.
 
 This translates to the *LaTeX* command `\\tableofcontents`.
 
 #### List of Figures {#umdoc-xml-lof}
 
-An automatically generated list of figures can be inserted using the element `<lof/>`.
+An automatically generated list of figures can be inserted using the element `<listOfFigures/>`.
 
 This translates to the *LaTeX* command `\\listoffigures`.
 
 #### List of Tables {#umdoc-xml-lot}
 
-An automatically generated list of tables can be inserted using the element `<lot/>`.
+An automatically generated list of tables can be inserted using the element `<listOfTables/>`.
 
 This translates to the *LaTeX* command `\\listoftables`.
 

@@ -5,11 +5,11 @@
     <document>
 
         <tex>\title{\bfseries \Huge umdoc\\ \Large The Universal Markdown to \emph{LaTeX} to \emph{PDF} Converter} \author{Colin Graf} \date{Version %packageVersion%\\ \today}\maketitle\thispagestyle{empty}</tex>
-        <break/>
+        <pageBreak/>
         <tex>\sloppy</tex>
 
-        <toc/>
-        <break/>
+        <tableOfContents/>
+        <pageBreak/>
 
         <md file="manual.md"/>
 

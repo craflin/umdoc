@@ -1,8 +1,8 @@
 <umdoc>
 
     <document>
-        <lof/>
-        <lot/>
+        <listOfFigures/>
+        <listOfTables/>
         <md file="example.md"/>
     </document>
 
