@@ -1,8 +1,8 @@
 <umdoc>
 
     <document>
-        <tex>\listoffigures</tex>
-        <tex>\listoftables</tex>
+        <lof/>
+        <lot/>
         <md file="example.md"/>
     </document>
 

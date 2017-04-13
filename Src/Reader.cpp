@@ -90,9 +90,19 @@ bool Reader::read(const String& inputFile, InputData& inputData)
         else if(element.type == "toc" || element.type == "tableOfContents")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
-          component.type = InputData::Component::texTocType;
+          component.type = InputData::Component::texTableOfContentsType;
         }
-        else if(element.type == "break" || element.type == "newPage")
+        else if(element.type == "lof" || element.type == "listOfFigures")
+        {
+          InputData::Component& component = inputData.document.append(InputData::Component());
+          component.type = InputData::Component::texListOfFiguresType;
+        }
+        else if(element.type == "lot" || element.type == "listOfTables")
+        {
+          InputData::Component& component = inputData.document.append(InputData::Component());
+          component.type = InputData::Component::texListOfTablesType;
+        }
+        else if(element.type == "break" || element.type == "newPage" || element.type == "pageBreak")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
           component.type = InputData::Component::texNewPageType;

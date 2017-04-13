@@ -269,6 +269,14 @@ The following elements can be used within this element:
 
   Inserts a table of contents (see section~[](#umdoc-xml-toc)).
 
+* `<lof>`
+
+  Inserts a list of figures (see section~[](#umdoc-xml-lof)).
+
+* `<lot>`
+
+  Inserts a list of tables (see section~[](#umdoc-xml-lof)).
+
 #### Manual Page Breaks {#umdoc-xml-page-break}
 
 A manual page break can be inserted using the `<break/>` element.
@@ -330,6 +338,18 @@ The file may contain placeholders (see section~[](#umdoc-xml-file-placeholder)).
 An automatically generated table of contents can be inserted using the element `<toc/>`.
 
 This translates to the *LaTeX* command `\\tableofcontents`.
+
+#### List of Figures {#umdoc-xml-lof}
+
+An automatically generated list of figures can be inserted using the element `<lof/>`.
+
+This translates to the *LaTeX* command `\\listoffigures`.
+
+#### List of Tables {#umdoc-xml-lot}
+
+An automatically generated list of tables can be inserted using the element `<lot/>`.
+
+This translates to the *LaTeX* command `\\listoftables`.
 
 # Supported Markdown Features {#supported-markdown-features}
 

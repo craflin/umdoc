@@ -809,8 +809,14 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
         outputSegments.append(new OutputData::TexSegment(value));
       }
       break;
-    case InputData::Component::texTocType:
+    case InputData::Component::texTableOfContentsType:
       outputSegments.append(new OutputData::TexSegment("\\tableofcontents"));
+      break;
+    case InputData::Component::texListOfFiguresType:
+      outputSegments.append(new OutputData::TexSegment("\\listoffigures"));
+      break;
+    case InputData::Component::texListOfTablesType:
+      outputSegments.append(new OutputData::TexSegment("\\listoftables"));
       break;
     case InputData::Component::texNewPageType:
       outputSegments.append(new OutputData::TexSegment("\\clearpage"));

@@ -14,7 +14,9 @@ public:
     enum Type
     {
       texType,
-      texTocType,
+      texTableOfContentsType,
+      texListOfFiguresType,
+      texListOfTablesType,
       texNewPageType,
       texPartType,
       pdfType,
