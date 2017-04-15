@@ -9,7 +9,7 @@ examples = "$(patsubst Examples/%/umdoc.xml,%,$(examples))"
 targets = {
 
   all = {
-    dependencies = { "umdoc", "manual", "$(examples)", "md2tex" }
+    dependencies = { "umdoc" }
   }
 
   umdoc = cppApplication + {
