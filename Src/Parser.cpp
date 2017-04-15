@@ -428,7 +428,20 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
 
 void Parser::extractArguments(String& line, Map<String, Variant>& args)
 {
-  const char* attributeStart = line.findLast('{');
+  const char* attributeStart = 0;
+  for(const char* i = line, * end = i + line.length();;)
+  {
+    const char* p = String::findOneOf(i, "\\{");
+    if(!p || p >= end)
+      break;
+    if(*p == '\\')
+    {
+      i = p + ((p[1] == '\\' || p[1] == '{') ? 2 : 1);
+      continue;
+    }
+    attributeStart = p;
+    i = p + 1;
+  }
   if(!attributeStart)
     return;
   ++attributeStart;

@@ -754,15 +754,18 @@ String OutputData::TableSegment::generate() const
 {
   String result;
   String caption;
+  bool hasCaption = false;
   if(captionSegment)
   {
-    result.append("\n\\begin{table}[H]\\centering");
     caption = captionSegment->getText();
     if(caption.startsWith(":"))
       caption = caption.substr(1);
     else // Table:
       caption = caption.substr(6);
+    hasCaption = true;
   }
+  if(hasCaption)
+    result.append("\n\\begin{table}[H]\\centering");
   else
     result.append("\n\\begin{center}");
   result.append("\\begin{tabular}{");
@@ -813,7 +816,7 @@ String OutputData::TableSegment::generate() const
   if(rows.size() > 1)
     result.append("\\hline\n");
   result.append("\\end{tabular}");
-  if(captionSegment)
+  if(hasCaption)
     result.append(String("\\caption{") + Generator::texEscape(caption) + "}\\end{table}");
   else
     result.append("\\end{center}");
