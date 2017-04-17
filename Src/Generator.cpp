@@ -608,7 +608,7 @@ String OutputData::TitleSegment::generate() const
     result = String("\n\\subparagraph{") + Generator::texEscape(title) + "}\n";
     break;
   }
-  if(arguments.find("-") != arguments.end() || arguments.find(".unnumbered") != arguments.end())
+  if(arguments.contains("-") || arguments.contains(".unnumbered"))
   {
     const char* x = result.find('{');
     if(x)
@@ -755,6 +755,7 @@ String OutputData::TableSegment::generate() const
   String result;
   String caption;
   bool hasCaption = false;
+  bool gridStyle = false;
   if(captionSegment)
   {
     caption = captionSegment->getText();
@@ -763,12 +764,19 @@ String OutputData::TableSegment::generate() const
     else // Table:
       caption = caption.substr(6);
     hasCaption = true;
+    const Map<String, Variant>& arguments = captionSegment->getArguments();
+    if(arguments.contains("-") || arguments.contains(".unnumbered"))
+      hasCaption = false;
+    if(arguments.contains(".grid"))
+      gridStyle = true;
   }
   if(hasCaption)
     result.append("\n\\begin{table}[H]\\centering");
   else
     result.append("\n\\begin{center}");
   result.append("\\begin{tabular}{");
+  if(gridStyle)
+    result.append("|");
   for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
   {
     const ColumnInfo& columnInfo = *i;
@@ -780,7 +788,8 @@ String OutputData::TableSegment::generate() const
       char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
       result.append(a);
     }
-    //result.append("|");
+    if(gridStyle)
+      result.append("|");
   }
   result.append("}\n");
   result.append("\\hline\n");
@@ -810,10 +819,10 @@ String OutputData::TableSegment::generate() const
       }
     }
     result.append(" \\\\\n");
-    if(i == rows.begin())
+    if(i == rows.begin() || gridStyle)
       result.append("\\hline\n");
   }
-  if(rows.size() > 1)
+  if(rows.size() > 1 && !gridStyle)
     result.append("\\hline\n");
   result.append("\\end{tabular}");
   if(hasCaption)

@@ -356,7 +356,12 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   }
 
   if(!segment)
-    segment = new OutputData::ParagraphSegment(indent, remainingLine);
+  {
+    OutputData::ParagraphSegment* paragraphSegment = new OutputData::ParagraphSegment(indent);
+    if(!paragraphSegment->parseArguments(remainingLine, error.string))
+      return false;
+    segment = paragraphSegment;
+  }
 
   addSegment(*segment);
   return true;
@@ -429,10 +434,11 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
 void Parser::extractArguments(String& line, Map<String, Variant>& args)
 {
   const char* attributeStart = 0;
-  for(const char* i = line, * end = i + line.length();;)
+  const char* lineEnd = (const char*)line + line.length();
+  for(const char* i = line;;)
   {
     const char* p = String::findOneOf(i, "\\{");
-    if(!p || p >= end)
+    if(!p || p >= lineEnd)
       break;
     if(*p == '\\')
     {
@@ -445,9 +451,14 @@ void Parser::extractArguments(String& line, Map<String, Variant>& args)
   if(!attributeStart)
     return;
   ++attributeStart;
+
   const char* end = String::findOneOf(attributeStart, "}\r\n");
-  if(!end && *end != '}')
+  if(!end || *end != '}')
     return;
+  for(const char* i = end + 1; i < lineEnd; ++i)
+    if(!String::isSpace(*i))
+      return;
+
   List<String> attributes;
   line.substr(attributeStart - (const char*)line, end - attributeStart).split(attributes, " \t");
   for(List<String>::Iterator i = attributes.begin(), end = attributes.end(); i != end; ++i)
@@ -513,6 +524,13 @@ bool Parser::extractStringArgument(String& line, String& result)
   return false;
 }
 
+bool OutputData::ParagraphSegment::parseArguments(const String& line, String& error)
+{
+  text = line;
+  Parser::extractArguments(text, arguments);
+  return true;
+}
+
 bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
 {
   if(newParagraph)
@@ -522,6 +540,7 @@ bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
   {
     text.append(' ');
     text.append(paragraphSegment->getText());
+    arguments.insert(paragraphSegment->arguments);
     segment.invalidate();
     return true;
   }

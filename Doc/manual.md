@@ -777,7 +777,7 @@ int main(void)
 }
 ```
 
-## Figures with Caption
+## Figures
 
 An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure with a captionb.
 
@@ -796,8 +796,7 @@ This translate to the *LaTeX* environment `figure` where the command `\\includes
 
 ## Tables {#tables}
 
-A table can be inserted by formatting the table with the character `|`.
-The second line separates table header from the table content.
+A table can be inserted by formatting the table with the pipe characters (`|`).
 
 ```
 | 1   | 2   | 3   | 4   |
@@ -858,9 +857,10 @@ results in:
   eiusmod tempor incididunt ut labore et dolore magna aliqua.
 ```
 
-Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p{<width>}`.
+Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p\{<width>}`.
 
-## Tables with Caption
+
+### Tables with Caption {#tables-caption}
 
 A table is considered to have a caption if the paragraph following the table starts with `:` or `Table:`.
 
@@ -880,3 +880,22 @@ Table: Example Table
 ```
 
 Tables with caption translate to a *LaTeX* table as in section~[](#tables) surrounded by the environment `table`.
+
+### Table Attributes
+
+The table style can be changed to a grid layout by adding the attribute `.grid` at the end of the table caption (see section~[](#tables-caption)). The attribute `.unnumbered` prevents a table with "caption" from actually having a caption or beeing listed in the list of tables (see section~[](#umdoc-xml-lot)).
+
+```
+|a|b|
+|c|d|
+
+Table: {.unnumbered .grid}
+```
+
+results in:
+```boxed
+|a|b|
+|c|d|
+
+Table: {.unnumbered .grid}
+```

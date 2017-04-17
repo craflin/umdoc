@@ -43,13 +43,16 @@ public:
   class ParagraphSegment : public Segment
   {
   public:
-    ParagraphSegment(int indent, const String& line) : Segment(indent), text(line) {}
+    ParagraphSegment(int indent) : Segment(indent) {}
+    bool parseArguments(const String& line, String& error);
     const String& getText() const {return text;}
+    const Map<String, Variant>& getArguments() const {return arguments;}
   public:
     virtual String generate() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     String text;
+    Map<String, Variant> arguments;
   };
 
   class TitleSegment : public Segment
