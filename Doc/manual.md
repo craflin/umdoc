@@ -554,7 +554,7 @@ This translates to the *LaTeX* environment `quoting`.
 
 ## Horizontal Rules
 
-Lines of asterisks (`\*`), hyphens (`\-`), or underscores (`\_`) are interpreted as a horizontal rule.
+Lines of asterisks (`\*`), minus (`\-`), or underscores (`\_`) are interpreted as a horizontal rule.
 
 ```
 ***
@@ -596,7 +596,7 @@ This translates to the custom *LaTeX* command `\\HorizontalRule`. By the default
 
 ## Bullet Lists {#markown-bullet-list}
 
-Lines starting with asterisk (`\*`), plus (`\+`), or hyphen (`\-`) are interpreted as bullet list items.
+Lines starting with asterisk (`\*`), plus (`\+`), or minus (`\-`) are interpreted as bullet list items.
 
 ```
 * item a
