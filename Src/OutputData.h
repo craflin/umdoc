@@ -186,37 +186,38 @@ public:
     virtual String generate() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
-      class CellData
+    class CellData
+    {
+    public:
+      List<Segment*> segments;
+    };
+    class RowData
+    {
+    public:
+      Array<CellData> cellData;
+    };
+    class ColumnInfo
+    {
+    public:
+      enum Alignment
       {
-      public:
-        List<Segment*> segments;
+        undefinedAlignment,
+        leftAlignment,
+        rightAlignment,
+        centerAlignment
       };
-      class RowData
-      {
-      public:
-        Array<CellData> cellData;
-      };
-      class ColumnInfo
-      {
-      public:
-        enum Alignment
-        {
-          undefinedAlignment,
-          leftAlignment,
-          rightAlignment,
-          centerAlignment
-        };
-      public:
-        int indent;
-        Alignment alignment;
-        Map<String, Variant> arguments;
-        ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
-      };
+    public:
+      int indent;
+      Alignment alignment;
+      Map<String, Variant> arguments;
+      ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
+    };
   private:
-      bool isSeparatorLine;
-      Array<ColumnInfo> columns;
-      List<RowData> rows;
-      ParagraphSegment* captionSegment;
+    bool isSeparatorLine;
+    Array<ColumnInfo> columns;
+    List<RowData> rows;
+    ParagraphSegment* captionSegment;
+    Map<String, Variant> arguments;
   };
 
   class TexSegment : public Segment

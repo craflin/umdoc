@@ -883,19 +883,15 @@ Tables with caption translate to a *LaTeX* table as in section~[](#tables) surro
 
 ### Table Attributes
 
-The table style can be changed to a grid layout by adding the attribute `.grid` at the end of the table caption (see section~[](#tables-caption)). The attribute `.unnumbered` prevents a table with "caption" from actually having a caption or beeing listed in the list of tables (see section~[](#umdoc-xml-lot)).
+The table style can be changed to a grid layout by adding the attribute `.grid` at the end of the first line of the table.
 
 ```
-|a|b|
+|a|b| {.grid}
 |c|d|
-
-Table: {.unnumbered .grid}
 ```
 
 results in:
 ```boxed
-|a|b|
+|a|b| {.grid}
 |c|d|
-
-Table: {.unnumbered .grid}
 ```

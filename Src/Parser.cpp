@@ -746,11 +746,25 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
       const char* columEnd = i;
       if(columEnd == columStart)
         break;
+
       ColumnInfo& columnInfo = columns.append(ColumnInfo(indent + (columStart - start)));
       ColumnData& column = columnData.append(ColumnData());
       column.indent = columnInfo.indent;
       column.text.attach(columStart, columEnd - columStart);
       Parser::extractArguments(column.text, columnInfo.arguments);
+
+      if(columEnd == end)
+      {
+        String text = column.text;
+        text.trim();
+        if(text.isEmpty())
+        {
+          arguments.insert(columnInfo.arguments);
+          columns.removeBack();
+          columnData.removeBack();
+        }
+      }
+
       --i;
     }
 

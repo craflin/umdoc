@@ -754,8 +754,7 @@ String OutputData::TableSegment::generate() const
 {
   String result;
   String caption;
-  bool hasCaption = false;
-  bool gridStyle = false;
+  bool gridStyle = arguments.contains(".grid");
   if(captionSegment)
   {
     caption = captionSegment->getText();
@@ -763,15 +762,8 @@ String OutputData::TableSegment::generate() const
       caption = caption.substr(1);
     else // Table:
       caption = caption.substr(6);
-    hasCaption = true;
-    const Map<String, Variant>& arguments = captionSegment->getArguments();
-    if(arguments.contains("-") || arguments.contains(".unnumbered"))
-      hasCaption = false;
-    if(arguments.contains(".grid"))
-      gridStyle = true;
-  }
-  if(hasCaption)
     result.append("\n\\begin{table}[H]\\centering");
+  }
   else
     result.append("\n\\begin{center}");
   result.append("\\begin{tabular}{");
@@ -825,7 +817,7 @@ String OutputData::TableSegment::generate() const
   if(rows.size() > 1 && !gridStyle)
     result.append("\\hline\n");
   result.append("\\end{tabular}");
-  if(hasCaption)
+  if(captionSegment)
     result.append(String("\\caption{") + Generator::texEscape(caption) + "}\\end{table}");
   else
     result.append("\\end{center}");
