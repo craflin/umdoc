@@ -1,8 +1,9 @@
 
-# 0.1.3 (unreleased)
+# 0.1.3
 
 * Added support for tables with caption
 * Added *tablesfigure* example, which demonstrations generating a list of figures or tables 
+* Added support for grid tables
 
 # 0.1.2
 
@@ -16,7 +17,7 @@
 * Fixed not working conversion of Markdown to *PDF* without a configuration file 
 * Fixed access to input file when *umdoc* should operate in the working directory
 * Added *md2tex* example
-    
+
 # 0.1
 
 * The initial release of *umdoc* supports the following features:
