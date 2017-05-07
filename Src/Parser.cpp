@@ -356,12 +356,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   }
 
   if(!segment)
-  {
-    OutputData::ParagraphSegment* paragraphSegment = new OutputData::ParagraphSegment(indent);
-    if(!paragraphSegment->parseArguments(remainingLine, error.string))
-      return false;
-    segment = paragraphSegment;
-  }
+    segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
   addSegment(*segment);
   return true;
@@ -522,13 +517,6 @@ bool Parser::extractStringArgument(String& line, String& result)
     return true;
   }
   return false;
-}
-
-bool OutputData::ParagraphSegment::parseArguments(const String& line, String& error)
-{
-  text = line;
-  Parser::extractArguments(text, arguments);
-  return true;
 }
 
 bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)

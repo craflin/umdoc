@@ -43,8 +43,7 @@ public:
   class ParagraphSegment : public Segment
   {
   public:
-    ParagraphSegment(int indent) : Segment(indent) {}
-    bool parseArguments(const String& line, String& error);
+    ParagraphSegment(int indent, const String& text) : Segment(indent), text(text) {}
     const String& getText() const {return text;}
     const Map<String, Variant>& getArguments() const {return arguments;}
   public:
