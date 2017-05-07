@@ -376,7 +376,7 @@ bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos,
   if(*(s++) != '>')
     return false;
   pos = s;
-  result.append("\\\\");
+  result.append("\\newline ");
   return true;
 }
 
