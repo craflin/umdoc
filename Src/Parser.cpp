@@ -820,7 +820,12 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   }
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
-    outputData.headerTexFiles.append(*i);
+  {
+    String value = *i;
+    for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
+      value.replace(String("%") + i.key() + "%", Generator::texEscape(*i));
+    outputData.headerTexFiles.append(value);
+  }
 
   if(outputData.className.isEmpty())
   {

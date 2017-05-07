@@ -4,6 +4,7 @@
 * Added support for tables with caption
 * Added *tablesfigure* example, which demonstrations generating a list of figures or tables 
 * Added support for grid tables
+* Fixed replacing placeholders in header tex files
 
 # 0.1.2
 
