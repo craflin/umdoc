@@ -510,7 +510,7 @@ Hence, these comments can be used anywhere in the file (except in comments) and 
 
 The following characters: 
 
-`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\! ``
+`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\!\~ ``
 
 can be escaped with a black slash (`\\`) to prevent them from being interpreted as markdown formatting characters.
 

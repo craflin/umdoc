@@ -1,4 +1,8 @@
 
+# 0.1.4
+
+* Added support for tilde character
+
 # 0.1.3
 
 * Added support for tables with caption
