@@ -6,4 +6,4 @@ It is small command line tool, which converts a Markdown file or set of Markdown
 
 ## Example & Documentation
 
-Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.1.3/umdoc-0.1.3.pdf).
+Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.1.4/umdoc-0.1.4.pdf).
