@@ -503,8 +503,8 @@ This translates to the *LaTeX* command `\\footnote`.
 
 ## Comments
 
-*XML* style comments (`<\!-- some text -->`) are removed from the input file before parsing.
-Hence, these comments can be used anywhere in the file (except in comments) and they can span multiple lines.
+*XML* style comments (`<\!-- some text -->`) in the input file are skipped unless they appear in a verbatim environment (see section~[](#umdoc-xml-file-custom-environments)).
+They can be used anywhere in the file (except nested in comments) and they can span multiple lines.
 
 ## Character Escaping
 
@@ -751,7 +751,7 @@ The default *umdoc* style supports the following languages using the *LaTeX* pac
 
 Additionally, it supports the non-verbatim environment `boxed`, which places a box around Markdown code.
 
-##### Example
+##### Example 1
 
 ````
 ```c "main.c"
@@ -776,6 +776,31 @@ int main(void)
     return 0;
 }
 ```
+
+##### Example 2
+
+````
+```xml "index.html"
+<html>
+    <!-- some comment -->
+    <body>
+        Hello world
+    </body>
+</html>
+```
+````
+
+results in:
+
+```xml "index.html"
+<html>
+    <!-- some comment -->
+    <body>
+        Hello world
+    </body>
+</html>
+```
+
 
 ## Figures
 

@@ -398,7 +398,9 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
       }
       else
       {
-        const char* commentStart = lineStr.find("<!--");
+        const char* commentStart = 0;
+        if(parserMode != verbatimMode)
+            commentStart = lineStr.find("<!--");
         if(commentStart)
         {
           preCommentLine = lineStr.substr(0, commentStart - (const char*)lineStr);
