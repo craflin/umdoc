@@ -37,7 +37,7 @@ But, if it actually comes to converting Markdown into a document, you will reali
 
 This is because Markdown was designed to be converted into inner text *HTML* and not into pages.
 To create a document, you will probably require:
-* The possibility to define the basic layout of document (cover page, table of contents, etc.).
+* The possibility to define the basic layout of a document (cover page, table of contents, etc.).
 * The possibility to define a page header and footer.
 * Support for tables
 * Figure and table environments
@@ -455,18 +455,22 @@ A link translates to the *LaTeX* command `\\hyperref` from the *hyperref* packag
 
 ### Cross References {#markdown-cross-references}
 
-Cross references to section titles can be used by labeling the title and linking to it using the syntax of inline links (see section~[](#markdown-inline-links)).
-Section titles can be labeled by adding `{#<label>}` to the end of the title.
-A link to such a title can be created by using `#<label>` as the `<url>` in the inline link.
-The section number will be used as `<text>` of the link if it is left blank.
+Section titles (see section~[](#markdown-titles)) and figures (see secion~[](#figures)) can be referenced by labeling and referencing them using a syntax similar to the syntax of inline links (see section~[](#markdown-inline-links)).
+The label of a title or figure is added with `{#<label>}` at the end of the line.
+A link to such a label can be created by using `#<label>` as the `<url>` in the link.
+The section or figure number will be used as `<text>` of the link if it is left blank.
 
 ```
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
+
+This is a references to figure~[](#example-figure).
 ```
 
 results in:
 ```boxed
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
+
+This is a references to figure~[](#example-figure).
 ```
 
 A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref` and a reference without a `<text>` to the command `\\ref`.
@@ -802,9 +806,9 @@ results in:
 ```
 
 
-## Figures
+## Figures {#figures}
 
-An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure with a captionb.
+An image in a single line with the form `\!\[<title>](<file>)` is considered to be a figure with a caption.
 
 ```
 ![Example Figure](circle.png)
@@ -812,7 +816,7 @@ An image in a single line with the form `\!\[<title>](<file>)` is considered to 
 
 results in:
 ```boxed
-![Example Figure](circle.png)
+![Example Figure](circle.png) {#example-figure}
 ```
 
 This translate to the *LaTeX* environment `figure` where the command `\\includesgraphics` is used to insert the image `\\caption` to set the title.

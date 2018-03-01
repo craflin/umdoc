@@ -84,12 +84,14 @@ public:
   {
   public:
     FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
+    bool parseArguments(const String& line, String& error);
   public:
     virtual String generate() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String title;
     String path;
+    Map<String, Variant> arguments;
   };
 
   class RuleSegment : public Segment

@@ -55,7 +55,7 @@ void Parser::addSegment(OutputData::Segment& newSegment)
   segments.append(&newSegment);
 }
 
-bool Parser::matchFigureImage(const char* s, const char* end, String& title, String& path)
+bool Parser::matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine)
 {
   if(*s != '!')
     return false;
@@ -81,6 +81,7 @@ bool Parser::matchFigureImage(const char* s, const char* end, String& title, Str
     pathEnd = s;
   title.attach(titleStart, titleEnd - titleStart);
   path.attach(pathStart, pathEnd - pathStart);
+  remainingLine.attach(pathEnd, end - pathEnd);
   return true;
 }
 
@@ -309,9 +310,17 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
     {
       const char* i = remainingLine;
       const char* end = i + remainingLine.length();
-      String title, path;
-      if(matchFigureImage(i, end, title, path))
-        segment = new OutputData::FigureSegment(indent, title, path);
+      String title, path, remainingLine;
+      if(matchFigureImage(i, end, title, path, remainingLine))
+      {
+        OutputData::FigureSegment* figureSegment = new OutputData::FigureSegment(indent, title, path);
+        if(!figureSegment->parseArguments(remainingLine, error.string))
+        {
+          delete figureSegment;
+          return false;
+        }
+        segment = figureSegment;
+      }
     }
     break;
   case '|':
@@ -552,6 +561,13 @@ bool OutputData::TitleSegment::parseArguments(const String& title, String& error
 {
   this->title = title;
   Parser::extractArguments(this->title, arguments);
+  return true;
+}
+
+bool OutputData::FigureSegment::parseArguments(const String& line, String& error)
+{
+  String args = line;
+  Parser::extractArguments(args, arguments);
   return true;
 }
 

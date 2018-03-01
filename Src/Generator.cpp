@@ -238,7 +238,7 @@ String Generator::texEscapeChar(char c)
       return String("{\\_\\allowbreak}"); // allow line break after _
     case '-':
       //return String("{\\textendash}"); // do not merge -- into a long -
-      return String("-{}"); // do not merge -- into a long -
+        return String("-{}"); // do not merge -- into a long -
     case '/':
       return String("{/\\allowbreak}"); // allow line break after /
     case '^':
@@ -582,7 +582,10 @@ String OutputData::FigureSegment::generate() const
 {
   String path = this->path;
   String flags = "";
-  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title) + "}\\end{figure}\n";
+  String label = arguments.find("#")->toString();
+  if(!label.isEmpty())
+      label = String("\\label{") + label + "}";
+  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title) + "}" + label + "\\end{figure}\n";
 }
 
 String OutputData::ParagraphSegment::generate() const

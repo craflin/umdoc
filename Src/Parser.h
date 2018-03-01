@@ -55,7 +55,7 @@ private:
 private:
   void addSegment(OutputData::Segment& segment);
 
-  bool matchFigureImage(const char* s, const char* end, String& title, String& path);
+  bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
   bool parseMarkdownLine(const String& line, usize additionalIndent);
