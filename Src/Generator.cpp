@@ -237,8 +237,7 @@ String Generator::texEscapeChar(char c)
     case '_':
       return String("{\\_\\allowbreak}"); // allow line break after _
     case '-':
-      //return String("{\\textendash}"); // do not merge -- into a long -
-        return String("-{}"); // do not merge -- into a long -
+      return String("{-\\allowbreak}"); // do not merge -- into a long - // don't use \textendash!
     case '/':
       return String("{/\\allowbreak}"); // allow line break after /
     case '^':
