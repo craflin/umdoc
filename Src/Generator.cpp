@@ -824,7 +824,12 @@ String OutputData::TableSegment::generate() const
     result.append("\\hline\n");
   result.append("\\end{tabular}");
   if(captionSegment)
-    result.append(String("\\caption{") + Generator::texEscape(caption) + "}\\end{table}");
+  {
+    String label = arguments.find("#")->toString();
+    if(!label.isEmpty())
+      label = String("\\label{") + label + "}";
+    result.append(String("\\caption{") + Generator::texEscape(caption) + "}" + label + "\\end{table}");
+  }
   else
     result.append("\\end{center}");
   return result;

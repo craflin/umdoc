@@ -725,6 +725,10 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
     if(paragraphSegment && (paragraphSegment->getText().startsWith(":") ||  paragraphSegment->getText().startsWith("Table:")))
     {
       captionSegment = paragraphSegment;
+      String text = captionSegment->getText();
+      captionSegment->setText(String());
+      Parser::extractArguments(text, arguments);
+      captionSegment->setText(text);
       return true;
     }
   }

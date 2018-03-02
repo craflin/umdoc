@@ -455,15 +455,17 @@ A link translates to the *LaTeX* command `\\hyperref` from the *hyperref* packag
 
 ### Cross References {#markdown-cross-references}
 
-Section titles (see section~[](#markdown-titles)) and figures (see secion~[](#figures)) can be referenced by labeling and referencing them using a syntax similar to the syntax of inline links (see section~[](#markdown-inline-links)).
-The label of a title or figure is added with `{#<label>}` at the end of the line.
-A link to such a label can be created by using `#<label>` as the `<url>` in the link.
-The section or figure number will be used as `<text>` of the link if it is left blank.
+Section titles (see section~[](#markdown-titles)), figures (see secion~[](#figures)) and tables with captions (see secion~[](#tables-caption)) can be referenced if they have a label.
+The label of a title or figure is added with `{#<label>}` at the end of the line. Tables are labeled with `{#<label>}` at the first line of the caption.
+A reference link to such a label is created with the syntax of inline links (see section~[](#markdown-inline-links)) with `#<label>` as the `<url>` of the link.
+The section, figure or table number will be used as `<text>` of the link if it is left blank.
 
 ```
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
 
 This is a reference to figure~[](#example-figure).
+
+This is a reference to table~[](#example-table).
 ```
 
 results in:
@@ -471,6 +473,8 @@ results in:
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
 
 This is a reference to figure~[](#example-figure).
+
+This is a reference to table~[](#example-table).
 ```
 
 A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref` and a reference without a `<text>` to the command `\\ref`.
@@ -891,13 +895,13 @@ Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserte
 
 ### Tables with Caption {#tables-caption}
 
-A table is considered to have a caption if the paragraph following the table starts with `:` or `Table:`.
+A table is considered to have a caption if the paragraph following the table starts with `:` or `Table:`. The first line of the caption can also define a label for cross referencing (see section~[](#markdown-cross-references)).
 
 ```
 |a|b|
 |c|d|
 
-Table: Example Table
+Table: Example Table {#example-table}
 ```
 
 results in:
@@ -905,10 +909,10 @@ results in:
 |a|b|
 |c|d|
 
-Table: Example Table
+Table: Example Table {#example-table}
 ```
 
-Tables with caption translate to a *LaTeX* table as in section~[](#tables) surrounded by the environment `table`.
+Tables with caption translate to a *LaTeX* table as in section~[](#tables) surrounded by the *LaTeX* environment `table`.
 
 ### Table Attributes
 
