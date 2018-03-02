@@ -463,14 +463,14 @@ The section or figure number will be used as `<text>` of the link if it is left 
 ```
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
 
-This is a references to figure~[](#example-figure).
+This is a reference to figure~[](#example-figure).
 ```
 
 results in:
 ```boxed
 This references to section~[](#markdown-cross-references) and here is a reference to [Cross References](#markdown-cross-references).
 
-This is a references to figure~[](#example-figure).
+This is a reference to figure~[](#example-figure).
 ```
 
 A cross reference with a `<text>` translates to the *LaTeX* command `\\hyperref` and a reference without a `<text>` to the command `\\ref`.

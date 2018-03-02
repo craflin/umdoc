@@ -539,7 +539,6 @@ bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
   {
     text.append(' ');
     text.append(paragraphSegment->getText());
-    arguments.insert(paragraphSegment->arguments);
     segment.invalidate();
     return true;
   }
