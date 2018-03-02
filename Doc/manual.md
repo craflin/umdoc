@@ -823,7 +823,7 @@ results in:
 ![Example Figure](circle.png) {#example-figure}
 ```
 
-This translate to the *LaTeX* environment `figure` where the command `\\includesgraphics` is used to insert the image `\\caption` to set the title.
+This translate to the *LaTeX* environment `figure` where the command `\\includesgraphics` inserts the image and `\\caption` sets the title.
 
 `<file>` is a path relative to the location of the *umdoc* *XML* file.
 
