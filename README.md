@@ -2,7 +2,9 @@
 # umdoc
 
 *umdoc* is a Markdown to *LaTeX* to *PDF* converter.
-It is small command line tool, which converts a Markdown file or set of Markdown files with optional layout information written in *LaTeX* into an input file (`.tex` file) for a *LaTeX* engine like `lualatex` or `pdflatex`. This file is then converted into a *PDF* document using such an engine.
+It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `lualatex` or `pdflatex`.
+The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
+Optional layout information written in *LaTeX* may be provided to customize the look and feel of the generated document.
 
 ## Examples & Documentation
 
@@ -10,9 +12,9 @@ Further documentation and a showcase of *umdoc*'s capabilities can be found in i
 
 ## Build Instructions
 
-To compile *umdoc* from sources follow the following steps:
+To compile *umdoc* from the sources follow the following steps:
 
-## Windows
+### Windows
 
 * Clone the Git repository.
 * Initialize submodules.
@@ -20,7 +22,7 @@ To compile *umdoc* from sources follow the following steps:
 * Open `umdoc.sln` in Visual Studio.
 * Compile the *umdoc* project in Visual Studio.
 
-## Linux
+### Linux
 
 * Ensure you have `git` and `g++` installed.
 * Clone the Git repository. `git clone git@github.com:craflin/umdoc.git`
