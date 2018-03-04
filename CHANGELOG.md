@@ -1,4 +1,10 @@
 
+# 0.1.5
+
+* Support XML comments in verbatim environments
+* Support cross references to figures and tables
+* Improved the user manual
+
 # 0.1.4
 
 * Added support for tilde character
