@@ -837,6 +837,8 @@ If `<file>` is not absolute, it is relative to the location of the *umdoc* *XML*
 
 A label for cross referencing may be added at the end of the line (see secion~[](#markdown-cross-references)).
 
+The size of the image in the generated document can be controlled with DPI settings of the image file.
+
 ## Tables {#tables}
 
 A table can be inserted by formatting the table with the pipe characters (`|`).
