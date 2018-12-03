@@ -25,6 +25,7 @@ targets = {
       "Src/*.h"
     }
     if tool == "vcxproj" {
+      cppFlags += "/MT"
       linkFlags += { "/SUBSYSTEM:CONSOLE" }
     }
     if platform == "Linux" {
@@ -70,6 +71,9 @@ targets = {
   libnstd += {
     folder = "Ext"
     enableDocument = "true"
+    if tool == "vcxproj" {
+      cppFlags += "/MT"
+    }
   }
 
   package = {

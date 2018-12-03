@@ -1,4 +1,8 @@
 
+# 0.1.6
+
+* Build Windows build with /MT
+
 # 0.1.5
 
 * Support XML comments in verbatim environments
