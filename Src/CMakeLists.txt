@@ -1,0 +1,24 @@
+
+set(sources
+    Generator.cpp
+    Generator.h
+    InputData.h
+    Main.cpp
+    OutputData.cpp
+    OutputData.h
+    Parser.cpp
+    Parser.h
+    Reader.cpp
+    Reader.h
+)
+
+add_executable(umdoc ${sources})
+
+target_link_libraries(umdoc
+    PRIVATE libnstd
+)
+target_compile_definitions(umdoc
+    PRIVATE "VERSION=\"${PROJECT_VERSION}\""
+)
+
+source_group("" FILES ${sources})
