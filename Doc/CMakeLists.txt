@@ -13,4 +13,11 @@ add_custom_command(
 
 add_custom_target(manual ALL
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/umdoc.pdf"
+    SOURCES ${sources}
 )
+
+set_target_properties(manual PROPERTIES
+    FOLDER "Doc"
+)
+
+source_group("" FILES ${sources})

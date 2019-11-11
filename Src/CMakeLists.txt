@@ -21,4 +21,8 @@ target_compile_definitions(umdoc
     PRIVATE "VERSION=\"${PROJECT_VERSION}\""
 )
 
+set_target_properties(umdoc PROPERTIES
+    FOLDER "Src"
+)
+
 source_group("" FILES ${sources})
