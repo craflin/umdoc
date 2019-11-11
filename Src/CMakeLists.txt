@@ -26,3 +26,5 @@ set_target_properties(umdoc PROPERTIES
 )
 
 source_group("" FILES ${sources})
+
+install(TARGETS umdoc DESTINATION .)

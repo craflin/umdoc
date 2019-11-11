@@ -21,3 +21,5 @@ set_target_properties(manual PROPERTIES
 )
 
 source_group("" FILES ${sources})
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/umdoc.pdf" DESTINATION .)

@@ -15,8 +15,15 @@ function(add_example name input0)
     set_target_properties(${name} PROPERTIES
         FOLDER "Examples"
     )
-    
+
     source_group("" FILES ${input0} ${ARGN})
+
+    install(FILES ${input0} ${ARGN}
+        DESTINATION "Examples/${name}"
+    )
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${name}.pdf"
+        DESTINATION "Examples"
+    )
 
 endfunction()
 
