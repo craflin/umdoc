@@ -27,4 +27,4 @@ To compile *umdoc* from the sources follow the following steps:
 * Ensure you have `git` and `g++` installed.
 * Clone the Git repository. `git clone git@github.com:craflin/umdoc.git`
 * Initialize submodules. `git submodule update --init`
-* Call `./generate` to compile *umdoc*.
+* Use CMake to build *umdoc*.

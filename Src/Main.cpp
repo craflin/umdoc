@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
   String inputFileDir = File::dirname(inputFile);
   if(inputFileDir != ".")
   {
-    // convert input and output files to absolute paths:wq:wq
+    // convert input and output files to absolute paths
     inputFile = File::getAbsolutePath(inputFile);
     outputFile = File::getAbsolutePath(outputFile);
     auxDirectory = File::getAbsolutePath(auxDirectory);

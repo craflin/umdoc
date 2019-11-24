@@ -3,6 +3,8 @@ cmake_policy(SET CMP0048 NEW)
 
 project(umdoc VERSION 0.1.7)
 
+enable_testing()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER ".cmake")
 

@@ -59,4 +59,6 @@ private:
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
   bool parseMarkdownLine(const String& line, usize additionalIndent);
+
+  static String translateHtmlEntities(const String& line);
 };
