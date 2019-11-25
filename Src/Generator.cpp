@@ -242,6 +242,8 @@ String Generator::texEscapeChar(char c)
       return String("{/\\allowbreak}"); // allow line break after /
     case '^':
       return String("\\textasciicircum");
+    case '~':
+      return String("{\\textasciitilde}");
     case '$':
     case '%':
     case '}':
@@ -433,12 +435,9 @@ String Generator::texEscape(const String& str)
     switch(c = *i)
     {
     case '\\':
-      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!~", *(i + 1)))
+      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
         ++i;
-      if(*i == '~')
-        result.append(String("{\\textasciitilde}"));
-      else
-        result.append(texEscapeChar(*i));
+      result.append(texEscapeChar(*i));
       ++i;
       break;
     default:

@@ -525,7 +525,7 @@ They can be used anywhere in the file (except nested in comments) and they can s
 
 The following characters: 
 
-`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\!\~ ``
+`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\! ``
 
 can be escaped with a black slash (`\\`) to prevent them from being interpreted as markdown formatting characters.
 
