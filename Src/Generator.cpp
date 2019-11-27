@@ -54,13 +54,9 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write(" citecolor=black,\n") ||
        !file.write(" filecolor=black,\n") ||
        !file.write(" linkcolor=black,\n") ||
+       !file.write(" anchorcolor=black,\n") ||
        !file.write(" urlcolor=blue\n") ||
        !file.write("}\n\n"))
-       return false;
-
-    // turn \\hyperref links blue (while keeping other in-document links black)
-    if(!file.write("\\let\\oldhyperref\\hyperref\n") ||
-      !file.write("\\renewcommand{\\hyperref}[2][]{\\oldhyperref[#1]{\\color{blue}#2}}\n\n"))
        return false;
 
     // package to include images
@@ -304,7 +300,16 @@ bool Generator::matchInlineLink(const char* s, const char* end, const char*& pos
       result.append("\\hyperref[");
       result.append(link.substr(1));
       result.append("]{");
-      result.append(texEscape(name));
+      if (name.endsWith("#"))
+      {
+        name.resize(name.length() - 1);
+        name = texEscape(name);
+        name.append(String("\\ref{") + link.substr(1) + "}");
+      }
+      else
+        name = texEscape(name);
+      name.replace(' ', '~');
+      result.append(name);
       result.append("}");
     }
   }
