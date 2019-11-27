@@ -390,13 +390,13 @@ Example text.
 
 results in:
 ```boxed
-1 ~ ~ ~Example Title {-}
+1 &nbsp; &nbsp; &nbsp;Example Title {-}
 =============
 
-1.1 ~ ~ ~Example Title Level 2 {-}
+1.1 &nbsp; &nbsp; &nbsp;Example Title Level 2 {-}
 ---------------------
 
-### 1.1.1 ~ ~ ~Example Title Level 3 {-}
+### 1.1.1 &nbsp; &nbsp; &nbsp;Example Title Level 3 {-}
 
 Example text.
 ```
@@ -547,7 +547,7 @@ results in:
 This is the first sentence of a paragraph.
 And this is the second.
 
-~
+&nbsp;
 
 Here starts a new paragraph.
 ```
