@@ -584,10 +584,36 @@ String OutputData::SeparatorSegment::generate() const
 String OutputData::FigureSegment::generate() const
 {
   String path = this->path;
-  String flags = "";
+  String flags;
   String label = arguments.find("#")->toString();
   if(!label.isEmpty())
       label = String("\\label{") + label + "}";
+  {
+    String width = arguments.find("width")->toString();
+    if(!width.isEmpty())
+    {
+      if(width.endsWith("%"))
+      {
+        double textWidth = width.toDouble() / 100.0;
+        flags.append(String("width=") + String::fromDouble(textWidth) + "\\textwidth");
+      }
+      else
+        flags.append(String("width=") + width);
+    }
+  }
+  {
+    String height = arguments.find("height")->toString();
+    if(!height.isEmpty())
+    {
+      if(height.endsWith("%"))
+      {
+        double textWidth = height.toDouble() / 100.0;
+        flags.append(String("height=") + String::fromDouble(textWidth) + "\\textheight");
+      }
+      else
+        flags.append(String("height=") + height);
+    }
+  }
   return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title) + "}" + label + "\\end{figure}\n";
 }
 

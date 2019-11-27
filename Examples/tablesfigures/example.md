@@ -4,9 +4,9 @@
 
 ![Example Figure 1](circle.png)
 
-![Example Figure 2](circle.png)
+![Example Figure 2](circle.png){width=2cm}
 
-![Example Figure 3](circle.png)
+![Example Figure 3](circle.png){width=20%}
 
 # Here are some tables
 

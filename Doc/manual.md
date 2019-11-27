@@ -840,6 +840,21 @@ A label for cross referencing may be added at the end of the line (see [section 
 
 The size of the image in the generated document can be controlled with DPI settings of the image file.
 
+### Figure Attributes
+
+Besides the DPI settings of an image file, another option to control the size of the image is using a `width` or `height` attribute:
+
+```
+![Example Figure 2](circle.png) {width=15%}
+```
+
+results in:
+```boxed
+![Example Figure 2](circle.png) {width=15%}
+```
+
+A percentaged width or height is relative to the width or height of the text area in the generated page. In this example it translates to `\\includegraphics[width=0.15\\textwidth]{circle.png}`. Other units like `cm`, `in` or `px` can also be used.
+
 ## Tables {#tables}
 
 A table can be inserted by formatting the table with the pipe characters (`|`).
