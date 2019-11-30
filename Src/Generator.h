@@ -20,6 +20,7 @@ public:
   static String texEscapeChar(char c);
   static String texEscape(const String& str);
   static String getEnvironmentName(const String& language);
+  static String getTexSize(const String& size, bool width = true);
 
 private:
   const OutputData* outputData;

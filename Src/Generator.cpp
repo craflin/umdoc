@@ -544,7 +544,6 @@ String Generator::texEscape(const String& str)
   return result;
 }
 
-
 String Generator::getEnvironmentName(const String& language)
 {
   String result(language.length());
@@ -561,6 +560,17 @@ String Generator::getEnvironmentName(const String& language)
   if(result.length() == 1)
     result.append("language");
   return result;
+}
+
+String Generator::getTexSize(const String& size, bool width)
+{
+  if(size.endsWith("%"))
+  {
+    double percentageSize = size.toDouble() / 100.0;
+    return String::fromDouble(percentageSize) + (width ? String("\\textwidth") : String("\\textheight"));
+  }
+  else
+    return size;
 }
 
 String OutputData::generate() const
@@ -584,36 +594,22 @@ String OutputData::SeparatorSegment::generate() const
 String OutputData::FigureSegment::generate() const
 {
   String path = this->path;
-  String flags;
+  List<String> flagsList;
   String label = arguments.find("#")->toString();
   if(!label.isEmpty())
       label = String("\\label{") + label + "}";
   {
     String width = arguments.find("width")->toString();
     if(!width.isEmpty())
-    {
-      if(width.endsWith("%"))
-      {
-        double textWidth = width.toDouble() / 100.0;
-        flags.append(String("width=") + String::fromDouble(textWidth) + "\\textwidth");
-      }
-      else
-        flags.append(String("width=") + width);
-    }
+      flagsList.append(String("width=") + Generator::getTexSize(width));
   }
   {
     String height = arguments.find("height")->toString();
     if(!height.isEmpty())
-    {
-      if(height.endsWith("%"))
-      {
-        double textWidth = height.toDouble() / 100.0;
-        flags.append(String("height=") + String::fromDouble(textWidth) + "\\textheight");
-      }
-      else
-        flags.append(String("height=") + height);
-    }
+      flagsList.append(String("height=") + Generator::getTexSize(height, false));
   }
+  String flags;
+  flags.join(flagsList, ',');
   return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title) + "}" + label + "\\end{figure}\n";
 }
 
@@ -810,7 +806,7 @@ String OutputData::TableSegment::generate() const
     const ColumnInfo& columnInfo = *i;
     String width = columnInfo.arguments.find("width")->toString();
     if(!width.isEmpty())
-      result.append(String("p{") + width + "}");
+      result.append(String("p{") + Generator::getTexSize(width) + "}");
     else
     {
       char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
@@ -834,7 +830,7 @@ String OutputData::TableSegment::generate() const
           result.append(" & ");
         //String width = columnInfo.arguments.find("width")->toString();
         //if(!width.isEmpty())
-        //  result.append(String("\\parbox[t][][t]{") + width + "}{");
+        //  result.append(String("\\parbox[t][][t]{") + Generator::getTexSize(width) + "}{");
         for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
         {
           Segment* segment = *i;

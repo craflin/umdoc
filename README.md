@@ -18,13 +18,13 @@ To compile *umdoc* from the sources follow the following steps:
 
 * Clone the Git repository.
 * Initialize submodules.
-* Call `generate.bat` to generate a solution file (`umdoc.sln`) for Visual Studio 2013.
-* Open `umdoc.sln` in Visual Studio.
+* Use CMake to generate a solution file (`umdoc.sln`) for some version of Visual Studio.
+* Open the generated `umdoc.sln` file in Visual Studio.
 * Compile the *umdoc* project in Visual Studio.
 
 ### Linux
 
-* Ensure you have `git` and `g++` installed.
+* Ensure you have `git`, `g++` and `cmake` installed.
 * Clone the Git repository. `git clone git@github.com:craflin/umdoc.git`
 * Initialize submodules. `git submodule update --init`
 * Use CMake to build *umdoc*.
