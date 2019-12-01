@@ -175,7 +175,8 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
 
     if(!file.write("\\lstset{frame=single,basicstyle=\\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor},keywordstyle=\\color{codeBlueColor},stringstyle=\\color{codeRedColor},commentstyle=\\color{codeGreenColor}}\n"))
       return false;
-    if(!file.write("\\lstnewenvironment{plain}{\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+    if(!file.write("\\lstnewenvironment{plain}[1][]{\\lstset{#1}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n") ||
+       !file.write("\\lstnewenvironment{xplain}{\\lstset{frame=none,backgroundcolor=}\\vspace{\\parskip}}{}\n"))
       return false;
     for(usize i = 0; i < numOfDefaultListingsLanguages; ++i)
     {

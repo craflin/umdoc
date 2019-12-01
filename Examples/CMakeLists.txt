@@ -67,3 +67,8 @@ add_example(tablestyles
     tablestyles/umdoc.xml
     tablestyles/example.md
 )
+
+add_example(codeblocks
+    codeblocks/umdoc.xml
+    codeblocks/example.md
+)

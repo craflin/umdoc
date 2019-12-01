@@ -961,6 +961,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   {
     outputData.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
     outputData.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
+    outputData.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
     for(usize i = 0; i < Generator::numOfDefaultListingsLanguages; ++i)
       outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
