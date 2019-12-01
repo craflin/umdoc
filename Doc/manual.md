@@ -942,9 +942,9 @@ Table: Example Table {#example-table}
 
 Tables with caption translate to a *LaTeX* table as in [section #](#tables) surrounded by the *LaTeX* environment `table`.
 
-### Table Attributes
+### Table Styles
 
-The table style can be changed to a grid layout by adding the attribute `.grid` at the end of the first line of the table.
+The table style can be changed by adding the attribute `.grid`, `.xtab` or `.xtabgrid` at the end of the first line of the table.
 
 ```
 |a|b| {.grid}
@@ -956,3 +956,5 @@ results in:
 |a|b| {.grid}
 |c|d|
 ```
+
+The `.xtab` or `.xtabgrid` style attributes are useful if a table is too large to fit on a single page. An `xtab` table will be created using the  environment `xtabular` from the *LaTeX* package *xtab*.
