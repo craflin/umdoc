@@ -15,7 +15,7 @@
 
 Table: Example Table 1
 
-|e|f|
+|e|f| {.grid}
 |g|h|
 
 Table: Example Table 2

@@ -61,3 +61,7 @@ add_example(tablesfigures
     tablesfigures/circle.png
 )
 
+add_example(tablestyles
+    tablestyles/umdoc.xml
+    tablestyles/example.md
+)

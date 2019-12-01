@@ -82,6 +82,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
        !file.write("\\setlength\\parskip{5pt}\n\n"))
        return false;
 
+    // customized section titles
     if(!file.write("\\usepackage{titlesec}\n\n") ||
        !file.write("\\setcounter{secnumdepth}{4}\n") ||
        //!file.write("\\titleformat{\\section}{\\fontsize{7em}{7em}\\selectfont\\bfseries}{\\thesection}{0.1em}{\\LARGE\\scshape}\n") ||
@@ -132,6 +133,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     if(!file.write("\\newcommand\\InlineImage[1]{\\raisebox{-0.1em}{\\includegraphics[height=0.9em]{#1}}}\n\n"))
       return false;
 
+    // configure table environment
     //if(!file.write("\\renewcommand{\\arraystretch}{1.2}\n\n"))
     //  return false;
     //if(!file.write("\\usepackage{mdframed}\n\n"))
@@ -141,6 +143,10 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     //if(!file.write("\\renewcommand{\\arraystretch}{1.5}\n\n"))
     //  return false;
     if(!file.write("\\renewcommand{\\extrarowheight}{2pt}\n\n"))
+      return false;
+
+    // package for xtab tables
+    if(!file.write("\\usepackage{xtab}\n\n"))
       return false;
 
     // prepare environments for syntax highlighting
@@ -195,7 +201,7 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
       if(!file.write("\\usepackage{pdfpages}\n\n"))
         return false;
 
-    // turn \\hyperref links blue (while keeping other in-document links black)
+    // customize inline code spans
     if(!file.write("\\let\\oldtexttt\\texttt\n") ||
       !file.write("\\renewcommand{\\texttt}[1]{\\fcolorbox{boxFrameColor}{boxBackgroundColor}{\\raisebox{0pt}[0.45em][0pt]{\\oldtexttt{#1}}}}\n\n"))
        return false;
@@ -786,7 +792,9 @@ String OutputData::TableSegment::generate() const
 {
   String result;
   String caption;
-  bool gridStyle = arguments.contains(".grid");
+  bool xtabGridStyle = arguments.contains(".xtabgrid");
+  bool gridStyle = arguments.contains(".grid") || xtabGridStyle;
+  bool xtabStyle = arguments.contains(".xtab") || xtabGridStyle;
   if(captionSegment)
   {
     caption = captionSegment->getText();
@@ -798,7 +806,18 @@ String OutputData::TableSegment::generate() const
   }
   else
     result.append("\n\\begin{center}");
-  result.append("\\begin{tabular}{");
+  if(xtabStyle)
+  {
+    result.append(String("\\tabletail{\\hline\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\vspace{-1cm}\\small\\emph{\\ldots}}\\\\}%\n");
+    result.append(String("\\tablefirsthead{}%\n"));
+    if (!gridStyle)
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\\\hline}%\n");
+    else
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\}%\n");
+    result.append("\\begin{xtabular}{");
+  }
+  else
+    result.append("\\begin{tabular}{");
   if(gridStyle)
     result.append("|");
   for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
@@ -848,7 +867,10 @@ String OutputData::TableSegment::generate() const
   }
   if(rows.size() > 1 && !gridStyle)
     result.append("\\hline\n");
-  result.append("\\end{tabular}");
+  if(xtabStyle)
+    result.append("\\end{xtabular}");
+  else
+    result.append("\\end{tabular}");
   if(captionSegment)
   {
     String label = arguments.find("#")->toString();
