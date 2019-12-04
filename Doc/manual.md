@@ -2,7 +2,7 @@
 # Introduction
 
 *umdoc* is a Markdown to *LaTeX* to *PDF* converter.
-It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `lualatex` or `pdflatex`.
+It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
 The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
 Optional layout information written in *LaTeX* may be provided to customize the look and feel of the generated document.
 
@@ -108,7 +108,7 @@ Alternatively, input and output files can be explicitly specified using the opti
 * `-e <latex-engine>`, `--engine=<latex-engine>`
 
   The launch command of the *LaTeX* engine to be used to convert the created *LaTeX* document into *PDF*.
-  The default is `lualatex`.
+  The default is `xelatex`.
 
 * `-a <aux-directory>`, `--aux-directory=<aux-directory>`
 

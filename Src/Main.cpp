@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
 {
   String inputFile("umdoc.xml");
   String outputFile;
-  String engine("lualatex");
+  String engine("xelatex");
   String auxDirectory;
   HashMap<String, String> variables;
   bool stopAfterTex = false;

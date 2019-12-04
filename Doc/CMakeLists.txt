@@ -9,7 +9,7 @@ set(sources
 
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/umdoc.pdf"
-    COMMAND $<TARGET_FILE:umdoc> -e xelatex "${CMAKE_CURRENT_SOURCE_DIR}/manual.xml" "--packageVersion=${PROJECT_VERSION}" -o "${CMAKE_CURRENT_BINARY_DIR}/umdoc.pdf"
+    COMMAND $<TARGET_FILE:umdoc> "${CMAKE_CURRENT_SOURCE_DIR}/manual.xml" "--packageVersion=${PROJECT_VERSION}" -o "${CMAKE_CURRENT_BINARY_DIR}/umdoc.pdf"
     DEPENDS $<TARGET_FILE:umdoc> ${sources}
 )
 

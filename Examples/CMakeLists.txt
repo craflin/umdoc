@@ -5,7 +5,7 @@ function(add_example name input0)
 
     add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.pdf"
-        COMMAND $<TARGET_FILE:umdoc> -e xelatex "${CMAKE_CURRENT_SOURCE_DIR}/${input0}" -o "${CMAKE_CURRENT_BINARY_DIR}/${name}.pdf"
+        COMMAND $<TARGET_FILE:umdoc> "${CMAKE_CURRENT_SOURCE_DIR}/${input0}" -o "${CMAKE_CURRENT_BINARY_DIR}/${name}.pdf"
         DEPENDS $<TARGET_FILE:umdoc> ${input0} ${ARGN}
     )
 
