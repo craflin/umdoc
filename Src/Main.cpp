@@ -9,7 +9,7 @@
 #include "OutputData.h"
 #include "Reader.h"
 #include "Parser.h"
-#include "Generator.h"
+#include "TexGenerator.h"
 
 static bool latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
 {
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
     return 1;
   }
   {
-    Generator generator;
+    TexGenerator generator;
     if(!generator.generate(engine, outputData, stopAfterTex ? outputFile : tmpTexFile))
     {
       Console::errorf("%s: error: %s\n", (const char*)tmpTexFile, (const char*)generator.getErrorString());

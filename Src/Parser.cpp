@@ -7,7 +7,7 @@
 #include "Parser.h"
 #include "InputData.h"
 #include "OutputData.h"
-#include "Generator.h"
+#include "TexGenerator.h"
 
 Parser::~Parser()
 {
@@ -771,7 +771,7 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
 
   if(!language.isEmpty())
   {
-    HashMap<String, EnvironmentInfo>::Iterator it = knownEnvironments.find(Generator::getEnvironmentName(language));
+    HashMap<String, EnvironmentInfo>::Iterator it = knownEnvironments.find(TexGenerator::getEnvironmentName(language));
     if(it == knownEnvironments.end())
     {
       error = String("Unknown environment '") + language + "'";
@@ -953,7 +953,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   {
     String value = *i;
     for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-      value.replace(String("%") + i.key() + "%", Generator::texEscape(*i));
+      value.replace(String("%") + i.key() + "%", TexGenerator::texEscape(*i));
     outputData.headerTexFiles.append(value);
   }
 
@@ -962,8 +962,8 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     outputData.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
     outputData.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
     outputData.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
-    for(usize i = 0; i < Generator::numOfDefaultListingsLanguages; ++i)
-      outputData.environments.append(Generator::getEnvironmentName(String::fromCString(Generator::defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
+    for(usize i = 0; i < TexGenerator::numOfDefaultListingsLanguages; ++i)
+      outputData.environments.append(TexGenerator::getEnvironmentName(String::fromCString(TexGenerator::defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
 
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
@@ -975,7 +975,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       {
         String value = component.value;
         for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-          value.replace(String("%") + i.key() + "%", Generator::texEscape(*i));
+          value.replace(String("%") + i.key() + "%", TexGenerator::texEscape(*i));
         outputSegments.append(new OutputData::TexSegment(value));
       }
       break;

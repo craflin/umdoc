@@ -4,13 +4,13 @@
 #include <nstd/Directory.h>
 #include <nstd/Error.h>
 
-#include "Generator.h"
+#include "TexGenerator.h"
 #include "OutputData.h"
 
-const char* Generator::defaultListingsLanguages[] = {"ABAP", "ACM", "ACMscript", "ACSL", "Ada", "Algol", "Ant", "Assembler", "Awk", "bash", "Basic", "C", "C++", "Caml", "CIL", "Clean", "Cobol", "Comal 80", "command.com", "Comsol", "csh", "Delphi", "Eiffel", "Elan", "erlang", "Euphoria", "Fortran", "GCL", "Gnuplot", "hansl", "Haskell", "HTML", "IDL", "inform", "Java", "JVMIS", "ksh", "Lingo", "Lisp", "LLVM", "Logo", "Lua", "make", "Matlab", "Mathematica", "Mercury", "MetaPost", "Miranda", "Mizar", "ML", "Modula-2", "MuPAD", "NASTRAN", "Oberon-2", "OCL", "Octave", "Oz", "Perl", "Pascal", "PHP", "PL/I", "Plasm", "PostScript", "POV", "Prolog", "Promela", "PSTricks", "Python", "R", "Reduce", "Rexx", "RSL", "Ruby", "S", "SAS", "Scala", "Scilab", "sh", "SHELXL", "SPARQL", "Simula", "SQL", "tcl", "TeX", "VBScript", "Verilog", "VHDL", "VRML", "XML", "XSLT"};
-const usize Generator::numOfDefaultListingsLanguages = sizeof(defaultListingsLanguages) / sizeof(*defaultListingsLanguages);
+const char* TexGenerator::defaultListingsLanguages[] = {"ABAP", "ACM", "ACMscript", "ACSL", "Ada", "Algol", "Ant", "Assembler", "Awk", "bash", "Basic", "C", "C++", "Caml", "CIL", "Clean", "Cobol", "Comal 80", "command.com", "Comsol", "csh", "Delphi", "Eiffel", "Elan", "erlang", "Euphoria", "Fortran", "GCL", "Gnuplot", "hansl", "Haskell", "HTML", "IDL", "inform", "Java", "JVMIS", "ksh", "Lingo", "Lisp", "LLVM", "Logo", "Lua", "make", "Matlab", "Mathematica", "Mercury", "MetaPost", "Miranda", "Mizar", "ML", "Modula-2", "MuPAD", "NASTRAN", "Oberon-2", "OCL", "Octave", "Oz", "Perl", "Pascal", "PHP", "PL/I", "Plasm", "PostScript", "POV", "Prolog", "Promela", "PSTricks", "Python", "R", "Reduce", "Rexx", "RSL", "Ruby", "S", "SAS", "Scala", "Scilab", "sh", "SHELXL", "SPARQL", "Simula", "SQL", "tcl", "TeX", "VBScript", "Verilog", "VHDL", "VRML", "XML", "XSLT"};
+const usize TexGenerator::numOfDefaultListingsLanguages = sizeof(defaultListingsLanguages) / sizeof(*defaultListingsLanguages);
 
-bool Generator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
+bool TexGenerator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
   this->outputData = &outputData;
 
@@ -181,9 +181,9 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
     for(usize i = 0; i < numOfDefaultListingsLanguages; ++i)
     {
       String language = String::fromCString(defaultListingsLanguages[i]);
-      //if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}{\\lstset{language=" + language + ",frame=single,basicstyle=\//\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+      //if(!file.write(String("\\lstnewenvironment{") + TexGenerator::getEnvironmentName(language) + "}{\\lstset{language=" + language + ",frame=single,basicstyle=\//\ttfamily,breaklines=true,showstringspaces=false,backgroundcolor=\\color{boxBackgroundColor},rulecolor=\\color{boxFrameColor}}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
       //  return false;
-      if(!file.write(String("\\lstnewenvironment{") + Generator::getEnvironmentName(language) + "}[1][]{\\lstset{language=" + language + ",#1}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
+      if(!file.write(String("\\lstnewenvironment{") + TexGenerator::getEnvironmentName(language) + "}[1][]{\\lstset{language=" + language + ",#1}\\vspace{\\parskip}\\minipage{\\linewidth}}{\\endminipage}\n"))
         return false;
     }
     if(!file.write("\n"))
@@ -222,12 +222,12 @@ bool Generator::generate(const String& engine, const OutputData& outputData, con
   return true;
 }
 
-String Generator::getErrorString() const
+String TexGenerator::getErrorString() const
 {
   return Error::getErrorString();
 }
 
-String Generator::texEscapeChar(char c)
+String TexGenerator::texEscapeChar(char c)
 {
   switch(c)
   {
@@ -267,7 +267,7 @@ String Generator::texEscapeChar(char c)
   }
 }
 
-bool Generator::matchInlineLink(const char* s, const char* end, const char*& pos, String& result)
+bool TexGenerator::matchInlineLink(const char* s, const char* end, const char*& pos, String& result)
 {
   if(*s != '[')
     return false;
@@ -339,7 +339,7 @@ bool Generator::matchInlineLink(const char* s, const char* end, const char*& pos
   return true;
 }
 
-bool Generator::matchInlineImage(const char* s, const char* end, const char*& pos, String& result)
+bool TexGenerator::matchInlineImage(const char* s, const char* end, const char*& pos, String& result)
 {
   if(*s != '!')
     return false;
@@ -372,7 +372,7 @@ bool Generator::matchInlineImage(const char* s, const char* end, const char*& po
   return true;
 }
 
-bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos, String& result)
+bool TexGenerator::matchLineBreak(const char* s, const char* end, const char*& pos, String& result)
 {
   if(*(s++) != '<')
     return false;
@@ -393,7 +393,7 @@ bool Generator::matchLineBreak(const char* s, const char* end, const char*& pos,
   return true;
 }
 
-bool Generator::matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result)
+bool TexGenerator::matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result)
 {
   if(*(s++) != '[')
     return false;
@@ -416,7 +416,7 @@ bool Generator::matchInlineFootnote(const char* s, const char* end, const char*&
 }
 
 /*
-String Generator::mardownUnescape(const String& str)
+String TexGenerator::mardownUnescape(const String& str)
 {
   const char* start = str;
   const char* i = String::find(start, '\\');
@@ -435,7 +435,7 @@ String Generator::mardownUnescape(const String& str)
   return result;
 }
 */
-String Generator::texEscape(const String& str)
+String TexGenerator::texEscape(const String& str)
 {
   String result(str.length());
   char c;
@@ -551,7 +551,7 @@ String Generator::texEscape(const String& str)
   return result;
 }
 
-String Generator::getEnvironmentName(const String& language)
+String TexGenerator::getEnvironmentName(const String& language)
 {
   String result(language.length());
   for(const char* i = language; *i; ++i)
@@ -569,7 +569,7 @@ String Generator::getEnvironmentName(const String& language)
   return result;
 }
 
-String Generator::getTexSize(const String& size, bool width)
+String TexGenerator::getTexSize(const String& size, bool width)
 {
   if(size.endsWith("%"))
   {
@@ -608,21 +608,21 @@ String OutputData::FigureSegment::generate() const
   {
     String width = arguments.find("width")->toString();
     if(!width.isEmpty())
-      flagsList.append(String("width=") + Generator::getTexSize(width));
+      flagsList.append(String("width=") + TexGenerator::getTexSize(width));
   }
   {
     String height = arguments.find("height")->toString();
     if(!height.isEmpty())
-      flagsList.append(String("height=") + Generator::getTexSize(height, false));
+      flagsList.append(String("height=") + TexGenerator::getTexSize(height, false));
   }
   String flags;
   flags.join(flagsList, ',');
-  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + Generator::texEscape(title) + "}" + label + "\\end{figure}\n";
+  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texEscape(title) + "}" + label + "\\end{figure}\n";
 }
 
 String OutputData::ParagraphSegment::generate() const
 {
-  return String("\n") + Generator::texEscape(text) + "\n";
+  return String("\n") + TexGenerator::texEscape(text) + "\n";
 }
 
 String OutputData::TitleSegment::generate() const
@@ -631,20 +631,20 @@ String OutputData::TitleSegment::generate() const
   switch(level)
   {
   case 1:
-    result = String("\n\\section{") + Generator::texEscape(title) + "}\n";
+    result = String("\n\\section{") + TexGenerator::texEscape(title) + "}\n";
     break;
   case 2:
-    result = String("\n\\subsection{") + Generator::texEscape(title) + "}\n";
+    result = String("\n\\subsection{") + TexGenerator::texEscape(title) + "}\n";
     break;
   case 3:
-    result = String("\n\\subsubsection{") + Generator::texEscape(title) + "}\n";
+    result = String("\n\\subsubsection{") + TexGenerator::texEscape(title) + "}\n";
     break;
   case 4:
-    result = String("\n\\paragraph{") + Generator::texEscape(title) + "}\n";
+    result = String("\n\\paragraph{") + TexGenerator::texEscape(title) + "}\n";
     break;
   case 5:
   default:
-    result = String("\n\\subparagraph{") + Generator::texEscape(title) + "}\n";
+    result = String("\n\\subparagraph{") + TexGenerator::texEscape(title) + "}\n";
     break;
   }
   if(arguments.contains("-") || arguments.contains(".unnumbered"))
@@ -757,12 +757,12 @@ String OutputData::EnvironmentSegment::generate() const
   String environment = language;
   if(environment.isEmpty())
     environment = "plain";
-  environment = Generator::getEnvironmentName(environment);
+  environment = TexGenerator::getEnvironmentName(environment);
 
   String caption = arguments.find("caption")->toString();
   String flags;
   if(!caption.isEmpty())
-    flags += String("title=\\EnvironmentCaption{") + Generator::texEscape(caption) + "}";
+    flags += String("title=\\EnvironmentCaption{") + TexGenerator::texEscape(caption) + "}";
 
   String result;
   result.append(String("\n\\begin{") + environment + "}");
@@ -826,7 +826,7 @@ String OutputData::TableSegment::generate() const
     const ColumnInfo& columnInfo = *i;
     String width = columnInfo.arguments.find("width")->toString();
     if(!width.isEmpty())
-      result.append(String("p{") + Generator::getTexSize(width) + "}");
+      result.append(String("p{") + TexGenerator::getTexSize(width) + "}");
     else
     {
       char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
@@ -850,7 +850,7 @@ String OutputData::TableSegment::generate() const
           result.append(" & ");
         //String width = columnInfo.arguments.find("width")->toString();
         //if(!width.isEmpty())
-        //  result.append(String("\\parbox[t][][t]{") + Generator::getTexSize(width) + "}{");
+        //  result.append(String("\\parbox[t][][t]{") + TexGenerator::getTexSize(width) + "}{");
         for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
         {
           Segment* segment = *i;
@@ -877,7 +877,7 @@ String OutputData::TableSegment::generate() const
     String label = arguments.find("#")->toString();
     if(!label.isEmpty())
       label = String("\\label{") + label + "}";
-    result.append(String("\\caption{") + Generator::texEscape(caption) + "}" + label + "\\end{table}");
+    result.append(String("\\caption{") + TexGenerator::texEscape(caption) + "}" + label + "\\end{table}");
   }
   else
     result.append("\\end{center}");
@@ -891,7 +891,7 @@ String OutputData::TexSegment::generate() const
 
 String OutputData::TexPartSegment::generate() const
 {
-  return String("\n\\clearpage\n\\part{") + Generator::texEscape(title) + "}\n";
+  return String("\n\\clearpage\n\\part{") + TexGenerator::texEscape(title) + "}\n";
 }
 
 String OutputData::PdfSegment::generate() const

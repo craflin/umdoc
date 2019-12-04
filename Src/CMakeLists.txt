@@ -1,7 +1,7 @@
 
 set(sources
-    Generator.cpp
-    Generator.h
+    TexGenerator.cpp
+    TexGenerator.h
     InputData.h
     Main.cpp
     OutputData.cpp

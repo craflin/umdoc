@@ -5,7 +5,7 @@
 
 class OutputData;
 
-class Generator
+class TexGenerator
 {
 public:
   bool generate(const String& engine, const OutputData& outputData, const String& outputFile);
