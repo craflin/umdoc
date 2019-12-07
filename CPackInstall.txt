@@ -1,0 +1,12 @@
+
+if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/share/umdoc-.*")
+
+    #file(MAKE_DIRECTORY usr/bin)
+    #file(CREATE_LINK "${CMAKE_INSTALL_PREFIX}/umdoc" usr/bin/umdoc)
+
+    execute_process(COMMAND "${CMAKE_COMMAND}" -E create_symlink "${CMAKE_INSTALL_PREFIX}/umdoc" umdoc)
+    get_filename_component(CURRENT_DIR "${CMAKE_PARENT_LIST_FILE}" DIRECTORY)
+    file(INSTALL DESTINATION usr/bin FILES "${CURRENT_DIR}/umdoc")
+    execute_process(COMMAND "${CMAKE_COMMAND}" -E remove -f umdoc)
+
+endif()
