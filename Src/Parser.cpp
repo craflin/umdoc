@@ -937,7 +937,7 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
   return true;
 }
 
-bool Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
+bool Parser::parse(const InputData& inputData, OutputData& outputData)
 {
   this->outputData = &outputData;
 

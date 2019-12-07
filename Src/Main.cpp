@@ -120,7 +120,6 @@ int main(int argc, char* argv[])
   String engine("xelatex");
   String auxDirectory;
   HashMap<String, String> variables;
-  bool stopAfterTex = false;
 
   {
     Process::Option options[] = {
@@ -128,7 +127,6 @@ int main(int argc, char* argv[])
         {'e', "engine", Process::argumentFlag},
         {'a', "aux-directory", Process::argumentFlag},
         {'h', "help", Process::optionFlag},
-        {'t', "tex", Process::optionFlag},
         {1000, "version", Process::optionFlag},
     };
     Process::Arguments arguments(argc, argv, options);
@@ -145,9 +143,6 @@ int main(int argc, char* argv[])
         break;
        case 'a':
         auxDirectory = argument;
-        break;
-      case 't':
-        stopAfterTex = true;
         break;
       case '?':
         if(argument.startsWith("--"))
@@ -171,7 +166,7 @@ int main(int argc, char* argv[])
         inputFile = argument;
         break;
       default:
-        Console::errorf("Usage: %s [<input-file>] [-a <aux-directory>] [-e <latex-engine>]\n             [-o <output-file>] [-t] [--<variable>=<value>]\n", argv[0]);
+        Console::errorf("Usage: %s [<input-file>] [-a <aux-directory>] [-e <latex-engine>]\n             [-o <output-file>] [--<variable>=<value>]\n", argv[0]);
         return 1;
       }
   }
@@ -180,9 +175,9 @@ int main(int argc, char* argv[])
   {
     const char* end = inputFile.findLastOf("\\/.");
     if(end && *end == '.')
-      outputFile = inputFile.substr(0, end - (const char*)inputFile) + (stopAfterTex ? String(".tex") : String(".pdf"));
+      outputFile = inputFile.substr(0, end - (const char*)inputFile) + ".pdf";
     else
-      outputFile = inputFile + (stopAfterTex ? String(".tex") : String(".pdf"));
+      outputFile = inputFile + ".pdf";
   }
 
   if(auxDirectory.isEmpty())
@@ -251,7 +246,7 @@ int main(int argc, char* argv[])
   // parse input data
   {
     Parser parser;
-    if(!parser.parse(inputData, tmpTexFile, outputData))
+    if(!parser.parse(inputData, outputData))
     {
       Console::errorf("%s:%d: error: %s\n", (const char*)parser.getErrorFile(), parser.getErrorLine(), (const char*)parser.getErrorString());
       return 1;
@@ -266,13 +261,13 @@ int main(int argc, char* argv[])
   }
   {
     TexGenerator generator;
-    if(!generator.generate(engine, outputData, stopAfterTex ? outputFile : tmpTexFile))
+    if(!generator.generate(engine, outputData, outputFile.endsWith(".tex") ? outputFile : tmpTexFile))
     {
       Console::errorf("%s: error: %s\n", (const char*)tmpTexFile, (const char*)generator.getErrorString());
       return 1;
     }
   }
-  if(stopAfterTex)
+  if(outputFile.endsWith(".tex"))
     return 0;
 
   // covnert tmp tex file to tmp pdf

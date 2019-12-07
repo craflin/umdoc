@@ -53,8 +53,8 @@ add_example(latexclass
     latexclass/example.md
 )
 
-add_example(md2tex
-    md2tex/example.md
+add_example(md2pdf
+    md2pdf/example.md
 )
 
 add_example(tablesfigures
