@@ -24,7 +24,7 @@ public:
 
   public:
     virtual ~Segment() {};
-    virtual String generate() const = 0;
+    virtual String generateTex() const = 0;
     virtual bool merge(Segment& segment, bool newParagraph) = 0;
 
     int getIndent() const {return indent;}
@@ -47,7 +47,7 @@ public:
     const String& getText() const {return text;}
     void setText(const String& text) {this->text = text;}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     String text;
@@ -59,7 +59,7 @@ public:
     TitleSegment(int indent, int level) : Segment(indent), level(level) {}
     bool parseArguments(const String& title, String& error);
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     int level;
@@ -73,7 +73,7 @@ public:
     SeparatorSegment(int indent) : Segment(indent), lines(1) {}
     int getLines() const {return lines;}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     int lines;
@@ -85,7 +85,7 @@ public:
     FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
     bool parseArguments(const String& line, String& error);
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String title;
@@ -98,7 +98,7 @@ public:
   public:
     RuleSegment(int indent) : Segment(indent) {}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   };
 
@@ -109,7 +109,7 @@ public:
     ~BulletListSegment();
     char getSymbol() const {return symbol;}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<BulletListSegment*> siblingSegments;
@@ -124,7 +124,7 @@ public:
     NumberedListSegment(int indent, uint number, uint childIndent) : Segment(indent), number(number), childIndent(childIndent) {}
     ~NumberedListSegment();
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<NumberedListSegment*> siblingSegments;
@@ -139,7 +139,7 @@ public:
     BlockquoteSegment(int indent, uint childIndent) : Segment(indent), childIndent(childIndent) {}
     ~BlockquoteSegment();
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     List<BlockquoteSegment*> siblingSegments;
@@ -158,7 +158,7 @@ public:
     int getBackticks() const {return backticks;}
     void swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     int backticks;
@@ -183,7 +183,7 @@ public:
     ~TableSegment();
     bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph);
   private:
     class CellData
@@ -225,7 +225,7 @@ public:
   public:
     TexSegment(const String& content) : Segment(0), content(content) {}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String content;
@@ -236,7 +236,7 @@ public:
   public:
     TexPartSegment(const String& title) : Segment(0), title(title) {}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segment, bool newParagraph) {return false;}
   private:
     String title;
@@ -247,7 +247,7 @@ public:
   public:
     PdfSegment(const String& filePath) : Segment(0), filePath(filePath) {}
   public:
-    virtual String generate() const;
+    virtual String generateTex() const;
     virtual bool merge(Segment& segmen, bool newParagrapht) {return false;}
   private:
     String filePath;
@@ -265,5 +265,5 @@ public:
   OutputData() : hasPdfSegments(false) {}
   ~OutputData();
 
-  String generate() const;
+  String generateTex() const;
 };

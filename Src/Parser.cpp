@@ -1,10 +1,11 @@
 
+#include "Parser.h"
+
 #include <nstd/File.h>
 #include <nstd/Directory.h>
 #include <nstd/Unicode.h>
 #include <nstd/Memory.h>
 
-#include "Parser.h"
 #include "InputData.h"
 #include "OutputData.h"
 #include "TexGenerator.h"

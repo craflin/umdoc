@@ -1,10 +1,11 @@
 
+#include "TexGenerator.h"
+
 #include <nstd/Debug.h>
 #include <nstd/File.h>
 #include <nstd/Directory.h>
 #include <nstd/Error.h>
 
-#include "TexGenerator.h"
 #include "OutputData.h"
 
 const char* TexGenerator::defaultListingsLanguages[] = {"ABAP", "ACM", "ACMscript", "ACSL", "Ada", "Algol", "Ant", "Assembler", "Awk", "bash", "Basic", "C", "C++", "Caml", "CIL", "Clean", "Cobol", "Comal 80", "command.com", "Comsol", "csh", "Delphi", "Eiffel", "Elan", "erlang", "Euphoria", "Fortran", "GCL", "Gnuplot", "hansl", "Haskell", "HTML", "IDL", "inform", "Java", "JVMIS", "ksh", "Lingo", "Lisp", "LLVM", "Logo", "Lua", "make", "Matlab", "Mathematica", "Mercury", "MetaPost", "Miranda", "Mizar", "ML", "Modula-2", "MuPAD", "NASTRAN", "Oberon-2", "OCL", "Octave", "Oz", "Perl", "Pascal", "PHP", "PL/I", "Plasm", "PostScript", "POV", "Prolog", "Promela", "PSTricks", "Python", "R", "Reduce", "Rexx", "RSL", "Ruby", "S", "SAS", "Scala", "Scilab", "sh", "SHELXL", "SPARQL", "Simula", "SQL", "tcl", "TeX", "VBScript", "Verilog", "VHDL", "VRML", "XML", "XSLT"};
@@ -215,7 +216,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
        !file.write("\n"))
        return false;
   if(!file.write("\n\\begin{document}\n\n") ||
-     !file.write(outputData.generate()) ||
+     !file.write(outputData.generateTex()) ||
      !file.write("\n\\end{document}\n"))
     return false;
 
@@ -580,7 +581,7 @@ String TexGenerator::getTexSize(const String& size, bool width)
     return size;
 }
 
-String OutputData::generate() const
+String OutputData::generateTex() const
 {
   String result(segments.size() * 256);
   for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
@@ -588,17 +589,17 @@ String OutputData::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append(segment->generate());
+    result.append(segment->generateTex());
   }
   return result;
 }
 
-String OutputData::SeparatorSegment::generate() const
+String OutputData::SeparatorSegment::generateTex() const
 {
   return String();
 }
 
-String OutputData::FigureSegment::generate() const
+String OutputData::FigureSegment::generateTex() const
 {
   String path = this->path;
   List<String> flagsList;
@@ -620,12 +621,12 @@ String OutputData::FigureSegment::generate() const
   return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texEscape(title) + "}" + label + "\\end{figure}\n";
 }
 
-String OutputData::ParagraphSegment::generate() const
+String OutputData::ParagraphSegment::generateTex() const
 {
   return String("\n") + TexGenerator::texEscape(text) + "\n";
 }
 
-String OutputData::TitleSegment::generate() const
+String OutputData::TitleSegment::generateTex() const
 {
   String result;
   switch(level)
@@ -663,12 +664,12 @@ String OutputData::TitleSegment::generate() const
   return result;
 }
 
-String OutputData::RuleSegment::generate() const
+String OutputData::RuleSegment::generateTex() const
 {
   return String("\n\\HorizontalRule\n");
 }
 
-String OutputData::BulletListSegment::generate() const
+String OutputData::BulletListSegment::generateTex() const
 {
   String result("\n\\begin{itemize}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -676,7 +677,7 @@ String OutputData::BulletListSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generateTex());
   }
   for(List<BulletListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -689,14 +690,14 @@ String OutputData::BulletListSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generateTex());
     }
   }
   result.append("\\end{itemize}\n");
   return result;
 }
 
-String OutputData::NumberedListSegment::generate() const
+String OutputData::NumberedListSegment::generateTex() const
 {
   String result("\n\\begin{enumerate}\n\\item ");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -704,7 +705,7 @@ String OutputData::NumberedListSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generateTex());
   }
   for(List<NumberedListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -717,7 +718,7 @@ String OutputData::NumberedListSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generateTex());
     }
   }
   result.append("\\end{enumerate}\n");
@@ -725,7 +726,7 @@ String OutputData::NumberedListSegment::generate() const
 
 }
 
-String OutputData::BlockquoteSegment::generate() const
+String OutputData::BlockquoteSegment::generateTex() const
 {
   String result("\n\\begin{quoting}\n");
   for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
@@ -733,7 +734,7 @@ String OutputData::BlockquoteSegment::generate() const
     const Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generate());
+    result.append((*i)->generateTex());
   }
   for(List<BlockquoteSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
   {
@@ -745,14 +746,14 @@ String OutputData::BlockquoteSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generateTex());
     }
   }
   result.append("\n\\end{quoting}\n");
   return result;
 }
 
-String OutputData::EnvironmentSegment::generate() const
+String OutputData::EnvironmentSegment::generateTex() const
 {
   String environment = language;
   if(environment.isEmpty())
@@ -782,14 +783,14 @@ String OutputData::EnvironmentSegment::generate() const
       const Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generate());
+      result.append(segment->generateTex());
     }
   }
   result.append(String("\\end{") + environment + "}\n");
   return result;
 }
 
-String OutputData::TableSegment::generate() const
+String OutputData::TableSegment::generateTex() const
 {
   String result;
   String caption;
@@ -856,7 +857,7 @@ String OutputData::TableSegment::generate() const
           Segment* segment = *i;
           if(!segment->isValid())
             continue;
-          result.append(segment->generate());
+          result.append(segment->generateTex());
         }
         //if(!width.isEmpty())
         //  result.append("\\vspace{5pt}}");
@@ -884,17 +885,17 @@ String OutputData::TableSegment::generate() const
   return result;
 }
 
-String OutputData::TexSegment::generate() const
+String OutputData::TexSegment::generateTex() const
 {
   return String("\n") + content + "\n";
 }
 
-String OutputData::TexPartSegment::generate() const
+String OutputData::TexPartSegment::generateTex() const
 {
   return String("\n\\clearpage\n\\part{") + TexGenerator::texEscape(title) + "}\n";
 }
 
-String OutputData::PdfSegment::generate() const
+String OutputData::PdfSegment::generateTex() const
 {
   String path = filePath;
   return String("\n\\includepdf[pages=-]{") + path + "}\n";

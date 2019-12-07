@@ -1,7 +1,7 @@
 
 set(sources
-    TexGenerator.cpp
-    TexGenerator.h
+    HtmlGenerator.cpp
+    HtmlGenerator.h
     InputData.h
     Main.cpp
     OutputData.cpp
@@ -10,6 +10,8 @@ set(sources
     Parser.h
     Reader.cpp
     Reader.h
+    TexGenerator.cpp
+    TexGenerator.h
 )
 
 add_executable(umdoc ${sources})

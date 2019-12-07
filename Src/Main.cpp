@@ -10,6 +10,7 @@
 #include "Reader.h"
 #include "Parser.h"
 #include "TexGenerator.h"
+#include "HtmlGenerator.h"
 
 static bool latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
 {
@@ -251,6 +252,18 @@ int main(int argc, char* argv[])
       Console::errorf("%s:%d: error: %s\n", (const char*)parser.getErrorFile(), parser.getErrorLine(), (const char*)parser.getErrorString());
       return 1;
     }
+  }
+
+  // generate html
+  if(outputFile.endsWith(".htm") || outputFile.endsWith(".html"))
+  {
+    HtmlGenerator generator;
+    if(!generator.generate(outputData, outputFile))
+    {
+      Console::errorf("%s: error: %s\n", (const char*)tmpTexFile, (const char*)generator.getErrorString());
+      return 1;
+    }
+    return 0;
   }
 
   // generate tmp tex file
