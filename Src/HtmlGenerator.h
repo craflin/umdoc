@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <nstd/String.h>
+#include "Generator.h"
 
 class OutputData;
 

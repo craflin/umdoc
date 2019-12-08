@@ -1,5 +1,7 @@
 
 set(sources
+    Generator.cpp
+    Generator.h
     HtmlGenerator.cpp
     HtmlGenerator.h
     InputData.h

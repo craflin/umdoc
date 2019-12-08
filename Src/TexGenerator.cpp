@@ -13,7 +13,7 @@ const usize TexGenerator::numOfDefaultListingsLanguages = sizeof(defaultListings
 
 bool TexGenerator::generate(const String& engine, const OutputData& outputData, const String& outputFile)
 {
-  this->outputData = &outputData;
+  //this->outputData = &outputData;
 
   File file;
   if(!file.open(outputFile, File::writeFlag))
@@ -216,7 +216,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
        !file.write("\n"))
        return false;
   if(!file.write("\n\\begin{document}\n\n") ||
-     !file.write(outputData.generateTex()) ||
+     !file.write(generate(outputData)) ||
      !file.write("\n\\end{document}\n"))
     return false;
 
@@ -581,80 +581,80 @@ String TexGenerator::getTexSize(const String& size, bool width)
     return size;
 }
 
-String OutputData::generateTex() const
+String TexGenerator::generate(const OutputData& data)
 {
-  String result(segments.size() * 256);
-  for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+  String result(data.segments.size() * 256);
+  for(List<OutputData::Segment*>::Iterator i = data.segments.begin(), end = data.segments.end(); i != end; ++i)
   {
-    const Segment* segment = *i;
+    const OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append(segment->generateTex());
+    result.append(segment->generate(*this));
   }
   return result;
 }
 
-String OutputData::SeparatorSegment::generateTex() const
+String TexGenerator::generate(const OutputData::SeparatorSegment& segment)
 {
   return String();
 }
 
-String OutputData::FigureSegment::generateTex() const
+String TexGenerator::generate(const OutputData::FigureSegment& segment)
 {
-  String path = this->path;
+  String path = segment.path;
   List<String> flagsList;
-  String label = arguments.find("#")->toString();
+  String label = segment.arguments.find("#")->toString();
   if(!label.isEmpty())
       label = String("\\label{") + label + "}";
   {
-    String width = arguments.find("width")->toString();
+    String width = segment.arguments.find("width")->toString();
     if(!width.isEmpty())
       flagsList.append(String("width=") + TexGenerator::getTexSize(width));
   }
   {
-    String height = arguments.find("height")->toString();
+    String height = segment.arguments.find("height")->toString();
     if(!height.isEmpty())
       flagsList.append(String("height=") + TexGenerator::getTexSize(height, false));
   }
   String flags;
   flags.join(flagsList, ',');
-  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texEscape(title) + "}" + label + "\\end{figure}\n";
+  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texEscape(segment.title) + "}" + label + "\\end{figure}\n";
 }
 
-String OutputData::ParagraphSegment::generateTex() const
+String TexGenerator::generate(const OutputData::ParagraphSegment& segment)
 {
-  return String("\n") + TexGenerator::texEscape(text) + "\n";
+  return String("\n") + TexGenerator::texEscape(segment.text) + "\n";
 }
 
-String OutputData::TitleSegment::generateTex() const
+String TexGenerator::generate(const OutputData::TitleSegment& segment)
 {
   String result;
-  switch(level)
+  switch(segment.level)
   {
   case 1:
-    result = String("\n\\section{") + TexGenerator::texEscape(title) + "}\n";
+    result = String("\n\\section{") + TexGenerator::texEscape(segment.title) + "}\n";
     break;
   case 2:
-    result = String("\n\\subsection{") + TexGenerator::texEscape(title) + "}\n";
+    result = String("\n\\subsection{") + TexGenerator::texEscape(segment.title) + "}\n";
     break;
   case 3:
-    result = String("\n\\subsubsection{") + TexGenerator::texEscape(title) + "}\n";
+    result = String("\n\\subsubsection{") + TexGenerator::texEscape(segment.title) + "}\n";
     break;
   case 4:
-    result = String("\n\\paragraph{") + TexGenerator::texEscape(title) + "}\n";
+    result = String("\n\\paragraph{") + TexGenerator::texEscape(segment.title) + "}\n";
     break;
   case 5:
   default:
-    result = String("\n\\subparagraph{") + TexGenerator::texEscape(title) + "}\n";
+    result = String("\n\\subparagraph{") + TexGenerator::texEscape(segment.title) + "}\n";
     break;
   }
-  if(arguments.contains("-") || arguments.contains(".unnumbered"))
+  if(segment.arguments.contains("-") || segment.arguments.contains(".unnumbered"))
   {
     const char* x = result.find('{');
     if(x)
       result = result.substr(0, x - (const char*)result) + "*" + result.substr(x - (const char*)result);
   }
-  String label = arguments.find("#")->toString();
+  String label = segment.arguments.find("#")->toString();
   if(!label.isEmpty())
   {
     result.append("\\label{");
@@ -664,61 +664,61 @@ String OutputData::TitleSegment::generateTex() const
   return result;
 }
 
-String OutputData::RuleSegment::generateTex() const
+String TexGenerator::generate(const OutputData::RuleSegment& segment)
 {
   return String("\n\\HorizontalRule\n");
 }
 
-String OutputData::BulletListSegment::generateTex() const
+String TexGenerator::generate(const OutputData::BulletListSegment& segment)
 {
   String result("\n\\begin{itemize}\n\\item ");
-  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
   {
-    const Segment* segment = *i;
+    const OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generateTex());
+    result.append(segment->generate(*this));
   }
-  for(List<BulletListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BulletListSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
   {
-    BulletListSegment* siblingSegment = *i;
+    OutputData::BulletListSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("\\item ");
-    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
     {
-      const Segment* segment = *i;
+      const OutputData::Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generateTex());
+      result.append(segment->generate(*this));
     }
   }
   result.append("\\end{itemize}\n");
   return result;
 }
 
-String OutputData::NumberedListSegment::generateTex() const
+String TexGenerator::generate(const OutputData::NumberedListSegment& segment)
 {
   String result("\n\\begin{enumerate}\n\\item ");
-  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
   {
-    const Segment* segment = *i;
+    const OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generateTex());
+    result.append((*i)->generate(*this));
   }
-  for(List<NumberedListSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::NumberedListSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
   {
-    NumberedListSegment* siblingSegment = *i;
+    OutputData::NumberedListSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("\\item ");
-    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
     {
-      const Segment* segment = *i;
+      const OutputData::Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generateTex());
+      result.append(segment->generate(*this));
     }
   }
   result.append("\\end{enumerate}\n");
@@ -726,41 +726,41 @@ String OutputData::NumberedListSegment::generateTex() const
 
 }
 
-String OutputData::BlockquoteSegment::generateTex() const
+String TexGenerator::generate(const OutputData::BlockquoteSegment& segment)
 {
   String result("\n\\begin{quoting}\n");
-  for(List<Segment*>::Iterator i = childSegments.begin(), end = childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
   {
-    const Segment* segment = *i;
+    const OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    result.append((*i)->generateTex());
+    result.append((*i)->generate(*this));
   }
-  for(List<BlockquoteSegment*>::Iterator i = siblingSegments.begin(), end = siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BlockquoteSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
   {
-    BlockquoteSegment* siblingSegment = *i;
+    OutputData::BlockquoteSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
-    for(List<Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
     {
-      const Segment* segment = *i;
+      const OutputData::Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generateTex());
+      result.append(segment->generate(*this));
     }
   }
   result.append("\n\\end{quoting}\n");
   return result;
 }
 
-String OutputData::EnvironmentSegment::generateTex() const
+String TexGenerator::generate(const OutputData::EnvironmentSegment& segment)
 {
-  String environment = language;
+  String environment = segment.language;
   if(environment.isEmpty())
     environment = "plain";
   environment = TexGenerator::getEnvironmentName(environment);
 
-  String caption = arguments.find("caption")->toString();
+  String caption = segment.arguments.find("caption")->toString();
   String flags;
   if(!caption.isEmpty())
     flags += String("title=\\EnvironmentCaption{") + TexGenerator::texEscape(caption) + "}";
@@ -768,9 +768,9 @@ String OutputData::EnvironmentSegment::generateTex() const
   String result;
   result.append(String("\n\\begin{") + environment + "}");
   result.append(flags.isEmpty() ? String("\n") : String("[") +  flags + "]\n");
-  if(verbatim)
+  if(segment.verbatim)
   {
-    for(List<String>::Iterator i = lines.begin(), end = lines.end(); i != end; ++i)
+    for(List<String>::Iterator i = segment.lines.begin(), end = segment.lines.end(); i != end; ++i)
     {
       result.append(*i);
       result.append("\n");
@@ -778,28 +778,28 @@ String OutputData::EnvironmentSegment::generateTex() const
   }
   else
   {
-    for(List<Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = segment.segments.begin(), end = segment.segments.end(); i != end; ++i)
     {
-      const Segment* segment = *i;
+      const OutputData::Segment* segment = *i;
       if(!segment->isValid())
         continue;
-      result.append(segment->generateTex());
+      result.append(segment->generate(*this));
     }
   }
   result.append(String("\\end{") + environment + "}\n");
   return result;
 }
 
-String OutputData::TableSegment::generateTex() const
+String TexGenerator::generate(const OutputData::TableSegment& segment)
 {
   String result;
   String caption;
-  bool xtabGridStyle = arguments.contains(".xtabgrid");
-  bool gridStyle = arguments.contains(".grid") || xtabGridStyle;
-  bool xtabStyle = arguments.contains(".xtab") || xtabGridStyle;
-  if(captionSegment)
+  bool xtabGridStyle = segment.arguments.contains(".xtabgrid");
+  bool gridStyle = segment.arguments.contains(".grid") || xtabGridStyle;
+  bool xtabStyle = segment.arguments.contains(".xtab") || xtabGridStyle;
+  if(segment.captionSegment)
   {
-    caption = captionSegment->getText();
+    caption = segment.captionSegment->getText();
     if(caption.startsWith(":"))
       caption = caption.substr(1);
     else // Table:
@@ -810,27 +810,27 @@ String OutputData::TableSegment::generateTex() const
     result.append("\n\\begin{center}");
   if(xtabStyle)
   {
-    result.append(String("\\tabletail{\\hline\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\vspace{-1cm}\\small\\emph{\\ldots}}\\\\}%\n");
+    result.append(String("\\tabletail{\\hline\\multicolumn{") + String::fromUInt(segment.columns.size()) + "}{c}{\\vspace{-1cm}\\small\\emph{\\ldots}}\\\\}%\n");
     result.append(String("\\tablefirsthead{}%\n"));
     if (!gridStyle)
-        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\\\hline}%\n");
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(segment.columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\\\hline}%\n");
     else
-        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\}%\n");
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(segment.columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\}%\n");
     result.append("\\begin{xtabular}{");
   }
   else
     result.append("\\begin{tabular}{");
   if(gridStyle)
     result.append("|");
-  for(Array<ColumnInfo>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
+  for(Array<OutputData::TableSegment::ColumnInfo>::Iterator i = segment.columns.begin(), end = segment.columns.end(); i != end; ++i)
   {
-    const ColumnInfo& columnInfo = *i;
+    const OutputData::TableSegment::ColumnInfo& columnInfo = *i;
     String width = columnInfo.arguments.find("width")->toString();
     if(!width.isEmpty())
       result.append(String("p{") + TexGenerator::getTexSize(width) + "}");
     else
     {
-      char a = columnInfo.alignment == ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == ColumnInfo::centerAlignment ? 'c' : 'l');
+      char a = columnInfo.alignment == OutputData::TableSegment::ColumnInfo::rightAlignment ? 'r' : (columnInfo.alignment == OutputData::TableSegment::ColumnInfo::centerAlignment ? 'c' : 'l');
       result.append(a);
     }
     if(gridStyle)
@@ -838,44 +838,44 @@ String OutputData::TableSegment::generateTex() const
   }
   result.append("}\n");
   result.append("\\hline\n");
-  for(List<RowData>::Iterator i = rows.begin(), end = rows.end(); i != end; ++i)
+  for(List<OutputData::TableSegment::RowData>::Iterator i = segment.rows.begin(), end = segment.rows.end(); i != end; ++i)
   {
-    RowData& rowData = *i;
+    OutputData::TableSegment::RowData& rowData = *i;
     usize columnIndex = 0;
     {
-      for(Array<CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
+      for(Array<OutputData::TableSegment::CellData>::Iterator begin = rowData.cellData.begin(), i = begin, end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
       {
         //const ColumnInfo& columnInfo = columns[columnIndex];
-        CellData& cellData = *i;
+        OutputData::TableSegment::CellData& cellData = *i;
         if(i != begin)
           result.append(" & ");
         //String width = columnInfo.arguments.find("width")->toString();
         //if(!width.isEmpty())
         //  result.append(String("\\parbox[t][][t]{") + TexGenerator::getTexSize(width) + "}{");
-        for(List<Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+        for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
         {
-          Segment* segment = *i;
+          OutputData::TableSegment::Segment* segment = *i;
           if(!segment->isValid())
             continue;
-          result.append(segment->generateTex());
+          result.append(segment->generate(*this));
         }
         //if(!width.isEmpty())
         //  result.append("\\vspace{5pt}}");
       }
     }
     result.append(" \\\\\n");
-    if(i == rows.begin() || gridStyle)
+    if(i == segment.rows.begin() || gridStyle)
       result.append("\\hline\n");
   }
-  if(rows.size() > 1 && !gridStyle)
+  if(segment.rows.size() > 1 && !gridStyle)
     result.append("\\hline\n");
   if(xtabStyle)
     result.append("\\end{xtabular}");
   else
     result.append("\\end{tabular}");
-  if(captionSegment)
+  if(segment.captionSegment)
   {
-    String label = arguments.find("#")->toString();
+    String label = segment.arguments.find("#")->toString();
     if(!label.isEmpty())
       label = String("\\label{") + label + "}";
     result.append(String("\\caption{") + TexGenerator::texEscape(caption) + "}" + label + "\\end{table}");
@@ -885,18 +885,17 @@ String OutputData::TableSegment::generateTex() const
   return result;
 }
 
-String OutputData::TexSegment::generateTex() const
+String TexGenerator::generate(const OutputData::TexSegment& segment)
 {
-  return String("\n") + content + "\n";
+  return String("\n") + segment.content + "\n";
 }
 
-String OutputData::TexPartSegment::generateTex() const
+String TexGenerator::generate(const OutputData::TexPartSegment& segment)
 {
-  return String("\n\\clearpage\n\\part{") + TexGenerator::texEscape(title) + "}\n";
+  return String("\n\\clearpage\n\\part{") + TexGenerator::texEscape(segment.title) + "}\n";
 }
 
-String OutputData::PdfSegment::generateTex() const
+String TexGenerator::generate(const OutputData::PdfSegment& segment)
 {
-  String path = filePath;
-  return String("\n\\includepdf[pages=-]{") + path + "}\n";
+  return String("\n\\includepdf[pages=-]{") + segment.filePath + "}\n";
 }

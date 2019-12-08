@@ -8,6 +8,8 @@
 #include <nstd/Map.h>
 #include <nstd/Variant.h>
 
+class Generator;
+
 class OutputData
 {
 public:
@@ -24,8 +26,8 @@ public:
 
   public:
     virtual ~Segment() {};
-    virtual String generateTex() const = 0;
     virtual bool merge(Segment& segment, bool newParagraph) = 0;
+    virtual String generate(Generator& generator) const = 0;
 
     int getIndent() const {return indent;}
     Segment* getParent() const {return parent;}
@@ -43,28 +45,28 @@ public:
   class ParagraphSegment : public Segment
   {
   public:
+    String text;
+  public:
     ParagraphSegment(int indent, const String& text) : Segment(indent), text(text) {}
     const String& getText() const {return text;}
     void setText(const String& text) {this->text = text;}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
-  private:
-    String text;
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   };
 
   class TitleSegment : public Segment
   {
   public:
-    TitleSegment(int indent, int level) : Segment(indent), level(level) {}
-    bool parseArguments(const String& title, String& error);
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
-  private:
     int level;
     String title;
     Map<String, Variant> arguments;
+  public:
+    TitleSegment(int indent, int level) : Segment(indent), level(level) {}
+    bool parseArguments(const String& title, String& error);
+  public:
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class SeparatorSegment : public Segment
@@ -73,8 +75,8 @@ public:
     SeparatorSegment(int indent) : Segment(indent), lines(1) {}
     int getLines() const {return lines;}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   private:
     int lines;
   };
@@ -82,15 +84,15 @@ public:
   class FigureSegment : public Segment
   {
   public:
-    FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
-    bool parseArguments(const String& line, String& error);
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
-  private:
     String title;
     String path;
     Map<String, Variant> arguments;
+  public:
+    FigureSegment(int indent, const String& title, const String& path) : Segment(indent), title(title), path(path) {}
+    bool parseArguments(const String& line, String& error);
+  public:
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class RuleSegment : public Segment
@@ -98,57 +100,64 @@ public:
   public:
     RuleSegment(int indent) : Segment(indent) {}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class BulletListSegment : public Segment
   {
   public:
-    BulletListSegment(int indent, char symbol, uint childIndent) : Segment(indent), symbol(symbol), childIndent(childIndent) {}
-    ~BulletListSegment();
-    char getSymbol() const {return symbol;}
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
-  private:
     List<BulletListSegment*> siblingSegments;
     List<Segment*> childSegments;
     char symbol;
     int childIndent;
+  public:
+    BulletListSegment(int indent, char symbol, uint childIndent) : Segment(indent), symbol(symbol), childIndent(childIndent) {}
+    ~BulletListSegment();
+    char getSymbol() const {return symbol;}
+  public:
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   };
 
   class NumberedListSegment : public Segment
   {
   public:
-    NumberedListSegment(int indent, uint number, uint childIndent) : Segment(indent), number(number), childIndent(childIndent) {}
-    ~NumberedListSegment();
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
-  private:
     List<NumberedListSegment*> siblingSegments;
     List<Segment*> childSegments;
     uint number;
     int childIndent;
+  public:
+    NumberedListSegment(int indent, uint number, uint childIndent) : Segment(indent), number(number), childIndent(childIndent) {}
+    ~NumberedListSegment();
+  public:
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   };
 
   class BlockquoteSegment : public Segment
   {
   public:
-    BlockquoteSegment(int indent, uint childIndent) : Segment(indent), childIndent(childIndent) {}
-    ~BlockquoteSegment();
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
-  private:
     List<BlockquoteSegment*> siblingSegments;
     List<Segment*> childSegments;
     int childIndent;
+  public:
+    BlockquoteSegment(int indent, uint childIndent) : Segment(indent), childIndent(childIndent) {}
+    ~BlockquoteSegment();
+  public:
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   };
 
   class EnvironmentSegment : public Segment
   {
+  public:
+    int backticks;
+    bool verbatim;
+    String language;
+    Map<String, Variant> arguments;
+    List<String> lines;
+    List<Segment*> segments;
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), backticks(backticks), verbatim(true) {}
     ~EnvironmentSegment();
@@ -158,15 +167,8 @@ public:
     int getBackticks() const {return backticks;}
     void swapSegments(List<Segment*>& segments) {this->segments.swap(segments);}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
-  private:
-    int backticks;
-    bool verbatim;
-    String language;
-    Map<String, Variant> arguments;
-    List<String> lines;
-    List<Segment*> segments;
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class TableSegment : public Segment
@@ -178,14 +180,6 @@ public:
       int indent;
       String text;
     };
-  public:
-    TableSegment(int indent) : Segment(indent), isSeparatorLine(false), captionSegment(0) {}
-    ~TableSegment();
-    bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
-  public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph);
-  private:
     class CellData
     {
     public:
@@ -212,45 +206,52 @@ public:
       Map<String, Variant> arguments;
       ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
     };
-  private:
+  public:
     bool isSeparatorLine;
     Array<ColumnInfo> columns;
     List<RowData> rows;
     ParagraphSegment* captionSegment;
     Map<String, Variant> arguments;
+  public:
+    TableSegment(int indent) : Segment(indent), isSeparatorLine(false), captionSegment(0) {}
+    ~TableSegment();
+    bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
+  public:
+    bool merge(Segment& segment, bool newParagraph) override;
+    String generate(Generator& generator) const override;
   };
 
   class TexSegment : public Segment
   {
   public:
+    String content;
+  public:
     TexSegment(const String& content) : Segment(0), content(content) {}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
-  private:
-    String content;
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class TexPartSegment : public Segment
   {
   public:
+    String title;
+  public:
     TexPartSegment(const String& title) : Segment(0), title(title) {}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segment, bool newParagraph) {return false;}
-  private:
-    String title;
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
   class PdfSegment : public Segment
   {
   public:
+    String filePath;
+  public:
     PdfSegment(const String& filePath) : Segment(0), filePath(filePath) {}
   public:
-    virtual String generateTex() const;
-    virtual bool merge(Segment& segmen, bool newParagrapht) {return false;}
-  private:
-    String filePath;
+    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    String generate(Generator& generator) const override;
   };
 
 public:
@@ -264,6 +265,4 @@ public:
 public:
   OutputData() : hasPdfSegments(false) {}
   ~OutputData();
-
-  String generateTex() const;
 };
