@@ -416,26 +416,6 @@ bool TexGenerator::matchInlineFootnote(const char* s, const char* end, const cha
   return true;
 }
 
-/*
-String TexGenerator::mardownUnescape(const String& str)
-{
-  const char* start = str;
-  const char* i = String::find(start, '\\');
-  if(!i)
-    return str;
-  String result(str.length());
-  result.append(str.substr(0, i - start));
-  const char* end = start + str.length();
-  for(; i < end; ++i)
-    if(*i == '\\')
-    {
-      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
-        ++i;
-      result.append(*i);
-    }
-  return result;
-}
-*/
 String TexGenerator::texEscape(const String& str)
 {
   String result(str.length());
