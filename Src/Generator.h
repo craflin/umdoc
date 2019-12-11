@@ -5,6 +5,8 @@
 
 #include "OutputData.h"
 
+#pragma once
+
 class Generator
 {
 public:
