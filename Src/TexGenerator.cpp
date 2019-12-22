@@ -216,7 +216,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
        !file.write("\n"))
        return false;
   if(!file.write("\n\\begin{document}\n\n") ||
-     !file.write(generate(outputData)) ||
+     !file.write(Generator::generate(*this, outputData)) ||
      !file.write("\n\\end{document}\n"))
     return false;
 
@@ -227,8 +227,7 @@ String TexGenerator::getErrorString() const
 {
   return Error::getErrorString();
 }
-
-String TexGenerator::texEscapeChar(char c)
+String TexGenerator::escapeChar(char c)
 {
   switch(c)
   {
@@ -268,268 +267,10 @@ String TexGenerator::texEscapeChar(char c)
   }
 }
 
-bool TexGenerator::matchInlineLink(const char* s, const char* end, const char*& pos, String& result)
-{
-  if(*s != '[')
-    return false;
-  const char* nameStart = ++s;
-  while(*s != ']')
-    if(++s >= end)
-      return false;
-  const char* nameEnd = s++;
-  if(*s != '(')
-    return false;
-  const char* linkStart = ++s;
-  const char* linkEnd = 0;
-  while(*s != ')')
-  {
-    if(*s == ' ' && !linkEnd)
-      linkEnd = s;
-    if(++s >= end)
-      return false;
-  }
-  if(!linkEnd)
-    linkEnd = s;
-  ++s;
-  String link;
-  link.attach(linkStart, linkEnd - linkStart);
-  String name;
-  name.attach(nameStart, nameEnd - nameStart);
-  if(link.startsWith("#"))
-  {
-    if(name.isEmpty())
-    {
-      result.append("\\ref{");
-      result.append(link.substr(1));
-      result.append("}");
-    }
-    else
-    {
-      result.append("\\hyperref[");
-      result.append(link.substr(1));
-      result.append("]{");
-      if (name.endsWith("#"))
-      {
-        name.resize(name.length() - 1);
-        name = texEscape(name);
-        name.append(String("\\ref{") + link.substr(1) + "}");
-      }
-      else
-        name = texEscape(name);
-      name.replace(' ', '~');
-      result.append(name);
-      result.append("}");
-    }
-  }
-  else
-  {
-    result.append("\\href{");
-    result.append(link);
-    result.append("}{");
-    if(name.isEmpty())
-    {
-      result.append("\\mbox{");
-      result.append(texEscape(link));
-      result.append("}");
-    }
-    else
-      result.append(texEscape(name));
-    result.append("}");
-  }
-  pos = s;
-  return true;
-}
-
-bool TexGenerator::matchInlineImage(const char* s, const char* end, const char*& pos, String& result)
-{
-  if(*s != '!')
-    return false;
-  if(*(++s) != '[')
-    return false;
-  ++s;
-  while(*s != ']')
-    if(++s >= end)
-      return false;
-  if(*(++s) != '(')
-    return false;
-  const char* pathStart = ++s;
-  const char* pathEnd = 0;
-  while(*s != ')')
-  {
-    if(*s == ' ' && !pathEnd)
-      pathEnd = s;
-    if(++s >= end)
-      return false;
-  }
-  if(!pathEnd)
-    pathEnd = s;
-  ++s;
-  String path;
-  path.attach(pathStart, pathEnd - pathStart);
-  result.append("\\InlineImage{");
-  result.append(path);
-  result.append("}");
-  pos = s;
-  return true;
-}
-
-bool TexGenerator::matchLineBreak(const char* s, const char* end, const char*& pos, String& result)
-{
-  if(*(s++) != '<')
-    return false;
-  while(String::isSpace(*s) && s < end)
-    ++s;
-  if(*(s++) != 'b')
-    return false;
-  if(*(s++) != 'r')
-    return false;
-  while(String::isSpace(*s) && s < end)
-    ++s;
-  if(*(s++) != '/')
-    return false;
-  if(*(s++) != '>')
-    return false;
-  pos = s;
-  result.append("\\newline ");
-  return true;
-}
-
-bool TexGenerator::matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result)
-{
-  if(*(s++) != '[')
-    return false;
-  if(*(s++) != '^')
-    return false;
-  const char* textStart = s;
-  while(*s != ']')
-  {
-    if(++s >= end)
-      return false;
-  }
-  const char* textEnd = s++;
-  String text;
-  text.attach(textStart, textEnd - textStart);
-  pos = s;
-  result.append("\\footnote{");
-  result.append(text);
-  result.append("}");
-  return true;
-}
-
 String TexGenerator::texEscape(const String& str)
 {
-  String result(str.length());
-  char c;
-  String endSequence;
-  List<String> endSequenceStack;
-  bool ignoreSingleBacktick = false;
-  for(const char* start = str, * i = start, * end = start + str.length(); i < end;)
-  {
-    switch(c = *i)
-    {
-    case '\\':
-      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
-        ++i;
-      result.append(texEscapeChar(*i));
-      ++i;
-      break;
-    default:
-      if(!endSequence.isEmpty() && String::compare(i, endSequence, endSequence.length()) == 0)
-      {
-        if(*(const char*)endSequence == '*' || *(const char*)endSequence == '_')
-        {
-          if((String::find(" \t", i[endSequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
-            (*(const char*)endSequence == '_' && String::isAlphanumeric(i[endSequence.length()])))
-          { // "[...] if you surround an * or _ with spaces, it�ll be treated as a literal asterisk or underscore."
-            for(usize j = 0; j < endSequence.length(); ++j)
-              result.append(texEscapeChar(*(const char*)endSequence));
-            i += endSequence.length();
-            continue;
-          }
-        }
-
-        if(*(const char*)endSequence == '`')
-          while(!result.isEmpty() && String::find(" \t", ((const char*)result)[result.length() - 1]))
-            result.resize(result.length() - 1);
-
-        result.append("}");
-        i += endSequence.length();
-        if(endSequence == "``")
-          ignoreSingleBacktick = false;
-        if(endSequenceStack.isEmpty())
-          endSequence.clear();
-        else
-          endSequence = endSequenceStack.back(), endSequenceStack.removeBack();
-        continue;
-      }
-      if(c == '*' || c == '_' || c == '`')
-      {
-        String sequence;
-        sequence.attach(i, i[1] == c ? 2 : 1);
-
-        if(c == '*' || c == '_')
-        {
-          if((String::find(" \t", i[sequence.length()]) && (i == start || String::find(" \t", i[-1]))) ||
-            (c == '_' && i != start && String::isAlphanumeric(i[-1])))
-          { // "[...] if you surround an * or _ with spaces, it�ll be treated as a literal asterisk or underscore."
-            for(usize j = 0; j < sequence.length(); ++j)
-              result.append(texEscapeChar(c));
-            i += sequence.length();
-            continue;
-          }
-        }
-
-        if(c == '`' && ignoreSingleBacktick)
-        {
-          result.append(texEscapeChar(c));
-          ++i;
-          continue;
-        }
-
-        i += sequence.length();
-        if(c == '`')
-        {
-          result.append("\\texttt{");
-          if(sequence.length() > 1)
-            ignoreSingleBacktick = true;
-          while(String::find(" \t", *i))
-            ++i;
-        }
-        else
-          result.append(sequence.length() == 2 ?  String("\\textbf{") : String("\\emph{"));
-        if(!endSequence.isEmpty())
-          endSequenceStack.append(endSequence);
-        endSequence = sequence;
-        continue;
-      }
-      if(matchInlineLink(i, end, i, result))
-        continue;
-      if(matchInlineImage(i, end, i, result))
-        continue;
-      if(matchLineBreak(i, end, i, result))
-        continue;
-      if(matchInlineFootnote(i, end, i, result))
-        continue;
-      if(c == ':' && String::isAlpha(i[1]) && i > start && !String::isAlphanumeric(i[-1]))
-        result.append(texEscapeChar(c) + "{\\allowbreak}");  // allow line breaks after e.g. "::"
-      else if(String::isAlpha(c) && String::isLowerCase(c) && String::isAlpha(i[1]) && String::isUpperCase(i[1]))
-        result.append(texEscapeChar(c) + "\\-");  // allow line breaks in camel case
-      else if(String::find("<({[", c) && i > start && String::isAlphanumeric(i[-1]))
-        result.append(String("{\\allowbreak}") + texEscapeChar(c));  // allow line breaks before <, (, { or [
-      else
-        result.append(texEscapeChar(c));
-      ++i;
-      break;
-    }
-  }
-  while(!endSequenceStack.isEmpty())
-  {
-    result.append("}");
-    endSequenceStack.removeBack();
-  }
-  if(!endSequence.isEmpty())
-    result.append("}");
-  return result;
+  TexGenerator generator;
+  return Generator::escape(generator, str);
 }
 
 String TexGenerator::getEnvironmentName(const String& language)
@@ -559,19 +300,6 @@ String TexGenerator::getTexSize(const String& size, bool width)
   }
   else
     return size;
-}
-
-String TexGenerator::generate(const OutputData& data)
-{
-  String result(data.segments.size() * 256);
-  for(List<OutputData::Segment*>::Iterator i = data.segments.begin(), end = data.segments.end(); i != end; ++i)
-  {
-    const OutputData::Segment* segment = *i;
-    if(!segment->isValid())
-      continue;
-    result.append(segment->generate(*this));
-  }
-  return result;
 }
 
 String TexGenerator::generate(const OutputData::SeparatorSegment& segment)
@@ -878,4 +606,26 @@ String TexGenerator::generate(const OutputData::TexPartSegment& segment)
 String TexGenerator::generate(const OutputData::PdfSegment& segment)
 {
   return String("\n\\includepdf[pages=-]{") + segment.filePath + "}\n";
+}
+
+
+String TexGenerator::getSpanStart(const String& sequence)
+{
+  if(sequence.startsWith("`"))
+    return "\\texttt{";
+  if(sequence == "**" || sequence == "__")
+    return "\\textbf{";
+  return "\\emph{";
+}
+
+String TexGenerator::getSpanEnd(const String& sequence)
+{
+  return String("}");
+}
+
+String TexGenerator::getWordBreak(const char l, const char r)
+{
+  if(String::isAlpha(l) && String::isAlpha(r))
+    return "\\-";
+  return "{\\allowbreak}";
 }

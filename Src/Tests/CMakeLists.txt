@@ -4,6 +4,7 @@ add_executable(umdoc_test
     ../Parser.cpp
     ../OutputData.cpp
     ../TexGenerator.cpp
+    ../Generator.cpp
 )
 
 target_link_libraries(umdoc_test libnstd)

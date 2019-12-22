@@ -1,27 +1,27 @@
 
 # Introduction
 
-*umdoc* is a Markdown to *LaTeX* to *PDF* converter.
-It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
+*umdoc* is a Markdown to *LaTeX* to *PDF* or *HTML* converter.
+It is small command line tool, which converts a Markdown file or set of Markdown files into an *HTML* file or input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
 The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
-Optional layout information written in *LaTeX* may be provided to customize the look and feel of the generated document.
+Optional layout information written in *HTML* or *LaTeX* may be provided to customize the look and feel of the generated document.
 
 There are three different modes to use the tool:
 
 1. Converting a Markdown file (ending with `.md`) into a *LaTeX* or *PDF* document:
    ```
-umdoc [-t] example.md
+umdoc example.md [-o example.tex]
 ```
 2. Converting an *umdoc* *XML* file (see [section #](#umdoc-xml-file)), which provides Markdown input files and optional layout information, into a *LaTeX* or *PDF* document:
    ```
-umdoc [-t] example.xml
+umdoc example.xml [-o example.tex]
 ```
 3. Processing the working directory where it expects to find an *umdoc* *XML* file with the name `umdoc.xml`. This file is converted into  a *LaTeX* or *PDF* document in the same directory:
    ```
-umdoc [-t]
+umdoc [-o output.tex]
 ```
 
-*umdoc* creates a *PDF* document by default. The option `-t` tells *umdoc* to stop after creating the *LaTeX* file. (See [section #](#usage) for a full list of accepted command line arguments.)
+*umdoc* creates a *PDF* document by default. The extension of the output file, which can be set with `-o` tells *umdoc* to stop after creating the *LaTeX* file, or to generate an *HTML* output file. (See [section #](#usage) for a full list of accepted command line arguments.)
 
 ## About this Document
 
@@ -87,13 +87,13 @@ Most Linux distributions provide packages for *TeX Live* that you can be install
 The *umdoc* accepts the following arguments:
 
 ```
-umdoc [<input-file>] [-a <aux-directory>] [-e <latex-engine>] [-o <output-file>] [-t]
+umdoc [<input-file>] [-a <aux-directory>] [-e <latex-engine>] [-o <output-file>]
       [--<variable>=<value>]
 ```
 
 The default behavior of *umdoc* is to look in the working directory for a `umdoc.xml` file.
 This file is converted into a *LaTeX* and into a *PDF* in the same directory.
-Alternatively, input and output files can be explicitly specified using the optional `<input-file>` and `-o <output-file>` arguments.
+Alternatively, input, output files and output file format can be explicitly specified using the optional `<input-file>` and `-o <output-file>` arguments.
 
 ##### Options
 
@@ -103,7 +103,11 @@ Alternatively, input and output files can be explicitly specified using the opti
   
 * `-o <output-file>`, `--output=<output-file>`
 
-  The path to the output *PDF* or *LaTex* file. The default is derived from the input file's path where the file name extension is replaced by `.pdf`, or `.tex` if the option `-t` is set.
+  The path to the output, *HTML*, *PDF* or *LaTex* file. The default is derived from the input file's path where the file name extension is replaced by `.pdf`.
+
+  If the output file ends with extension `.tex` *umdoc* will stop after the generation of this file and will not convert this file to *PDF*.
+
+  If the output file ends with extension `.htm` or `.html` an *HTML* file be created.
 
 * `-e <latex-engine>`, `--engine=<latex-engine>`
 
@@ -114,10 +118,6 @@ Alternatively, input and output files can be explicitly specified using the opti
 
   A directory for intermediate files like the created *LaTeX* file or files created by the *LaTeX* engine.
   The default is the directory of the output file plus the base name of the output file.
-
-* `-t`, `--tex`
-
-  Stop after creating the *LaTeX* (`.tex`) file. If `-t` is set, `-o` specifies the path to the *LaTeX* output file.
 
 * `--version`
 

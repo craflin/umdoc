@@ -31,8 +31,12 @@ public:
   String generate(const OutputData::TexPartSegment& segment) override;
   String generate(const OutputData::PdfSegment& segment) override;
 
+  String escapeChar(const char c) override;
+  String getSpanStart(const String& sequence) override;
+  String getSpanEnd(const String& sequence) override;
+  String getWordBreak(const char l, const char r) override;
+
 public:
-  static String texEscapeChar(char c);
   static String texEscape(const String& str);
   static String getEnvironmentName(const String& language);
   static String getTexSize(const String& size, bool width = true);
@@ -42,10 +46,10 @@ public:
 
 private:
   //static String mardownUnescape(const String& str);
-  static bool matchInlineLink(const char* s, const char* end, const char*& pos, String& result);
-  static bool matchInlineImage(const char* s, const char* end, const char*& pos, String& result);
-  static bool matchLineBreak(const char* s, const char* end, const char*& pos, String& result);
-  static bool matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result);
+  //static bool matchInlineLink(const char* s, const char* end, const char*& pos, String& result);
+  //static bool matchInlineImage(const char* s, const char* end, const char*& pos, String& result);
+  //static bool matchLineBreak(const char* s, const char* end, const char*& pos, String& result);
+  //static bool matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result);
 
-  String generate(const OutputData& data);
+  //String generate(const OutputData& data);
 };

@@ -15,7 +15,7 @@ bool HtmlGenerator::generate(const OutputData& outputData, const String& outputF
     return false;
 
   if(!file.write(String("<body>\n")) ||
-     !file.write(generate(outputData)) ||
+     !file.write(Generator::generate(*this, outputData)) ||
      !file.write(String("</body>\n")) ||
      !file.write(String("</html>\n")))
     return false;
@@ -28,22 +28,9 @@ String HtmlGenerator::getErrorString() const
   return Error::getErrorString();
 }
 
-String HtmlGenerator::generate(const OutputData& data)
-{
-  String result(data.segments.size() * 256);
-  for(List<OutputData::Segment*>::Iterator i = data.segments.begin(), end = data.segments.end(); i != end; ++i)
-  {
-    const OutputData::Segment* segment = *i;
-    if(!segment->isValid())
-      continue;
-    result.append(segment->generate(*this));
-  }
-  return result;
-}
-
 String HtmlGenerator::generate(const OutputData::ParagraphSegment& segment)
 {
-  return String("<p>") + segment.text + "</p>\n";
+  return String("<p>") + Generator::escape(*this, segment.text) + "</p>\n";
 }
 
 String HtmlGenerator::generate(const OutputData::TitleSegment& segment)
@@ -51,9 +38,9 @@ String HtmlGenerator::generate(const OutputData::TitleSegment& segment)
   if (segment.level >= 1 && segment.level <= 6)
   {
     String levelStr = String::fromInt(segment.level);
-    return String("<h") + levelStr + ">" + segment.title + "</h" + levelStr + ">\n";
+    return String("<h") + levelStr + ">" + Generator::escape(*this, segment.title) + "</h" + levelStr + ">\n";
   }
-  return String("<p><b>") + segment.title + "</b></p>\n";
+  return String("<p><strong>") + Generator::escape(*this, segment.title) + "</strong></p>\n";
 }
 
 String HtmlGenerator::generate(const OutputData::SeparatorSegment& segment)
@@ -107,6 +94,48 @@ String HtmlGenerator::generate(const OutputData::TexPartSegment& segment)
 }
 
 String HtmlGenerator::generate(const OutputData::PdfSegment& segment)
+{
+  return String();
+}
+
+String HtmlGenerator::escapeChar(const char c)
+{
+  switch (c)
+  {
+  case '"':
+    return "&quot;";
+  case '&':
+    return "&amp;";
+  case '\'':
+    return "&apos;";
+  case '<':
+    return "&lt;";
+  case '>':
+    return "&gt;";
+  default:
+    return String(&c, 1);
+  }
+}
+
+String HtmlGenerator::getSpanStart(const String& sequence)
+{
+  if(sequence.startsWith("`"))
+    return "<code>";
+  if(sequence == "**" || sequence == "__")
+    return "<strong>";
+  return "<em>";
+}
+
+String HtmlGenerator::getSpanEnd(const String& sequence)
+{
+  if(sequence.startsWith("`"))
+    return "</code>";
+  if(sequence == "**" || sequence == "__")
+    return "</strong>";
+  return "</em>";
+}
+
+String HtmlGenerator::getWordBreak(const char l, const char r)
 {
   return String();
 }
