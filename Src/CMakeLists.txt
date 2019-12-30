@@ -14,6 +14,7 @@ set(sources
     Reader.h
     TexGenerator.cpp
     TexGenerator.h
+    PlainGenerator.h
 )
 
 add_executable(umdoc ${sources})

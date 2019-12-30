@@ -123,7 +123,7 @@ String Parser::translateHtmlEntities(const String& line)
         HtmlEntity htmlEntityNames[] = {
           // HTML 1.0
           {"quot", 34}, {"amp", 38}, {"apos", 39}, {"lt", 60}, {"gt", 62},
-
+          /*
           // HTML 2.0
           {"Agrave", 192}, {"Aacute", 193}, {"Acirc", 194}, {"Atilde", 195}, {"Auml", 196}, {"Aring", 197},
           {"AElig", 198}, {"Ccedil", 199}, {"Egrave", 200}, {"Eacute", 201}, {"Ecirc", 202}, {"Euml", 203},
@@ -137,15 +137,15 @@ String Parser::translateHtmlEntities(const String& line)
           {"ntilde", 241}, {"ograve", 242}, {"oacute", 243}, {"ocirc", 244}, {"otilde", 245}, {"ouml", 246},
           {"oslash", 248}, {"ugrave", 249}, {"uacute", 250}, {"ucirc", 251}, {"uuml", 252}, {"yacute", 253},
           {"thorn", 254}, {"yuml", 255},
-
+          */
           // HTML 3.2
-          {"nbsp", 160}, {"iexcl", 161}, {"cent", 162}, {"pound", 163}, {"curren", 164}, {"yen", 165},
+          {"nbsp", 160}, /*{"iexcl", 161}, {"cent", 162}, {"pound", 163}, {"curren", 164}, {"yen", 165},
           {"brvbar", 166}, {"sect", 167}, {"uml", 168}, {"copy", 169}, {"ordf", 170}, {"laquo", 171},
           {"not", 172}, {"shy", 173}, {"reg", 174}, {"macr", 175}, {"deg", 176}, {"plusmn", 177},
           {"sup2", 178}, {"sup3", 179}, {"acute", 180}, {"micro", 181}, {"para", 182}, {"middot", 183},
           {"cedil", 184}, {"sup1", 185}, {"ordm", 186}, {"raquo", 187}, {"frac14", 188}, {"frac12", 189},
           {"frac34", 190}, {"iquest", 191}, {"times", 215}, {"divide", 247},
-          /*
+
           // HTML 4.0
           {"OElig", 338}, {"oelig", 339}, {"Scaron", 352}, {"scaron", 353},
           {"Yuml", 376}, {"fnof", 402}, {"circ", 710}, {"tilde", 732}, 
@@ -183,7 +183,10 @@ String Parser::translateHtmlEntities(const String& line)
           */
           // HTML 5.0
           // I have no idea why the HTML guys keep adding new ones.
-          // It's getting too much. Just use UTF-8 or the numeric format.
+          // This is a pointless endeavor that is leading nowhere.
+          // You cannot cover all unicode charaters using this approach.
+          // The HTML 1.0 entities serve a purpose and &nbsp; is quite useful for some quick formatting workarounds.
+          // Just use UTF-8 or the numeric format if you are restricted to the ascii charset for some reason.
         };
         const usize numOfHtmlEntityNames = sizeof(htmlEntityNames) / sizeof(*htmlEntityNames);
         for(usize i = 0; i < numOfHtmlEntityNames; ++i)
@@ -596,6 +599,8 @@ void Parser::extractArguments(String& line, Map<String, Variant>& args)
   {
     if(i->startsWith("#"))
       args.insert("#", i->substr(1));
+    else if(*i == "-")
+      args.insert(".unnumbered", Variant());
     else
     {
       const char* x = i->find('=');
@@ -969,7 +974,7 @@ bool Parser::parse(const InputData& inputData, OutputData& outputData)
   {
     String value = *i;
     for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-      value.replace(String("%") + i.key() + "%", TexGenerator::texEscape(*i));
+      value.replace(String("%") + i.key() + "%", TexGenerator::texTranslate(*i));
     outputData.headerTexFiles.append(value);
   }
 
@@ -991,7 +996,7 @@ bool Parser::parse(const InputData& inputData, OutputData& outputData)
       {
         String value = component.value;
         for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-          value.replace(String("%") + i.key() + "%", TexGenerator::texEscape(*i));
+          value.replace(String("%") + i.key() + "%", TexGenerator::texTranslate(*i));
         outputSegments.append(new OutputData::TexSegment(value));
       }
       break;

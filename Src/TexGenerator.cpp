@@ -227,6 +227,7 @@ String TexGenerator::getErrorString() const
 {
   return Error::getErrorString();
 }
+
 String TexGenerator::escapeChar(char c)
 {
   switch(c)
@@ -267,10 +268,10 @@ String TexGenerator::escapeChar(char c)
   }
 }
 
-String TexGenerator::texEscape(const String& str)
+String TexGenerator::texTranslate(const String& str)
 {
   TexGenerator generator;
-  return Generator::escape(generator, str);
+  return Generator::translate(generator, str);
 }
 
 String TexGenerator::getEnvironmentName(const String& language)
@@ -326,12 +327,12 @@ String TexGenerator::generate(const OutputData::FigureSegment& segment)
   }
   String flags;
   flags.join(flagsList, ',');
-  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texEscape(segment.title) + "}" + label + "\\end{figure}\n";
+  return String("\n\\begin{figure}[H]\\centering\\includegraphics[") + flags + "]{" + path + "}\\caption{" + TexGenerator::texTranslate(segment.title) + "}" + label + "\\end{figure}\n";
 }
 
 String TexGenerator::generate(const OutputData::ParagraphSegment& segment)
 {
-  return String("\n") + TexGenerator::texEscape(segment.text) + "\n";
+  return String("\n") + TexGenerator::texTranslate(segment.text) + "\n";
 }
 
 String TexGenerator::generate(const OutputData::TitleSegment& segment)
@@ -340,23 +341,23 @@ String TexGenerator::generate(const OutputData::TitleSegment& segment)
   switch(segment.level)
   {
   case 1:
-    result = String("\n\\section{") + TexGenerator::texEscape(segment.title) + "}\n";
+    result = String("\n\\section{") + TexGenerator::texTranslate(segment.title) + "}\n";
     break;
   case 2:
-    result = String("\n\\subsection{") + TexGenerator::texEscape(segment.title) + "}\n";
+    result = String("\n\\subsection{") + TexGenerator::texTranslate(segment.title) + "}\n";
     break;
   case 3:
-    result = String("\n\\subsubsection{") + TexGenerator::texEscape(segment.title) + "}\n";
+    result = String("\n\\subsubsection{") + TexGenerator::texTranslate(segment.title) + "}\n";
     break;
   case 4:
-    result = String("\n\\paragraph{") + TexGenerator::texEscape(segment.title) + "}\n";
+    result = String("\n\\paragraph{") + TexGenerator::texTranslate(segment.title) + "}\n";
     break;
   case 5:
   default:
-    result = String("\n\\subparagraph{") + TexGenerator::texEscape(segment.title) + "}\n";
+    result = String("\n\\subparagraph{") + TexGenerator::texTranslate(segment.title) + "}\n";
     break;
   }
-  if(segment.arguments.contains("-") || segment.arguments.contains(".unnumbered"))
+  if(segment.arguments.contains(".unnumbered"))
   {
     const char* x = result.find('{');
     if(x)
@@ -471,7 +472,7 @@ String TexGenerator::generate(const OutputData::EnvironmentSegment& segment)
   String caption = segment.arguments.find("caption")->toString();
   String flags;
   if(!caption.isEmpty())
-    flags += String("title=\\EnvironmentCaption{") + TexGenerator::texEscape(caption) + "}";
+    flags += String("title=\\EnvironmentCaption{") + TexGenerator::texTranslate(caption) + "}";
 
   String result;
   result.append(String("\n\\begin{") + environment + "}");
@@ -586,7 +587,7 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
     String label = segment.arguments.find("#")->toString();
     if(!label.isEmpty())
       label = String("\\label{") + label + "}";
-    result.append(String("\\caption{") + TexGenerator::texEscape(caption) + "}" + label + "\\end{table}");
+    result.append(String("\\caption{") + TexGenerator::texTranslate(caption) + "}" + label + "\\end{table}");
   }
   else
     result.append("\\end{center}");
@@ -600,7 +601,7 @@ String TexGenerator::generate(const OutputData::TexSegment& segment)
 
 String TexGenerator::generate(const OutputData::TexPartSegment& segment)
 {
-  return String("\n\\clearpage\n\\part{") + TexGenerator::texEscape(segment.title) + "}\n";
+  return String("\n\\clearpage\n\\part{") + TexGenerator::texTranslate(segment.title) + "}\n";
 }
 
 String TexGenerator::generate(const OutputData::PdfSegment& segment)
@@ -629,3 +630,57 @@ String TexGenerator::getWordBreak(const char l, const char r)
     return "\\-";
   return "{\\allowbreak}";
 }
+
+String TexGenerator::getLink(const String& link, const String& name_)
+{
+  String result;
+  String name = name_;
+  if(link.startsWith("#"))
+  {
+    if(name.isEmpty())
+    {
+      result.append("\\ref{");
+      result.append(link.substr(1));
+      result.append("}");
+    }
+    else
+    {
+      result.append("\\hyperref[");
+      result.append(link.substr(1));
+      result.append("]{");
+      if (name.endsWith("#"))
+      {
+        name.resize(name.length() - 1);
+        name = translate(*this, name);
+        name.append(String("\\ref{") + link.substr(1) + "}");
+      }
+      else
+        name = translate(*this, name);
+      name.replace(' ', '~');
+      result.append(name);
+      result.append("}");
+    }
+  }
+  else
+  {
+    result.append("\\href{");
+    result.append(link);
+    result.append("}{");
+    if(name.isEmpty())
+    {
+      result.append("\\mbox{");
+      result.append(translate(*this, link));
+      result.append("}");
+    }
+    else
+      result.append(translate(*this, name));
+    result.append("}");
+  }
+  return result;
+}
+
+String TexGenerator::getLineBreak()
+{
+  return "\\newline ";
+}
+

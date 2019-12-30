@@ -1,7 +1,7 @@
 
 #include "Generator.h"
 
-String Generator::escape(Generator& generator, const String& str)
+String Generator::translate(Generator& generator, const String& str)
 {
   String result(str.length());
   char c;
@@ -157,47 +157,7 @@ bool Generator::matchInlineLink(Generator& generator, const char* s, const char*
   link.attach(linkStart, linkEnd - linkStart);
   String name;
   name.attach(nameStart, nameEnd - nameStart);
-  if(link.startsWith("#"))
-  {
-    if(name.isEmpty())
-    {
-      result.append("\\ref{");
-      result.append(link.substr(1));
-      result.append("}");
-    }
-    else
-    {
-      result.append("\\hyperref[");
-      result.append(link.substr(1));
-      result.append("]{");
-      if (name.endsWith("#"))
-      {
-        name.resize(name.length() - 1);
-        name = escape(generator, name);
-        name.append(String("\\ref{") + link.substr(1) + "}");
-      }
-      else
-        name = escape(generator, name);
-      name.replace(' ', '~');
-      result.append(name);
-      result.append("}");
-    }
-  }
-  else
-  {
-    result.append("\\href{");
-    result.append(link);
-    result.append("}{");
-    if(name.isEmpty())
-    {
-      result.append("\\mbox{");
-      result.append(escape(generator, link));
-      result.append("}");
-    }
-    else
-      result.append(escape(generator, name));
-    result.append("}");
-  }
+  result.append(generator.getLink(link, name));
   pos = s;
   return true;
 }
@@ -252,7 +212,7 @@ bool Generator::matchLineBreak(Generator& generator, const char* s, const char* 
   if(*(s++) != '>')
     return false;
   pos = s;
-  result.append("\\newline ");
+  result.append(generator.getLineBreak());
   return true;
 }
 

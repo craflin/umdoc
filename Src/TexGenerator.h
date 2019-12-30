@@ -35,9 +35,11 @@ public:
   String getSpanStart(const String& sequence) override;
   String getSpanEnd(const String& sequence) override;
   String getWordBreak(const char l, const char r) override;
+  String getLink(const String& link, const String& name) override;
+  String getLineBreak() override;
 
 public:
-  static String texEscape(const String& str);
+  static String texTranslate(const String& str);
   static String getEnvironmentName(const String& language);
   static String getTexSize(const String& size, bool width = true);
 

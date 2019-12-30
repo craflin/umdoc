@@ -28,6 +28,8 @@ public:
   virtual String getSpanStart(const String& sequence) = 0;
   virtual String getSpanEnd(const String& sequence) = 0;
   virtual String getWordBreak(const char l, const char r) = 0;
+  virtual String getLink(const String& link, const String& name) = 0;
+  virtual String getLineBreak() = 0;
 
 private:
   static bool matchInlineLink(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
@@ -37,5 +39,5 @@ private:
 
 protected:
   static String generate(Generator& generator, const OutputData& data);
-  static String escape(Generator& generator, const String& str);
+  static String translate(Generator& generator, const String& str);
 };
