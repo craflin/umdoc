@@ -70,8 +70,8 @@ bool HtmlGenerator::generate(const OutputData& outputData, const String& outputF
   if(!file.write(String("<head>\n")) ||
      !file.write(String("<meta charset=\"UTF-8\">\n")) ||
      !file.write(String("<style>\n")) ||
-     !file.write(String("code {background-color:whitesmoke;}\n")) ||
-     !file.write(String(".environment {background-color:whitesmoke;}\n")) ||
+     !file.write(String("code {background-color:whitesmoke;border:1px solid grey;padding:0px 2px 0px 2px;}\n")) ||
+     !file.write(String(".environment {background-color:whitesmoke;border:1px solid grey;padding:0em 1em 0em 1em;}\n")) ||
      !file.write(String(".figure {text-align:center;}\n")) ||
      !file.write(String(".table {margin-left:auto;margin-right:auto;border-collapse:collapse;border-top:1px solid black;border-bottom:1px solid black;}\n")) ||
      !file.write(String(".th {border-bottom:1px solid black;padding-left:0.5em;padding-right:0.5em;font-weight: normal;}\n")) ||
