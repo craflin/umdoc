@@ -105,9 +105,9 @@ Alternatively, input, output files and an output file format can be explicitly s
 
   The path to the output *PDF*, *LaTex* or *HTML* file. The default is derived from the input file's path where the file name extension is replaced by `.pdf`.
 
-  If the output file ends with extension `.tex`, *umdoc* will stop after the generation of this file and will not convert this file to *PDF*.
+  If the output file ends with the extension `.tex`, *umdoc* will stop after the generation of this file and it will not be converted to *PDF*.
 
-  If the output file ends with extension `.htm` or `.html` an *HTML* file be created.
+  If the output file ends with the extension `.htm` or `.html`, an *HTML* file will be created where some of the *umdoc* Markdown extensions (like section cross referencing for example) will be emulated.
 
 * `-e <latex-engine>`, `--engine=<latex-engine>`
 
