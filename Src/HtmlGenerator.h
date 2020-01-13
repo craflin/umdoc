@@ -60,6 +60,8 @@ private:
   };
 
 private:
+  String _outputDir;
+
   HashMap<const OutputData::TitleSegment*, Number> _titleNumbers;
   HashMap<const OutputData::FigureSegment*, Number> _figureNumbers;
   HashMap<const OutputData::TableSegment*, Number> _tableNumbers;

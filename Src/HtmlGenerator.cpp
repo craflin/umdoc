@@ -5,6 +5,7 @@
 
 #include <nstd/Error.h>
 #include <nstd/File.h>
+#include <nstd/Console.h>
 
 void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers)
 {
@@ -55,6 +56,8 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
 
 bool HtmlGenerator::generate(const OutputData& outputData, const String& outputFile)
 {
+  _outputDir = File::dirname(outputFile);
+
   {
     LastNumbers lastNumbers;
     findNumbers(outputData.segments, lastNumbers);
@@ -123,7 +126,20 @@ String HtmlGenerator::generate(const OutputData::SeparatorSegment& segment)
 String HtmlGenerator::generate(const OutputData::FigureSegment& segment)
 {
   String number = _figureNumbers.find(&segment)->toString();
-  return String("<p class=\"figure\">") + "<img src=\"" + segment.path + "\" alt=\"" + stripFormattingAndTranslate(segment.title) + "\"/><br/>Figure " + number + ": " + translate(*this, segment.title) + "</p>\n";
+  String basename = File::basename(segment.path);
+  String outputImageFile = _outputDir + "/" + basename;
+  if(!File::copy(segment.path, outputImageFile, false))
+      Console::errorf("error: Could not copy file '%s' to '%s': %s\n", (const char*)segment.path, (const char*)outputImageFile, (const char*)Error::getErrorString());
+  List<String> styleList;
+  String width = segment.arguments.find("width")->toString();
+  if(!width.isEmpty())
+    styleList.append(String("width:") + width);
+  String height = segment.arguments.find("height")->toString();
+  if(!height.isEmpty())
+    styleList.append(String("height:") + width);
+  String style;
+  style.join(styleList, ';');
+  return String("<p class=\"figure\">") + "<img src=\"" + basename + "\" alt=\"" + stripFormattingAndTranslate(segment.title) + "\" style=\"" + style + "\"/></p><p class=\"figure\">Figure " + number + ": " + translate(*this, segment.title) + "</p>\n";
 }
 
 String HtmlGenerator::generate(const OutputData::RuleSegment& segment)
