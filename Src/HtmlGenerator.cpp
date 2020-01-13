@@ -126,6 +126,7 @@ String HtmlGenerator::generate(const OutputData::SeparatorSegment& segment)
 String HtmlGenerator::generate(const OutputData::FigureSegment& segment)
 {
   String number = _figureNumbers.find(&segment)->toString();
+  String id = getElementId(segment, "", segment.arguments);
   String basename = File::basename(segment.path);
   String outputImageFile = _outputDir + "/" + basename;
   if(!File::copy(segment.path, outputImageFile, false))
@@ -139,7 +140,11 @@ String HtmlGenerator::generate(const OutputData::FigureSegment& segment)
     styleList.append(String("height:") + width);
   String style;
   style.join(styleList, ';');
-  return String("<p class=\"figure\">") + "<img src=\"" + basename + "\" alt=\"" + stripFormattingAndTranslate(segment.title) + "\" style=\"" + style + "\"/></p><p class=\"figure\">Figure " + number + ": " + translate(*this, segment.title) + "</p>\n";
+  String result;
+  result.append(String("<p class=\"figure\" id=\"") + id + "\">" + "<img src=\"" + basename + "\" alt=\"" + stripFormattingAndTranslate(segment.title) + "\" style=\"" + style + "\"/></p>");
+  result.append(String("<p class=\"figure\">Figure ") + number + ": " + translate(*this, segment.title) + "</p>\n");
+  return result;
+
 }
 
 String HtmlGenerator::generate(const OutputData::RuleSegment& segment)
@@ -268,12 +273,13 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
 String HtmlGenerator::generate(const OutputData::TableSegment& segment)
 {
   String result;
+  String id = getElementId(segment, "", segment.arguments);
   bool xtabGridStyle = segment.arguments.contains(".xtabgrid");
   bool gridStyle = segment.arguments.contains(".grid") || xtabGridStyle;
   String tableStyleSuffix;
   if(gridStyle)
     tableStyleSuffix = "_grid";
-  result.append(String("<p><table class=\"table") + tableStyleSuffix + "\">");
+  result.append(String("<p id=\"") + id + "\"><table class=\"table" + tableStyleSuffix + "\">");
   for(List<OutputData::TableSegment::RowData>::Iterator i = segment.rows.begin(), end = segment.rows.end(); i != end; ++i)
   {
     result.append("<tr>");
@@ -319,6 +325,19 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
     result.append("</tr>\n");
   }
   result.append("</table></p>\n");
+  if(segment.captionSegment)
+  {
+    String caption = segment.captionSegment->getText();
+    if(caption.startsWith(":"))
+      caption = caption.substr(1);
+    else // Table:
+      caption = caption.substr(6);
+
+    String number = _tableNumbers.find(&segment)->toString();
+    result.append(String("<p class=\"figure\">Table ") + number + ": ");
+    result.append(translate(*this, caption));
+    result.append("</p>\n");
+  }
   return result;
 }
 
