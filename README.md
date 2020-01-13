@@ -1,10 +1,10 @@
 
 # umdoc
 
-*umdoc* is a Markdown to *LaTeX* to *PDF* or *HTML* converter.
-It is small command line tool, which converts a Markdown file or set of Markdown files into an *HTML* file or an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
+*umdoc* is a Markdown to *LaTeX* to *PDF* converter.
+It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
 The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
-Optional layout information written in *HTML* or *LaTeX* may be provided to customize the look and feel of the generated document.
+Optional layout information written in *LaTeX* may be provided to customize the look and feel of the generated document.
 
 ## Examples & Documentation
 

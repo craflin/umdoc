@@ -1,10 +1,10 @@
 
 # Introduction
 
-*umdoc* is a Markdown to *LaTeX* to *PDF* or *HTML* converter.
-It is small command line tool, which converts a Markdown file or set of Markdown files into an *HTML* file or input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
+*umdoc* is a Markdown to *LaTeX* to *PDF* converter.
+It is small command line tool, which converts a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
 The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
-Optional layout information written in *HTML* or *LaTeX* may be provided to customize the look and feel of the generated document.
+Optional layout information written in *LaTeX* may be provided to customize the look and feel of the generated document.
 
 There are three different modes to use the tool:
 
@@ -93,7 +93,7 @@ umdoc [<input-file>] [-a <aux-directory>] [-e <latex-engine>] [-o <output-file>]
 
 The default behavior of *umdoc* is to look in the working directory for a `umdoc.xml` file.
 This file is converted into a *LaTeX* and into a *PDF* in the same directory.
-Alternatively, input, output files and output file format can be explicitly specified using the optional `<input-file>` and `-o <output-file>` arguments.
+Alternatively, input, output files and an output file format can be explicitly specified using the optional `<input-file>` and `-o <output-file>` arguments.
 
 ##### Options
 
@@ -103,9 +103,9 @@ Alternatively, input, output files and output file format can be explicitly spec
   
 * `-o <output-file>`, `--output=<output-file>`
 
-  The path to the output, *HTML*, *PDF* or *LaTex* file. The default is derived from the input file's path where the file name extension is replaced by `.pdf`.
+  The path to the output *PDF*, *LaTex* or *HTML* file. The default is derived from the input file's path where the file name extension is replaced by `.pdf`.
 
-  If the output file ends with extension `.tex` *umdoc* will stop after the generation of this file and will not convert this file to *PDF*.
+  If the output file ends with extension `.tex`, *umdoc* will stop after the generation of this file and will not convert this file to *PDF*.
 
   If the output file ends with extension `.htm` or `.html` an *HTML* file be created.
 
