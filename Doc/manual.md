@@ -21,11 +21,11 @@ umdoc example.xml [-o example.tex]
 umdoc [-o output.tex]
 ```
 
-*umdoc* creates a *PDF* document by default. The extension of the output file, which can be set with `-o` tells *umdoc* to stop after creating the *LaTeX* file, or to generate an *HTML* output file. (See [section #](#usage) for a full list of accepted command line arguments.)
+*umdoc* creates a *PDF* document by default. The extension of the output file, which can be set with `-o`, tells *umdoc* to stop after creating the *LaTeX* file, or to generate an *HTML* output file. (See [section #](#usage) for a full list of accepted command line arguments.)
 
 ## About this Document
 
-This document describes the usage of this tool (see [section #](#usage)), the format of the *umdoc* *XML* file (see [section #](#umdoc-xml-file)) and it serves as a reference with examples for the supported Markdown features (see [section #](#supported-markdown-features)).
+This document describes the usage of this tool (see [section #](#usage)), the format of the *umdoc* *XML* file (see [section #](#umdoc-xml-file)) and it serves as a reference with examples of the supported Markdown features (see [section #](#supported-markdown-features)).
 
 Additionally, it describes how Markdown is converted into *LaTeX*, which is essential to know for customization.
 However, these descriptions presume advanced knowledge of *LaTeX* and can be ignored by most users.
