@@ -36,6 +36,7 @@ public:
   String getLink(const String& link, const String& name) override;
   String getLineBreak() override;
   String getInlineImage(const String& path) override;
+  String getFootnote(const String& text) override;
 
 private:
   class Number
@@ -70,6 +71,8 @@ private:
 
   HashMap<const OutputData::Segment*, String> _elementIds;
   HashSet<String> _usedElementIds;
+
+  List<String> _footnotes;
 
 private:
   String stripFormattingAndTranslate(const String& str);

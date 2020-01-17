@@ -230,8 +230,6 @@ bool Generator::matchInlineFootnote(Generator& generator, const char* s, const c
   String text;
   text.attach(textStart, textEnd - textStart);
   pos = s;
-  result.append("\\footnote{");
-  result.append(text);
-  result.append("}");
+  result.append(generator.getFootnote(text));
   return true;
 }

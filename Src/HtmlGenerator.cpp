@@ -87,8 +87,27 @@ bool HtmlGenerator::generate(const OutputData& outputData, const String& outputF
     return false;
 
   if(!file.write(String("<body>\n")) ||
-     !file.write(Generator::generate(*this, outputData)) ||
-     !file.write(String("</body>\n")) ||
+     !file.write(Generator::generate(*this, outputData)))
+     return false;
+
+  if(!_footnotes.isEmpty())
+  {
+    if (!file.write("<hr/><p>\n"))
+        return false;
+    usize number = 1;
+    for(List<String>::Iterator i = _footnotes.begin(), end = _footnotes.end(); i != end; ++i, ++number)
+    {
+      if(i != _footnotes.begin())
+        if(!file.write("<br/>"))
+          return false;
+      if(!file.write(String("<sup>") + String::fromUInt(number) + "</sup> " + translate(*this, *i) + "\n"))
+        return false;
+    }
+    if (!file.write("</p>\n"))
+        return false;
+  }
+
+  if(!file.write(String("</body>\n")) ||
      !file.write(String("</html>\n")))
     return false;
 
@@ -453,6 +472,12 @@ String HtmlGenerator::getInlineImage(const String& path)
   if(!File::copy(path, outputImageFile, false))
       Console::errorf("error: Could not copy file '%s' to '%s': %s\n", (const char*)path, (const char*)outputImageFile, (const char*)Error::getErrorString());
   return String("<img src=\"") + basename + "\" style=\"height:1em;\">";
+}
+
+String HtmlGenerator::getFootnote(const String& text)
+{
+    _footnotes.append(text);
+    return String("<sup>") + String::fromInt(_footnotes.size()) + "</sup>";
 }
 
 String HtmlGenerator::Number::toString() const

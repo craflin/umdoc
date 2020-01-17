@@ -31,6 +31,7 @@ public:
   virtual String getLink(const String& link, const String& name) = 0;
   virtual String getLineBreak() = 0;
   virtual String getInlineImage(const String& path) = 0;
+  virtual String getFootnote(const String& text) = 0;
 
 private:
   static bool matchInlineLink(Generator& generator, const char* s, const char* end, const char*& pos, String& result);

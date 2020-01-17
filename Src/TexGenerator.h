@@ -38,6 +38,7 @@ public:
   String getLink(const String& link, const String& name) override;
   String getLineBreak() override;
   String getInlineImage(const String& path) override;
+  String getFootnote(const String& text) override;
 
 public:
   static String texTranslate(const String& str);

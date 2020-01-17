@@ -692,3 +692,12 @@ String TexGenerator::getInlineImage(const String& path)
   result.append("}");
   return result;
 }
+
+String TexGenerator::getFootnote(const String& text)
+{
+  String result;
+  result.append("\\footnote{");
+  result.append(translate(*this, text));
+  result.append("}");
+  return result;
+}

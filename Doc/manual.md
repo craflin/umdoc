@@ -515,6 +515,11 @@ A footnote can be inserted using the syntax `\[^<text>]`.
 A footnote like this[^This is a example footnote.].
 ```
 
+results in:
+```boxed
+A footnote like this[^This is a example footnote.].
+```
+
 This translates to the *LaTeX* command `\\footnote`.
 
 ## Comments

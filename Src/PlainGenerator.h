@@ -27,5 +27,5 @@ public:
   String getLink(const String& link, const String& name) override {return String();}
   String getLineBreak() override {return String();}
   String getInlineImage(const String& path) override {return String();}
-
+  String getFootnote(const String& text) override {return String();}
 };
