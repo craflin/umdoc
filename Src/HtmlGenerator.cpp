@@ -446,6 +446,15 @@ String HtmlGenerator::getLineBreak()
     return "<br/>";
 }
 
+String HtmlGenerator::getInlineImage(const String& path)
+{
+  String basename = File::basename(path);
+  String outputImageFile = _outputDir + "/" + basename;
+  if(!File::copy(path, outputImageFile, false))
+      Console::errorf("error: Could not copy file '%s' to '%s': %s\n", (const char*)path, (const char*)outputImageFile, (const char*)Error::getErrorString());
+  return String("<img src=\"") + basename + "\" style=\"height:1em;\">";
+}
+
 String HtmlGenerator::Number::toString() const
 {
   String result;

@@ -684,3 +684,11 @@ String TexGenerator::getLineBreak()
   return "\\newline ";
 }
 
+String TexGenerator::getInlineImage(const String& path)
+{
+  String result;
+  result.append("\\InlineImage{");
+  result.append(path);
+  result.append("}");
+  return result;
+}

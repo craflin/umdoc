@@ -37,6 +37,7 @@ public:
   String getWordBreak(const char l, const char r) override;
   String getLink(const String& link, const String& name) override;
   String getLineBreak() override;
+  String getInlineImage(const String& path) override;
 
 public:
   static String texTranslate(const String& str);

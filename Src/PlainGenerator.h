@@ -25,5 +25,7 @@ public:
   String getSpanEnd(const String& sequence) override {return String();}
   String getWordBreak(const char l, const char r) override {return String();}
   String getLink(const String& link, const String& name) override {return String();}
-  String getLineBreak() {return String();}
+  String getLineBreak() override {return String();}
+  String getInlineImage(const String& path) override {return String();}
+
 };

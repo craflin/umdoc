@@ -188,9 +188,7 @@ bool Generator::matchInlineImage(Generator& generator, const char* s, const char
   ++s;
   String path;
   path.attach(pathStart, pathEnd - pathStart);
-  result.append("\\InlineImage{");
-  result.append(path);
-  result.append("}");
+  result.append(generator.getInlineImage(path));
   pos = s;
   return true;
 }
