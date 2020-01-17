@@ -32,12 +32,14 @@ public:
   virtual String getLineBreak() = 0;
   virtual String getInlineImage(const String& path) = 0;
   virtual String getFootnote(const String& text) = 0;
+  virtual String getLatexFormula(const String& formula) = 0;
 
 private:
   static bool matchInlineLink(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
   static bool matchInlineImage(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
   static bool matchLineBreak(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
   static bool matchInlineFootnote(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
+  static bool matchInlineLatexFormula(Generator& generator, const char* s, const char* end, const char*& pos, String& result);
 
 protected:
   static String generate(Generator& generator, const OutputData& data);

@@ -39,6 +39,7 @@ public:
   String getLineBreak() override;
   String getInlineImage(const String& path) override;
   String getFootnote(const String& text) override;
+  String getLatexFormula(const String& formula) override;
 
 public:
   static String texTranslate(const String& str);

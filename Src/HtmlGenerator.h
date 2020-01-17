@@ -37,6 +37,7 @@ public:
   String getLineBreak() override;
   String getInlineImage(const String& path) override;
   String getFootnote(const String& text) override;
+  String getLatexFormula(const String& formula) override {return String();};
 
 private:
   class Number

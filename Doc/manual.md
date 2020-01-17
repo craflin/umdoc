@@ -531,7 +531,7 @@ They can be used anywhere in the file (except nested in comments) and they can s
 
 The following characters: 
 
-`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\! ``
+`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\!\$ ``
 
 can be escaped with a black slash (`\\`) to prevent them from being interpreted as markdown formatting characters.
 
@@ -963,3 +963,19 @@ results in:
 ```
 
 The `.xtab` or `.xtabgrid` style attributes are useful if a table is too large to fit on a single page. An `xtab` table will be created using the  environment `xtabular` from the *LaTeX* package *xtab*.
+
+## *LaTeX* Mathematical Expressions
+
+A *LaTeX* mathematical expressions can be inserted using the syntax `\$<expression>\$`.
+
+```
+Here is a simple function: $f(x) = x^2$.
+```
+
+results in:
+```boxed
+Here is a simple function: $f(x) = x^2$.
+```
+
+In *LaTeX*, this translates to `<expression>` being surrounded by `$`.
+

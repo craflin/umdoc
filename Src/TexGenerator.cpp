@@ -701,3 +701,8 @@ String TexGenerator::getFootnote(const String& text)
   result.append("}");
   return result;
 }
+
+String TexGenerator::getLatexFormula(const String& formula)
+{
+  return String("$") + formula + "$";
+}

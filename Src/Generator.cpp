@@ -13,7 +13,7 @@ String Generator::translate(Generator& generator, const String& str)
     switch(c = *i)
     {
     case '\\':
-      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!", *(i + 1)))
+      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!$", *(i + 1)))
         ++i;
       result.append(generator.escapeChar(*i));
       ++i;
@@ -94,6 +94,8 @@ String Generator::translate(Generator& generator, const String& str)
       if(matchLineBreak(generator, i, end, i, result))
         continue;
       if(matchInlineFootnote(generator, i, end, i, result))
+        continue;
+      if(matchInlineLatexFormula(generator, i, end, i, result))
         continue;
       if(c == ':' && String::isAlpha(i[1]) && i > start && !String::isAlphanumeric(i[-1]))
         result.append(generator.escapeChar(c) + generator.getWordBreak(c, i[1]));  // allow line breaks after e.g. "::"
@@ -231,5 +233,23 @@ bool Generator::matchInlineFootnote(Generator& generator, const char* s, const c
   text.attach(textStart, textEnd - textStart);
   pos = s;
   result.append(generator.getFootnote(text));
+  return true;
+}
+
+bool Generator::matchInlineLatexFormula(Generator& generator, const char* s, const char* end, const char*& pos, String& result)
+{
+  if(*(s++) != '$')
+    return false;
+  const char* formulaStart = s;
+  while(*s != '$')
+  {
+    if(++s >= end)
+      return false;
+  }
+  const char* formulaEnd = s++;
+  String formula;
+  formula.attach(formulaStart, formulaEnd - formulaStart);
+  pos = s;
+  result.append(generator.getLatexFormula(formula));
   return true;
 }

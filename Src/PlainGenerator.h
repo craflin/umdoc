@@ -28,4 +28,5 @@ public:
   String getLineBreak() override {return String();}
   String getInlineImage(const String& path) override {return String();}
   String getFootnote(const String& text) override {return String();}
+  String getLatexFormula(const String& formula) override {return String();};
 };
