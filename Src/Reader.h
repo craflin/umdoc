@@ -3,21 +3,21 @@
 
 #include <nstd/String.h>
 
-class InputData;
+struct InputData;
 
 class Reader
 {
 public:
-  Reader() : errorLine(0), errorColumn(0) {}
+  Reader() : _errorLine(0), _errorColumn(0) {}
 
   bool read(const String& inputFile, InputData& inputData);
 
-  int getErrorLine() const {return errorLine;}
-  int getErrorColumn() const {return errorColumn;}
-  const String& getErrorString() const {return errorString;}
+  int getErrorLine() const {return _errorLine;}
+  int getErrorColumn() const {return _errorColumn;}
+  const String& getErrorString() const {return _errorString;}
 
 private:
-  int errorLine;
-  int errorColumn;
-  String errorString;
+  int _errorLine;
+  int _errorColumn;
+  String _errorString;
 };

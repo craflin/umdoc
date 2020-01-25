@@ -3,20 +3,20 @@
 
 #include "OutputData.h"
 
-class InputData;
+struct InputData;
 
 class Parser
 {
 public:
-  Parser() : parserMode(normalMode), outputData(0), environmentParser(0), parentParser(0) {}
-  Parser(Parser* parentParser, OutputData* outputData) : parserMode(childMode), outputData(outputData), environmentParser(0), parentParser(parentParser) {}
+  Parser() : _parserMode(normalMode), _outputData(0), _environmentParser(0), _parentParser(0) {}
+  Parser(Parser* parentParser, OutputData* outputData) : _parserMode(childMode), _outputData(outputData), _environmentParser(0), _parentParser(parentParser) {}
   ~Parser();
 
   bool parse(const InputData& inputData, OutputData& outputData);
 
-  String getErrorFile() const {return error.file;}
-  int getErrorLine() const {return error.line;}
-  String getErrorString() const {return error.string;}
+  String getErrorFile() const {return _error.file;}
+  int getErrorLine() const {return _error.line;}
+  String getErrorString() const {return _error.string;}
 
 public:
   static void extractArguments(String& line, Map<String, Variant>& args);
@@ -31,26 +31,24 @@ private:
     verbatimMode,
   };
 
-  class Error
+  struct Error
   {
-  public:
     String file;
     int line;
     String string;
 
-  public:
     Error() : line(0) {}
   };
 
 
 private:
-  ParserMode parserMode;
-  OutputData* outputData;
-  Error error;
-  List<OutputData::Segment*> outputSegments;
-  List<OutputData::Segment*> segments;
-  Parser* environmentParser;
-  Parser* parentParser;
+  ParserMode _parserMode;
+  OutputData* _outputData;
+  Error _error;
+  List<OutputData::Segment*> _outputSegments;
+  List<OutputData::Segment*> _segments;
+  Parser* _environmentParser;
+  Parser* _parentParser;
 
 private:
   void addSegment(OutputData::Segment& segment);

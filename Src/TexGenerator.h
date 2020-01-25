@@ -3,7 +3,7 @@
 
 #include "Generator.h"
 
-class OutputData;
+struct OutputData;
 
 class TexGenerator : public Generator
 {
@@ -13,8 +13,8 @@ public:
   String getErrorString() const;
 
 public:
-  static const char* defaultListingsLanguages[];
-  static const usize numOfDefaultListingsLanguages;
+  static const char* _defaultListingsLanguages[];
+  static const usize _numOfDefaultListingsLanguages;
 
 public:
   String generate(const OutputData::ParagraphSegment& segment) override;
@@ -45,16 +45,4 @@ public:
   static String texTranslate(const String& str);
   static String getEnvironmentName(const String& language);
   static String getTexSize(const String& size, bool width = true);
-
-//private:
-//  const OutputData* outputData;
-
-private:
-  //static String mardownUnescape(const String& str);
-  //static bool matchInlineLink(const char* s, const char* end, const char*& pos, String& result);
-  //static bool matchInlineImage(const char* s, const char* end, const char*& pos, String& result);
-  //static bool matchLineBreak(const char* s, const char* end, const char*& pos, String& result);
-  //static bool matchInlineFootnote(const char* s, const char* end, const char*& pos, String& result);
-
-  //String generate(const OutputData& data);
 };

@@ -5,7 +5,7 @@
 
 #include <nstd/HashSet.h>
 
-class OutputData;
+struct OutputData;
 
 class HtmlGenerator : public Generator
 {

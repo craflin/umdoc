@@ -17,18 +17,18 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
     const OutputData::TitleSegment* titleSegment = dynamic_cast<const OutputData::TitleSegment*>(segment);
     if(titleSegment)
     {
-      if(titleSegment->level >= 5 ||
-         titleSegment->arguments.contains(".unnumbered"))
+      if(titleSegment->_level >= 5 ||
+         titleSegment->_arguments.contains(".unnumbered"))
         continue;
-      if((usize)titleSegment->level > lastNumbers.title.size())
-        lastNumbers.title.resize(titleSegment->level, 1);
+      if((usize)titleSegment->_level > lastNumbers.title.size())
+        lastNumbers.title.resize(titleSegment->_level, 1);
       else
       {
-        lastNumbers.title.resize(titleSegment->level);
+        lastNumbers.title.resize(titleSegment->_level);
         ++lastNumbers.title.back();
       }
       _titleNumbers.append(titleSegment, lastNumbers.title);
-      String label = titleSegment->arguments.find("#")->toString();
+      String label = titleSegment->_arguments.find("#")->toString();
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.title);
     }
@@ -36,21 +36,21 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
     if(figureSegment)
     {
       _figureNumbers.append(figureSegment, ++lastNumbers.figure);
-      String label = figureSegment->arguments.find("#")->toString();
+      String label = figureSegment->_arguments.find("#")->toString();
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.figure);
     }
     const OutputData::TableSegment* tableSegment = dynamic_cast<const OutputData::TableSegment*>(segment);
-    if(tableSegment && tableSegment->captionSegment)
+    if(tableSegment && tableSegment->_captionSegment)
     {
       _tableNumbers.append(tableSegment, ++lastNumbers.table);
-      String label = tableSegment->arguments.find("#")->toString();
+      String label = tableSegment->_arguments.find("#")->toString();
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.table);
     }
     const OutputData::EnvironmentSegment* environmentSegment = dynamic_cast<const OutputData::EnvironmentSegment*>(segment);
     if(environmentSegment)
-      findNumbers(environmentSegment->segments, lastNumbers);
+      findNumbers(environmentSegment->_segments, lastNumbers);
   }
 }
 
@@ -121,20 +121,20 @@ String HtmlGenerator::getErrorString() const
 
 String HtmlGenerator::generate(const OutputData::ParagraphSegment& segment)
 {
-  return String("<p>") + Generator::translate(*this, segment.text) + "</p>\n";
+  return String("<p>") + Generator::translate(*this, segment._text) + "</p>\n";
 }
 
 String HtmlGenerator::generate(const OutputData::TitleSegment& segment)
 {
   const Number& numberData = *_titleNumbers.find(&segment);
   String number = numberData.toString();
-  String id = getElementId(segment, segment.title, segment.arguments);
-  if(segment.level >= 1 && segment.level <= 6)
+  String id = getElementId(segment, segment._title, segment._arguments);
+  if(segment._level >= 1 && segment._level <= 6)
   {
-    String levelStr = String::fromInt(segment.level);
-    return String("<h") + levelStr + " id=\"" + id + "\">" + number + " " + Generator::translate(*this, segment.title) + "</h" + levelStr + ">\n";
+    String levelStr = String::fromInt(segment._level);
+    return String("<h") + levelStr + " id=\"" + id + "\">" + number + " " + Generator::translate(*this, segment._title) + "</h" + levelStr + ">\n";
   }
-  return String("<p id=\"") + id + "\"><strong>" + Generator::translate(*this, segment.title) + "</strong></p>\n";
+  return String("<p id=\"") + id + "\"><strong>" + Generator::translate(*this, segment._title) + "</strong></p>\n";
 }
 
 String HtmlGenerator::generate(const OutputData::SeparatorSegment& segment)
@@ -145,23 +145,23 @@ String HtmlGenerator::generate(const OutputData::SeparatorSegment& segment)
 String HtmlGenerator::generate(const OutputData::FigureSegment& segment)
 {
   String number = _figureNumbers.find(&segment)->toString();
-  String id = getElementId(segment, "", segment.arguments);
-  String basename = File::basename(segment.path);
+  String id = getElementId(segment, "", segment._arguments);
+  String basename = File::basename(segment._path);
   String outputImageFile = _outputDir + "/" + basename;
-  if(!File::copy(segment.path, outputImageFile, false))
-      Console::errorf("error: Could not copy file '%s' to '%s': %s\n", (const char*)segment.path, (const char*)outputImageFile, (const char*)Error::getErrorString());
+  if(!File::copy(segment._path, outputImageFile, false))
+      Console::errorf("error: Could not copy file '%s' to '%s': %s\n", (const char*)segment._path, (const char*)outputImageFile, (const char*)Error::getErrorString());
   List<String> styleList;
-  String width = segment.arguments.find("width")->toString();
+  String width = segment._arguments.find("width")->toString();
   if(!width.isEmpty())
     styleList.append(String("width:") + width);
-  String height = segment.arguments.find("height")->toString();
+  String height = segment._arguments.find("height")->toString();
   if(!height.isEmpty())
     styleList.append(String("height:") + width);
   String style;
   style.join(styleList, ';');
   String result;
-  result.append(String("<p class=\"figure\" id=\"") + id + "\">" + "<img src=\"" + basename + "\" alt=\"" + stripFormattingAndTranslate(segment.title) + "\" style=\"" + style + "\"/></p>");
-  result.append(String("<p class=\"figure\">Figure ") + number + ": " + translate(*this, segment.title) + "</p>\n");
+  result.append(String("<p class=\"figure\" id=\"") + id + "\">" + "<img src=\"" + basename + "\" alt=\"" + stripFormattingAndTranslate(segment._title) + "\" style=\"" + style + "\"/></p>");
+  result.append(String("<p class=\"figure\">Figure ") + number + ": " + translate(*this, segment._title) + "</p>\n");
   return result;
 
 }
@@ -175,7 +175,7 @@ String HtmlGenerator::generate(const OutputData::BulletListSegment& segment)
 {
   String result;
   result.append("<ul><li>");
-  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
     const OutputData::Segment* segment = *i;
     if(!segment->isValid())
@@ -183,13 +183,13 @@ String HtmlGenerator::generate(const OutputData::BulletListSegment& segment)
     result.append(segment->generate(*this));
   }
   result.append("</li>");
-  for(List<OutputData::BulletListSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BulletListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
     OutputData::BulletListSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("<li>");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
       const OutputData::Segment* segment = *i;
       if(!segment->isValid())
@@ -206,7 +206,7 @@ String HtmlGenerator::generate(const OutputData::NumberedListSegment& segment)
 {
   String result;
   result.append("<ol><li>");
-  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
     const OutputData::Segment* segment = *i;
     if(!segment->isValid())
@@ -214,13 +214,13 @@ String HtmlGenerator::generate(const OutputData::NumberedListSegment& segment)
     result.append(segment->generate(*this));
   }
   result.append("</li>");
-  for(List<OutputData::NumberedListSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::NumberedListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
     OutputData::NumberedListSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("<li>");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
       const OutputData::Segment* segment = *i;
       if(!segment->isValid())
@@ -237,19 +237,19 @@ String HtmlGenerator::generate(const OutputData::BlockquoteSegment& segment)
 {
   String result;
   result.append("<blockquote>");
-  for(List<OutputData::Segment*>::Iterator i = segment.childSegments.begin(), end = segment.childSegments.end(); i != end; ++i)
+  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
     const OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
     result.append((*i)->generate(*this));
   }
-  for(List<OutputData::BlockquoteSegment*>::Iterator i = segment.siblingSegments.begin(), end = segment.siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BlockquoteSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
     OutputData::BlockquoteSegment* siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->childSegments.begin(), end = siblingSegment->childSegments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
       const OutputData::Segment* segment = *i;
       if(!segment->isValid())
@@ -265,10 +265,10 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
 {
   String result;
   result.append("<div class=\"environment\">");
-  if(segment.verbatim)
+  if(segment._verbatim)
   {
     result.append("<pre>\n");
-    for(List<String>::Iterator i = segment.lines.begin(), end = segment.lines.end(); i != end; ++i)
+    for(List<String>::Iterator i = segment._lines.begin(), end = segment._lines.end(); i != end; ++i)
     {
       result.append(escape(*i));
       result.append("\n");
@@ -277,7 +277,7 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
   }
   else
   {
-    for(List<OutputData::Segment*>::Iterator i = segment.segments.begin(), end = segment.segments.end(); i != end; ++i)
+    for(List<OutputData::Segment*>::Iterator i = segment._segments.begin(), end = segment._segments.end(); i != end; ++i)
     {
       const OutputData::Segment* segment = *i;
       if(!segment->isValid())
@@ -292,22 +292,22 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
 String HtmlGenerator::generate(const OutputData::TableSegment& segment)
 {
   String result;
-  String id = getElementId(segment, "", segment.arguments);
-  bool xtabGridStyle = segment.arguments.contains(".xtabgrid");
-  bool gridStyle = segment.arguments.contains(".grid") || xtabGridStyle;
+  String id = getElementId(segment, "", segment._arguments);
+  bool xtabGridStyle = segment._arguments.contains(".xtabgrid");
+  bool gridStyle = segment._arguments.contains(".grid") || xtabGridStyle;
   String tableStyleSuffix;
   if(gridStyle)
     tableStyleSuffix = "_grid";
   result.append(String("<p id=\"") + id + "\"><table class=\"table" + tableStyleSuffix + "\">");
-  for(List<OutputData::TableSegment::RowData>::Iterator i = segment.rows.begin(), end = segment.rows.end(); i != end; ++i)
+  for(List<OutputData::TableSegment::RowData>::Iterator i = segment._rows.begin(), end = segment._rows.end(); i != end; ++i)
   {
     result.append("<tr>");
     OutputData::TableSegment::RowData& rowData = *i;
     usize columnIndex = 0;
-    bool firstRow = i == segment.rows.begin();
+    bool firstRow = i == segment._rows.begin();
     for(Array<OutputData::TableSegment::CellData>::Iterator i = rowData.cellData.begin(), end = rowData.cellData.end(); i != end; ++i, ++columnIndex)
     {
-      const OutputData::TableSegment::ColumnInfo& columnInfo = segment.columns[columnIndex];
+      const OutputData::TableSegment::ColumnInfo& columnInfo = segment._columns[columnIndex];
       List<String> styleList;
       switch(columnInfo.alignment)
       {
@@ -344,9 +344,9 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
     result.append("</tr>\n");
   }
   result.append("</table></p>\n");
-  if(segment.captionSegment)
+  if(segment._captionSegment)
   {
-    String caption = segment.captionSegment->getText();
+    String caption = segment._captionSegment->_text;
     if(caption.startsWith(":"))
       caption = caption.substr(1);
     else // Table:
@@ -363,7 +363,7 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
 String HtmlGenerator::generate(const OutputData::TexSegment& segment)
 {
   String result;
-  if(segment.content == "\\tableofcontents")
+  if(segment._content == "\\tableofcontents")
   {
     result.append("<h1>Contents</h1>\n");
     result.append("<p>");
@@ -373,18 +373,18 @@ String HtmlGenerator::generate(const OutputData::TexSegment& segment)
     {
       const OutputData::TitleSegment* segment = i.key();
       const Number& number = *i;
-      if (segment->level > 3)
+      if (segment->_level > 3)
         continue;
-      for(; lastLevel < segment->level; ++lastLevel)
+      for(; lastLevel < segment->_level; ++lastLevel)
         result.append("<tr><td></td><td><table>");
-      for(; lastLevel > segment->level; --lastLevel)
+      for(; lastLevel > segment->_level; --lastLevel)
         result.append("</table></td></tr>\n");
-      String id = getElementId(*segment, segment->title, segment->arguments);
-      result.append(String("<tr><td style=\"width:") + String::fromInt(segment->level) + "em\">");
+      String id = getElementId(*segment, segment->_title, segment->_arguments);
+      result.append(String("<tr><td style=\"width:") + String::fromInt(segment->_level) + "em\">");
       result.append(number.toString());
       result.append("</td><td>");
       result.append(String("<a href=\"#") + id + "\">");
-      result.append(Generator::translate(*this, segment->title));
+      result.append(Generator::translate(*this, segment->_title));
       result.append("</a></td></tr>\n");
     }
     for(; lastLevel > 1; --lastLevel)

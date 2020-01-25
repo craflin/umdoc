@@ -5,12 +5,10 @@
 #include <nstd/List.h>
 #include <nstd/HashMap.h>
 
-class InputData
+struct InputData
 {
-public:
-  class Component
+  struct Component
   {
-  public:
     enum Type
     {
       texType,
@@ -23,18 +21,22 @@ public:
       mdType,
     };
 
-  public:
     Type type;
     String name;
     String filePath;
     String value;
   };
 
-public:
+  struct Environment
+  {
+    bool verbatim;
+    String command;
+  };
+
   String inputFile;
   String className;
   List<String> headerTexFiles;
   HashMap<String, String> variables;
-  HashMap<String, String> environments;
+  HashMap<String, Environment> environments;
   List<Component> document;
 };
