@@ -66,6 +66,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
     {
       InputData::Environment& environment = inputData.environments.append(*element.attributes.find("name"), InputData::Environment());
       environment.verbatim = element.attributes.find("verbatim")->toBool();
+      environment.command = *element.attributes.find("command");
     }
     else if(element.type == "document")
     {
@@ -127,6 +128,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
         {
           InputData::Environment& environment = inputData.environments.append(*element.attributes.find("name"), InputData::Environment());
           environment.verbatim = element.attributes.find("verbatim")->toBool();
+          environment.command = *element.attributes.find("command");
         }
         else if(element.type == "set")
           inputData.variables.append(*element.attributes.find("name"), *element.attributes.find("value"));

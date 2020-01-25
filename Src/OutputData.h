@@ -21,6 +21,9 @@ struct OutputData
   class Segment
   {
   public:
+    Segment* _parent;
+
+  public:
     Segment(int indent) : _valid(true), _indent(indent), _parent(0) {}
 
   public:
@@ -29,8 +32,6 @@ struct OutputData
     virtual String generate(Generator& generator) const = 0;
 
     int getIndent() const {return _indent;}
-    Segment* getParent() const {return _parent;}
-    void setParent(Segment& parent) {_parent = &parent;}
 
     bool isValid() const {return _valid;}
     void invalidate() {_valid = false;}
@@ -38,7 +39,7 @@ struct OutputData
   protected:
     bool _valid;
     int _indent;
-    Segment* _parent;
+    
   };
 
   class ParagraphSegment : public Segment
@@ -111,7 +112,6 @@ struct OutputData
   public:
     BulletListSegment(int indent, char symbol, uint childIndent) : Segment(indent), _symbol(symbol), _childIndent(childIndent) {}
     ~BulletListSegment();
-    char getSymbol() const {return _symbol;}
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
@@ -158,11 +158,7 @@ struct OutputData
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
     ~EnvironmentSegment();
-    void addLine(const String& line) {_lines.append(line);}
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
-    bool isVerbatim() const {return _verbatim;}
-    int getBackticks() const {return _backticks;}
-    void swapSegments(List<Segment*>& segments) {_segments.swap(segments);}
   public:
     bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;

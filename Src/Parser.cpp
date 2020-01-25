@@ -46,7 +46,7 @@ void Parser::addSegment(OutputData::Segment& newSegment)
               delete &newSegment;
             return;
           }
-          segment = segment->getParent();
+          segment = segment->_parent;
           if(!segment)
             break;
         }
@@ -236,9 +236,9 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(_parserMode == childMode)
       {
         OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)_parentParser->_segments.back();
-        if(backticks >= parentSegment->getBackticks())
+        if(backticks >= parentSegment->_backticks)
         {
-          parentSegment->swapSegments(_outputSegments);
+          parentSegment->_segments.swap(_outputSegments);
           _parentParser->_environmentParser = 0;
           _parentParser->_parserMode = _parentParser->_parentParser ? childMode : normalMode;
           delete this;
@@ -248,7 +248,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(_parserMode == verbatimMode)
       {
         OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)_segments.back();
-        if(backticks >= environmentSegment->getBackticks())
+        if(backticks >= environmentSegment->_backticks)
         {
           _parserMode = _parentParser ? childMode : normalMode;
           return true;
@@ -258,7 +258,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
     if(_parserMode == verbatimMode)
     {
       OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)_segments.back();
-      environmentSegment->addLine(line);
+      environmentSegment->_lines.append(line);
       return true;
     }
   }
@@ -413,7 +413,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         return false;
       }
       segment = environmentSegment;
-      if(environmentSegment->isVerbatim())
+      if(environmentSegment->_verbatim)
         _parserMode = verbatimMode;
       else
       {
@@ -712,13 +712,13 @@ bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph)
         return parentListSegment->merge(segment, newParagraph);
     }
 
-    listSegment->setParent(*this);
+    listSegment->_parent = this;
     _siblingSegments.append(listSegment); // todo: merge?
     return true;
   }
   if(segment.getIndent() == _childIndent)
   {
-    segment.setParent(*this);
+    segment._parent = this;
     _childSegments.append(&segment); // todo: merge?
     return true;
   }
@@ -737,13 +737,13 @@ bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph)
         return parentListSegment->merge(segment, newParagraph);
     }
 
-    listSegment->setParent(*this);
+    listSegment->_parent = this;
     _siblingSegments.append(listSegment); // todo: merge?
     return true;
   }
   if(segment.getIndent() == _childIndent)
   {
-    segment.setParent(*this);
+    segment._parent = this;
     _childSegments.append(&segment); // todo: merge?
     return true;
   }
@@ -762,13 +762,13 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
         return parentBlockquoteSegment->merge(segment, newParagraph);
     }
 
-    blockSegment->setParent(*this);
+    blockSegment->_parent = this;
     _siblingSegments.append(blockSegment); // todo: merge?
     return true;
   }
   if(segment.getIndent() == _childIndent)
   {
-    segment.setParent(*this);
+    segment._parent = this;
     _childSegments.append(&segment); // todo: merge?
     return true;
   }
@@ -844,7 +844,7 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
       CellData& cellData = rowData.cellData[column];
       if(cellData.segments.isEmpty() || newParagraph || !cellData.segments.back()->merge(segment, false))
         cellData.segments.append(&segment);
-      segment.setParent(*this);
+      segment._parent = this;
       return true;
     }
   }
