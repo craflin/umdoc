@@ -247,7 +247,7 @@ int main(int argc, char* argv[])
   // parse input data
   {
     Parser parser;
-    if(!parser.parse(inputData, outputData))
+    if(!parser.parse(inputData, outputFile, outputData))
     {
       Console::errorf("%s:%d: error: %s\n", (const char*)parser.getErrorFile(), parser.getErrorLine(), (const char*)parser.getErrorString());
       return 1;
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   }
 
   // generate html
-  if(outputFile.endsWith(".htm") || outputFile.endsWith(".html"))
+  if(outputData.format == OutputData::htmlFormat)
   {
     HtmlGenerator generator;
     if(!generator.generate(outputData, outputFile))

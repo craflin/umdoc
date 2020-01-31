@@ -12,7 +12,7 @@ public:
   Parser(Parser* parentParser, OutputData* outputData) : _parserMode(childMode), _outputData(outputData), _environmentParser(0), _parentParser(parentParser) {}
   ~Parser();
 
-  bool parse(const InputData& inputData, OutputData& outputData);
+  bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
 
   String getErrorFile() const {return _error.file;}
   int getErrorLine() const {return _error.line;}

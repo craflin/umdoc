@@ -12,6 +12,13 @@ class Generator;
 
 struct OutputData
 {
+  enum OutputFormat
+  {
+    plainFormat,
+    texFormat,
+    htmlFormat,
+  };
+
   struct EnvironmentInfo
   {
     bool verbatim;
@@ -151,14 +158,16 @@ struct OutputData
   public:
     int _backticks;
     bool _verbatim;
+    String _command;
     String _language;
     Map<String, Variant> _arguments;
-    List<String> _lines;
     List<Segment*> _segments;
+    List<String> _lines;
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
     ~EnvironmentSegment();
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
+    bool process(OutputData::OutputFormat format, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
@@ -243,6 +252,7 @@ struct OutputData
     String generate(Generator& generator) const override;
   };
 
+  OutputFormat format;
   String className;
   List<String> headerTexFiles;
   bool hasPdfSegments;
@@ -250,6 +260,6 @@ struct OutputData
   HashMap<String, EnvironmentInfo> environments;
   HashMap<String, String> variables;
 
-  OutputData() : hasPdfSegments(false) {}
+  OutputData() : format(plainFormat), hasPdfSegments(false) {}
   ~OutputData();
 };

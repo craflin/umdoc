@@ -5,6 +5,9 @@
 #include <nstd/Directory.h>
 #include <nstd/Unicode.h>
 #include <nstd/Memory.h>
+#include <nstd/Process.h>
+#include <nstd/Error.h>
+#include <nstd/Thread.h>
 
 #include "InputData.h"
 #include "OutputData.h"
@@ -250,6 +253,8 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)_segments.back();
         if(backticks >= environmentSegment->_backticks)
         {
+          if(!environmentSegment->process(_outputData->format, _error.string))
+            return false;
           _parserMode = _parentParser ? childMode : normalMode;
           return true;
         }
@@ -413,7 +418,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         return false;
       }
       segment = environmentSegment;
-      if(environmentSegment->_verbatim)
+      if(environmentSegment->_verbatim || !environmentSegment->_command.isEmpty())
         _parserMode = verbatimMode;
       else
       {
@@ -799,8 +804,84 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
       return false;
     }
     _verbatim = it->verbatim;
+    _command = it->command;
   }
 
+  return true;
+}
+
+bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, String& error)
+{
+  if(_command.isEmpty())
+    return true;
+
+  String format = "latex";
+  if (format_ == OutputData::htmlFormat)
+    format = "html";
+
+  Process process;
+  if(!process.open(String("\"") + _command + "\" " + format, Process::stdoutStream | Process::stdinStream))
+  {
+#ifdef _WIN32
+    if(!process.open(String("\"") + _command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
+#endif
+      return error = Error::getErrorString(), false;
+  }
+  List<String> input;
+  input.swap(_lines);
+  Thread readerThread;
+  class ReaderThreadData
+  {
+  public:
+    uint read()
+    {
+      char buf[4096];
+      _output.append(String());
+      for (ssize len;;)
+      {
+        len = _process.read(buf, sizeof(buf) - 1);
+        if(len > 0)
+        {
+          buf[len] = '\0';
+          for (const char* i = buf, *end;;)
+          {
+            if((end = String::find(i, '\n')) != 0)
+            {
+              const char* realEnd = end;
+              while(realEnd > i && String::isSpace(realEnd[-1]))
+                --realEnd;
+              _output.back().append(String(i, realEnd - i));
+              _output.append(String());
+              i = end + 1;
+              continue;
+            }
+            else
+            {
+              _output.back().append(String::fromCString(i));
+              break;
+            }
+          }
+        }
+        else
+          break;
+      }
+      if(_output.back().isEmpty())
+        _output.removeBack();
+      return 0;
+    }
+    ReaderThreadData(Process& process, List<String>& output) : _process(process), _output(output) {}
+  public:
+    Process& _process;
+    List<String>& _output;
+  } readerThreadData(process, _lines);
+  if(!readerThread.start(readerThreadData, &ReaderThreadData::read))
+    return error = Error::getErrorString(), false;
+  for(List<String>::Iterator i = input.begin(), end = input.end(); i != end; ++i)
+    if(process.write((const char*)*i, i->length()) != i->length())
+      return error = Error::getErrorString(), false;
+  process.close();
+  if(readerThread.join() != 0)
+    return error = "Could not join reader thread", false;
   return true;
 }
 
@@ -958,9 +1039,14 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
   return true;
 }
 
-bool Parser::parse(const InputData& inputData, OutputData& outputData)
+bool Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
 {
   _outputData = &outputData;
+
+  if (outputFile.endsWith(".htm") || outputFile.endsWith(".html"))
+    outputData.format = OutputData::htmlFormat;
+  else
+    outputData.format = OutputData::texFormat;
 
   outputData.className = inputData.className;
   outputData.variables = inputData.variables;

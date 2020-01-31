@@ -41,6 +41,12 @@ add_example(customenvironment
     customenvironment/example.md
 )
 
+add_example(environmentscript
+    environmentscript/umdoc.xml
+    environmentscript/examplescript.bat
+    environmentscript/example.md
+)
+
 add_example(headerfooter
     headerfooter/umdoc.xml
     headerfooter/style.tex

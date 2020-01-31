@@ -475,7 +475,8 @@ String TexGenerator::generate(const OutputData::EnvironmentSegment& segment)
     flags += String("title=\\EnvironmentCaption{") + TexGenerator::texTranslate(caption) + "}";
 
   String result;
-  result.append(String("\n\\begin{") + environment + "}");
+  if (segment._command.isEmpty())
+    result.append(String("\n\\begin{") + environment + "}");
   result.append(flags.isEmpty() ? String("\n") : String("[") +  flags + "]\n");
   if(segment._verbatim)
   {
@@ -495,7 +496,8 @@ String TexGenerator::generate(const OutputData::EnvironmentSegment& segment)
       result.append(segment->generate(*this));
     }
   }
-  result.append(String("\\end{") + environment + "}\n");
+  if (segment._command.isEmpty())
+    result.append(String("\\end{") + environment + "}\n");
   return result;
 }
 

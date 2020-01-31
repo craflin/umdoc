@@ -267,13 +267,15 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
   result.append("<div class=\"environment\">");
   if(segment._verbatim)
   {
-    result.append("<pre>\n");
+    if(segment._command.isEmpty())
+      result.append("<pre>\n");
     for(List<String>::Iterator i = segment._lines.begin(), end = segment._lines.end(); i != end; ++i)
     {
       result.append(escape(*i));
       result.append("\n");
     }
-    result.append("</pre>");
+    if(segment._command.isEmpty())
+      result.append("</pre>");
   }
   else
   {
