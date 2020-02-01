@@ -882,6 +882,17 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
   process.close();
   if(readerThread.join() != 0)
     return error = "Could not join reader thread", false;
+
+  if(!_verbatim)
+  {
+    Parser parser;
+    String fileContent;
+    fileContent.join(_lines, '\n');
+    if (!parser.parseMarkdown(_command, fileContent))
+      return error = parser.getErrorString(), false;
+    _segments.swap(parser._outputSegments);
+  }
+
   return true;
 }
 

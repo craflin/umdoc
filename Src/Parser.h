@@ -59,4 +59,6 @@ private:
   bool parseMarkdownLine(const String& line, usize additionalIndent);
 
   static String translateHtmlEntities(const String& line);
+
+  friend class OutputData::EnvironmentSegment;
 };

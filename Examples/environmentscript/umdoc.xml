@@ -1,0 +1,10 @@
+<umdoc>
+
+    <environment name="myscript1" verbatim="true" command="myscript1"/>
+    <environment name="myscript2" command="myscript2"/>
+
+    <document>
+        <md file="example.md"/>
+    </document>
+
+</umdoc>
