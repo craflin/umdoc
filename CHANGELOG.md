@@ -11,7 +11,7 @@
 * Support figures width and height attributes
 * Introduced new syntax to insert a section number in cross document references
 * Changed handling of the character ~, its no longer equal to a non breaking space
-* Added support for HTML entities
+* Added support for HTML 1.0 entities and for &nbsp;
 * Switched to CMake and CPack
 
 # 0.1.6
