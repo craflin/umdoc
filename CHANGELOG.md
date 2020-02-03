@@ -1,4 +1,19 @@
 
+# 0.2.0
+
+* Added support for custom environment command execution
+* Added support for mathematical LaTex expressions
+* Added HTML generator
+* Removed -t flag and recognize file format based on the output file extension
+* Added "xplain" environment for environment that span multiple pages
+* Switched to xelatex by default
+* Added "xtab" table style
+* Support figures width and height attributes
+* Introduced new syntax to insert a section number in cross document references
+* Changed handling of the character ~, its no longer equal to a non breaking space
+* Added support for HTML entities
+* Switched to CMake and CPack
+
 # 0.1.6
 
 * Build Windows build with /MT
