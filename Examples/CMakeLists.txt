@@ -43,7 +43,10 @@ add_example(customenvironment
 
 add_example(environmentscript
     environmentscript/umdoc.xml
-    environmentscript/examplescript.bat
+    environmentscript/myscript1
+    environmentscript/myscript1.bat
+    environmentscript/myscript2
+    environmentscript/myscript2.bat
     environmentscript/example.md
 )
 
