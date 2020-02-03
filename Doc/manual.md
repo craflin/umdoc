@@ -186,15 +186,22 @@ Hence, the *LaTeX* class `<class_name>` has to provide an implementation of all 
 
 The spectrum of supported environments or "languages" in fenced code blocks (see [section #](#fenced-code-blocks)) can be extended.
 To do this, your *LaTeX* class (see [section #](#latex-class)) or one of the *LaTeX* styling code files (see [section #](#umdoc-xml-tex-header)) has to declare the *LaTeX* environment.
-*umdoc* has to be made aware of such an environment using the `<environment>` element:
+*umdoc* has to be made aware of such an environment using the element `<environment>`:
 
 ```xml
-<environment name="<name>" verbatim="<bool>"/>
+<environment name="<language>" verbatim="<bool>" command="<command>"/>
 ```
 
-``verbatim`` can be set to `true` or `false`. 
+`language` corresponds the name of the fenced code block "language" to be used for this environment in the fenced code block syntax (see [section #](#fenced-code-blocks)).
+
+The optional attribute `verbatim` can be set to `true` or `false`. The default is `false`.
 If it is set to `true`, the code in the fenced code block will be copied unchanged into the *LaTeX* environment. 
-If `verbatim` is set to `false`, the code in the fenced code block will be considered to be Markdown and is converted to *LaTeX* as such.
+If `verbatim` is set to `false`, the code will be considered to be Markdown and is converted to *LaTeX* as such.
+
+The optional attribute `command` specifies a script or executable that processes the unchanged content of the fenced code block.
+The first argument of the command is the output format `latex` or `html` of the generated output file (see [section #](#usage)).
+The output of the script or executable will be inserted into the generated document without any *LaTeX* or *HTML* environment start or end tags.
+But, if `verbatim` is set to `true`, the output will be transformed from Markdown to *LaTeX* (or *HTML*).
 
 ### Placeholders {#umdoc-xml-file-placeholder}
 
@@ -765,6 +772,7 @@ By the default *umdoc* style the custom *LaTeX* command `\EnvironmentCaption` is
 ```
 
 `<language>` is case insensitive.
+If `<language>` was declared with a `command` (see [section #](#umdoc-xml-file-custom-environments)), the output of the executed script or executable will not be surrounded with `\begin` and `\end`.
 If `<language>` is just a single character like (`c` or `r`) the word `language` will be appended when it is translated to *LaTeX*.
 If it contains the special character `+`, it will be replaced with `plus`.
 If the `<language>` argument is omitted, the *LaTeX* environment `plain` will be used for basic verbatim code.
