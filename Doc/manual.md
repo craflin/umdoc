@@ -25,10 +25,10 @@ umdoc [-o output.tex]
 
 ## About this Document
 
-This document describes the usage of this tool (see [section #](#usage)), the format of the *umdoc* *XML* file (see [section #](#umdoc-xml-file)) and it serves as a reference with examples of the supported Markdown features (see [section #](#supported-markdown-features)).
+This document describes the usage of the *umdoc* tool (see [section #](#usage)), the format of the *umdoc* *XML* file (see [section #](#umdoc-xml-file)) and it serves as a reference with examples of the supported Markdown features (see [section #](#supported-markdown-features)).
 
 Additionally, it describes how Markdown is converted into *LaTeX*, which is essential to know for customization.
-However, these descriptions presume advanced knowledge of *LaTeX* and can be ignored by most users.
+Some parts of these descriptions presume advanced knowledge of *LaTeX* and can be ignored by most users.
 
 ## Motivation
 
@@ -50,11 +50,11 @@ To create a printable document, you will probably require:
 * Figure and table environments.
 * Cross references within the generated document.
 
-All this cannot be accomplished with traditional Markdown.
+Most of this cannot be accomplished with traditional Markdown without reverting to *HTML*.
 Hence, some extensions to the Markdown language and a way to define the layout of the document are required.
 
-*umdoc* tries to overcome the shortcomings of traditional Markdown with some Markdown extensions inspired by *[GitHub](http://github.com) flavored Markdown* and [Pandoc](http://pandoc.org).
-Layout information required to generate the document can be specified using an *umdoc* specific *XML* file (see [section #](#umdoc-xml-file)) and customized *LaTex* classes and commands.
+*umdoc* tries to overcome the shortcomings of traditional Markdown with some Markdown extensions inspired by *[GitHub](http://github.com) flavored Markdown* and Markdown extensions from [Pandoc](http://pandoc.org).
+Layout information required to generate the document can be specified using an *umdoc* specific *XML* file (see [section #](#umdoc-xml-file)) and with customized *LaTex* classes and commands.
 
 ##### Project Goals
 
@@ -71,7 +71,7 @@ The *umdoc* project tries to achieve the following goals:
 In contrary, goals that the project does not try to achieve are:
 
 * Support of all Markdown features and dialects.
-* Create output in other formats than *LaTeX* or *PDF*.
+* Create output in other formats than *LaTeX*, *PDF* or *HTML*.
 
 # Installation
 
@@ -80,7 +80,7 @@ To install it, simply [download](https://github.com/craflin/umdoc/releases) the 
 You can also call the *umdoc* tool directly, if you do not want to touch your *PATH* variable.
 
 Additionally, you have to install a *TeX* distribution like [*MiKTeX*](http://miktex.org) on Windows or [*TeX Live*](http://www.tug.org/texlive/) on Linux or Windows.
-Most Linux distributions provide packages for *TeX Live* that you can be install with the packaging system of that distribution (*APT*, *RPM*, etc.).
+Most Linux distributions provide packages for *TeX Live* that you can be install using the packaging system of the distribution (*APT*, *RPM*, etc.).
 
 # Usage {#usage}
 
@@ -121,11 +121,11 @@ Alternatively, input, output files and an output file format can be explicitly s
 
 * `--version`
 
-  Print the version of *umdoc* and exit.
+  Prints the version of *umdoc* and exits.
 
 * `--<placeholder>=<value>`
 
-  Overwrite the *umdoc* *XML* file placeholder `<placeholder>` with the value `<value>` (see [section #](#umdoc-xml-file-placeholder)).
+  Overwrites the *umdoc* *XML* file placeholder `<placeholder>` with the value `<value>` (see [section #](#umdoc-xml-file-placeholder)).
 
 ## The *umdoc* *XML* File {#umdoc-xml-file}
 
@@ -201,7 +201,7 @@ If `verbatim` is set to `false`, the code will be considered to be Markdown and 
 The optional attribute `command` specifies a script or executable that processes the unchanged content of the fenced code block.
 The first argument of the command is the output format `latex` or `html` of the generated output file (see [section #](#usage)).
 The output of the script or executable will be inserted into the generated document without any *LaTeX* or *HTML* environment start or end tags.
-But, if `verbatim` is set to `true`, the output will be transformed from Markdown to *LaTeX* (or *HTML*).
+But, if `verbatim` is not set to `true`, the output will be transformed from Markdown to *LaTeX* (or *HTML*).
 
 ### Placeholders {#umdoc-xml-file-placeholder}
 
@@ -233,7 +233,7 @@ or
 ```
 
 The attribute `file` specifies the path to the *LaTeX* file.
-If the path is not absolute, it is relative to the location of the *umdoc* *XML* file.
+If the path is not absolute, it is considered to be relative to the location of the *umdoc* *XML* file.
 The code or the file may contain placeholders (see [section #](#umdoc-xml-file-placeholder)).
 
 ### Document Structure {#umdoc-xml-document}
