@@ -412,15 +412,15 @@ String HtmlGenerator::escapeChar(const char c)
   switch (c)
   {
   case '"':
-    return "&quot;";
+    return String("&quot;");
   case '&':
-    return "&amp;";
+    return String("&amp;");
   case '\'':
-    return "&apos;";
+    return String("&apos;");
   case '<':
-    return "&lt;";
+    return String("&lt;");
   case '>':
-    return "&gt;";
+    return String("&gt;");
   default:
     return String(&c, 1);
   }
@@ -429,19 +429,19 @@ String HtmlGenerator::escapeChar(const char c)
 String HtmlGenerator::getSpanStart(const String& sequence)
 {
   if(sequence.startsWith("`"))
-    return "<code>";
+    return String("<code>");
   if(sequence == "**" || sequence == "__")
-    return "<strong>";
-  return "<em>";
+    return String("<strong>");
+  return String("<em>");
 }
 
 String HtmlGenerator::getSpanEnd(const String& sequence)
 {
   if(sequence.startsWith("`"))
-    return "</code>";
+    return String("</code>");
   if(sequence == "**" || sequence == "__")
-    return "</strong>";
-  return "</em>";
+    return String("</strong>");
+  return String("</em>");
 }
 
 String HtmlGenerator::getWordBreak(const char l, const char r)
@@ -464,7 +464,7 @@ String HtmlGenerator::getLink(const String& link, const String& name_)
 
 String HtmlGenerator::getLineBreak()
 {
-    return "<br/>";
+    return String("<br/>");
 }
 
 String HtmlGenerator::getInlineImage(const String& path)

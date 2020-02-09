@@ -810,32 +810,7 @@ bool OutputData::EnvironmentSegment::parseArguments(const String& line, const Ha
   return true;
 }
 
-bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, String& error)
-{
-  if(_command.isEmpty())
-    return true;
-
-  String format = "latex";
-  if (format_ == OutputData::htmlFormat)
-    format = "html";
-
-  String command = _command;
-#ifndef _WIN32
-  if (!File::isAbsolutePath(command) && !command.find("/"))
-    command.prepend("./");
-#endif
-
-  Process process;
-  if(!process.open(String("\"") + command + "\" " + format, Process::stdoutStream | Process::stdinStream))
-  {
-#ifdef _WIN32
-    if(!process.open(String("\"") + command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
-#endif
-      return error = Error::getErrorString(), false;
-  }
-  List<String> input;
-  input.swap(_lines);
-  Thread readerThread;
+namespace {
   class ReaderThreadData
   {
   public:
@@ -879,7 +854,36 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
   public:
     Process& _process;
     List<String>& _output;
-  } readerThreadData(process, _lines);
+  };
+}
+
+bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, String& error)
+{
+  if(_command.isEmpty())
+    return true;
+
+  String format = "latex";
+  if (format_ == OutputData::htmlFormat)
+    format = "html";
+
+  String command = _command;
+#ifndef _WIN32
+  if (!File::isAbsolutePath(command) && !command.find("/"))
+    command.prepend("./");
+#endif
+
+  Process process;
+  if(!process.open(String("\"") + command + "\" " + format, Process::stdoutStream | Process::stdinStream))
+  {
+#ifdef _WIN32
+    if(!process.open(String("\"") + command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
+#endif
+      return error = Error::getErrorString(), false;
+  }
+  List<String> input;
+  input.swap(_lines);
+  Thread readerThread;
+  ReaderThreadData readerThreadData(process, _lines);
   if(!readerThread.start(readerThreadData, &ReaderThreadData::read))
     return error = Error::getErrorString(), false;
   for(List<String>::Iterator i = input.begin(), end = input.end(); i != end; ++i)

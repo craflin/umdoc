@@ -615,10 +615,10 @@ String TexGenerator::generate(const OutputData::PdfSegment& segment)
 String TexGenerator::getSpanStart(const String& sequence)
 {
   if(sequence.startsWith("`"))
-    return "\\texttt{";
+    return String("\\texttt{");
   if(sequence == "**" || sequence == "__")
-    return "\\textbf{";
-  return "\\emph{";
+    return String("\\textbf{");
+  return String("\\emph{");
 }
 
 String TexGenerator::getSpanEnd(const String& sequence)
@@ -629,8 +629,8 @@ String TexGenerator::getSpanEnd(const String& sequence)
 String TexGenerator::getWordBreak(const char l, const char r)
 {
   if(String::isAlpha(l) && String::isAlpha(r))
-    return "\\-";
-  return "{\\allowbreak}";
+    return String("\\-");
+  return String("{\\allowbreak}");
 }
 
 String TexGenerator::getLink(const String& link, const String& name_)
@@ -683,7 +683,7 @@ String TexGenerator::getLink(const String& link, const String& name_)
 
 String TexGenerator::getLineBreak()
 {
-  return "\\newline ";
+  return String("\\newline ");
 }
 
 String TexGenerator::getInlineImage(const String& path)
