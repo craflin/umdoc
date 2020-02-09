@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ "$1" == "html" ]; then
+    echo "<pre>"
+    cat <&0
+    echo "</pre>"
+else
+    echo "\begin{verbatim}"
+    cat <&0
+    echo "\end{verbatim}"
+fi

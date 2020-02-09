@@ -819,11 +819,17 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
   if (format_ == OutputData::htmlFormat)
     format = "html";
 
+  String command = _command;
+#ifndef _WIN32
+  if (!File::isAbsolutePath(command) && !command.find("/"))
+    command.prepend("./");
+#endif
+
   Process process;
-  if(!process.open(String("\"") + _command + "\" " + format, Process::stdoutStream | Process::stdinStream))
+  if(!process.open(String("\"") + command + "\" " + format, Process::stdoutStream | Process::stdinStream))
   {
 #ifdef _WIN32
-    if(!process.open(String("\"") + _command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
+    if(!process.open(String("\"") + command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
 #endif
       return error = Error::getErrorString(), false;
   }

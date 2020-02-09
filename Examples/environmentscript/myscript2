@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "* This was created by myscript2."
+cat <&0
