@@ -3,6 +3,11 @@ cmake_policy(SET CMP0048 NEW)
 
 project(umdoc VERSION 0.2.0)
 
+set(CDEPLOY_NO_DEBUG_BUILD True)
+set(CDEPLOY_NO_COMPILER True)
+
+include(CDeploy)
+
 enable_testing()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -19,14 +24,22 @@ add_subdirectory(Examples)
 
 install(FILES NOTICE LICENSE DESTINATION .)
 
-if(WIN32)
-    set(CPACK_GENERATOR "ZIP")
-    set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${PROJECT_VERSION}-win32")
-else()
-    set(CPACK_GENERATOR "TGZ;DEB")
-    string(TOLOWER "${PROJECT_NAME}-${PROJECT_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}" CPACK_PACKAGE_FILE_NAME)
+if(NOT WIN32)
+    list(APPEND CPACK_GENERATOR "DEB")
     set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CPackConfig.txt")
     install(SCRIPT CPackInstall.txt)
 endif()
 
 include(CPack)
+
+if(WIN32)
+    deploy_export(umdoc EXECUTABLE
+        IMPORTED_LOCATION umdoc.exe
+    )
+else()
+    deploy_export(umdoc EXECUTABLE
+        IMPORTED_LOCATION umdoc
+    )
+endif()
+
+install_deploy_export()
