@@ -1,4 +1,8 @@
 
+# 0.2.1
+
+* Switched to CDeploy to create packages
+
 # 0.2.0
 
 * Added support for custom environment command execution
