@@ -29,7 +29,7 @@ public:
   String generate(const OutputData::TexPartSegment& segment) override;
   String generate(const OutputData::PdfSegment& segment) override;
 
-  String escapeChar(const char c) override;
+  String escapeChar(uint32 c) override;
   String getSpanStart(const String& sequence) override;
   String getSpanEnd(const String& sequence) override;
   String getWordBreak(const char l, const char r) override;

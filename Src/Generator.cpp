@@ -1,6 +1,8 @@
 
 #include "Generator.h"
 
+#include <nstd/Unicode.h>
+
 String Generator::translate(Generator& generator, const String& str)
 {
   String result(str.length());
@@ -104,7 +106,12 @@ String Generator::translate(Generator& generator, const String& str)
       else if(String::find("<({[", c) && i > start && String::isAlphanumeric(i[-1]))
         result.append(generator.getWordBreak(i[-1], c) + generator.escapeChar(c));  // allow line breaks before <, (, { or [
       else
+      {
+        uint32 c = Unicode::fromString(i, end - i);
         result.append(generator.escapeChar(c));
+        i += Unicode::length(*i);
+        continue;
+      }
       ++i;
       break;
     }

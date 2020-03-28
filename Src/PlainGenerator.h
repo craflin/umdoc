@@ -20,7 +20,7 @@ public:
   String generate(const OutputData::TexPartSegment& segment) override {return String();}
   String generate(const OutputData::PdfSegment& segment) override {return String();}
 
-  String escapeChar(const char c) override {return String(&c, 1);}
+  String escapeChar(uint32 c) override;
   String getSpanStart(const String& sequence) override {return String();}
   String getSpanEnd(const String& sequence) override {return String();}
   String getWordBreak(const char l, const char r) override {return String();}

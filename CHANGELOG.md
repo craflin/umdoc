@@ -1,6 +1,7 @@
 
 # 0.2.1
 
+* Added support for older latex engines by translating non breaking space to ~
 * Switched to CDeploy to create packages
 
 # 0.2.0

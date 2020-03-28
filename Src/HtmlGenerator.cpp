@@ -6,6 +6,7 @@
 #include <nstd/Error.h>
 #include <nstd/File.h>
 #include <nstd/Console.h>
+#include <nstd/Unicode.h>
 
 void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers)
 {
@@ -407,7 +408,7 @@ String HtmlGenerator::generate(const OutputData::PdfSegment& segment)
   return String();
 }
 
-String HtmlGenerator::escapeChar(const char c)
+String HtmlGenerator::escapeChar(uint32 c)
 {
   switch (c)
   {
@@ -422,7 +423,7 @@ String HtmlGenerator::escapeChar(const char c)
   case '>':
     return String("&gt;");
   default:
-    return String(&c, 1);
+    return Unicode::toString(c);
   }
 }
 

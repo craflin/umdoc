@@ -24,7 +24,7 @@ public:
   virtual String generate(const OutputData::TexPartSegment& segment) = 0;
   virtual String generate(const OutputData::PdfSegment& segment) = 0;
 
-  virtual String escapeChar(const char c) = 0;
+  virtual String escapeChar(uint32 c) = 0;
   virtual String getSpanStart(const String& sequence) = 0;
   virtual String getSpanEnd(const String& sequence) = 0;
   virtual String getWordBreak(const char l, const char r) = 0;

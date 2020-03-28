@@ -5,6 +5,7 @@
 #include <nstd/File.h>
 #include <nstd/Directory.h>
 #include <nstd/Error.h>
+#include <nstd/Unicode.h>
 
 #include "OutputData.h"
 
@@ -228,7 +229,7 @@ String TexGenerator::getErrorString() const
   return Error::getErrorString();
 }
 
-String TexGenerator::escapeChar(char c)
+String TexGenerator::escapeChar(uint32 c)
 {
   switch(c)
   {
@@ -259,12 +260,10 @@ String TexGenerator::escapeChar(char c)
         result.append(c);
         return result;
       }
+    case 160: // &nbsp;
+      return String("~");
     default:
-      {
-        String result;
-        result.append(c);
-        return result;
-      }
+      return Unicode::toString(c);
   }
 }
 
