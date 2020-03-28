@@ -27,6 +27,7 @@ install(FILES NOTICE LICENSE DESTINATION .)
 if(NOT WIN32)
     list(APPEND CPACK_GENERATOR "DEB")
     set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/CPackConfig.txt")
+    set(CPACK_STRIP_FILES True)
     install(SCRIPT CPackInstall.txt)
 endif()
 
