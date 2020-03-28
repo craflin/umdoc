@@ -20,7 +20,7 @@ set(sources
 add_executable(umdoc ${sources})
 
 target_link_libraries(umdoc
-    PRIVATE libnstd
+    PRIVATE libnstd::Document
 )
 target_compile_definitions(umdoc
     PRIVATE "VERSION=\"${PROJECT_VERSION}\""
