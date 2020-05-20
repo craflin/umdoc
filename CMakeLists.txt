@@ -35,6 +35,11 @@ include(CPack)
 
 if(WIN32)
     deploy_export(umdoc EXECUTABLE
+        CONFIGURATION Release
+        IMPORTED_LOCATION umdoc.exe
+    )
+    deploy_export(umdoc EXECUTABLE
+        CONFIGURATION Debug
         IMPORTED_LOCATION umdoc.exe
     )
 else()
