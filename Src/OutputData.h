@@ -204,19 +204,27 @@ struct OutputData
       Map<String, Variant> arguments;
       ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
     };
+    enum Type
+    {
+      PipeTable,
+      GridTable,
+    };
   public:
+    Type _tableType;
     bool _isSeparatorLine;
     Array<ColumnInfo> _columns;
     List<RowData> _rows;
     ParagraphSegment* _captionSegment;
     Map<String, Variant> _arguments;
   public:
-    TableSegment(int indent) : Segment(indent), _isSeparatorLine(false), _captionSegment(0) {}
+    TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _captionSegment(0) {}
     ~TableSegment();
     bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
+  private:
+    bool _forceNewRowNextMerge;
   };
 
   class TexSegment : public Segment

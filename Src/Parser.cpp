@@ -30,7 +30,8 @@ void Parser::addSegment(OutputData::Segment& newSegment)
     if(!_segments.isEmpty())
     {
       lastSegment = _segments.back();
-      bool lastIsSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment) != 0;
+      OutputData::SeparatorSegment* lastSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment);
+      bool lastIsSeparator = lastSeparator && (lastSeparator->getIndent() == 0 || lastSeparator->getIndent() == newSegment.getIndent());
       if(lastIsSeparator && dynamic_cast<OutputData::SeparatorSegment*>(&newSegment))
         lastSegment->merge(newSegment, false);
       else
@@ -208,6 +209,22 @@ String Parser::translateHtmlEntities(const String& line)
     entityEnd = p;
   }
   return result;
+}
+
+bool Parser::parseMarkdownTableLine(int indent, const String& remainingLine)
+{
+    OutputData::TableSegment* tableSegment = new OutputData::TableSegment(indent);
+    List<OutputData::TableSegment::ColumnData> columns;
+    if(!tableSegment->parseArguments(remainingLine, columns, _error.string))
+    {
+      delete tableSegment;
+      return false;
+    }
+    addSegment(*tableSegment);
+    for(List<OutputData::TableSegment::ColumnData>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
+      if(!parseMarkdownLine(i->text, i->indent))
+        return false;
+    return true;
 }
 
 bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
@@ -389,6 +406,9 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
     }
     break;
   case '+':
+    if(p[1] == '-' || p[1] == '=')
+      return parseMarkdownTableLine(indent, remainingLine);
+    else
     {
       const char* i = remainingLine;
       const char* end = i + remainingLine.length();
@@ -457,21 +477,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
     }
     break;
   case '|':
-    {
-      OutputData::TableSegment* tableSegment = new OutputData::TableSegment(indent);
-      List<OutputData::TableSegment::ColumnData> columns;
-      if(!tableSegment->parseArguments(remainingLine, columns, _error.string))
-      {
-        delete tableSegment;
-        return false;
-      }
-      addSegment(*tableSegment);
-      for(List<OutputData::TableSegment::ColumnData>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
-        if(!parseMarkdownLine(i->text, i->indent))
-          return false;
-      return true;
-    }
-    break;
+    return parseMarkdownTableLine(indent, remainingLine);
   case '\r':
   case '\n':
   case '\0':
@@ -912,14 +918,17 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
   if(tableSegment && tableSegment->getIndent() == _indent && !newParagraph)
   {
     segment.invalidate();
-    
+
+    if(tableSegment->_tableType != TableSegment::PipeTable)
+      _tableType = tableSegment->_tableType;
+
     if(tableSegment->_columns.size() > _columns.size())
     {
       usize newColumnCount = tableSegment->_columns.size();
       for(List<RowData>::Iterator i = _rows.begin(), end = _rows.end(); i != end; ++i)
         i->cellData.resize(newColumnCount);
       for(usize i = _columns.size(); i < newColumnCount; ++i)
-        _columns.append(0);
+        _columns.append(tableSegment->_columns[i].indent);
     }
     for(usize i = 0; i < tableSegment->_columns.size(); ++i)
     {
@@ -930,9 +939,14 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
         columnInfo.alignment = srcColumnInfo.alignment;
     }
 
-    if(!tableSegment->_isSeparatorLine)
-      _rows.append(RowData()).cellData.resize(_columns.size());
+    if(_tableType != TableSegment::GridTable || tableSegment->_isSeparatorLine)
+      _forceNewRowNextMerge = true;
     return true;
+  }
+  if (_forceNewRowNextMerge)
+  {
+    _forceNewRowNextMerge = false;
+    _rows.append(RowData()).cellData.resize(_columns.size());
   }
   usize column = 0;
   for(Array<ColumnInfo>::Iterator i = _columns.begin(), end = _columns.end(); i != end; ++i, ++column)
@@ -971,22 +985,23 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
 bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnData>& columnData, String& error)
 {
   const char* start = line;
+  char separatorChar = *start;
+  if (separatorChar == '+')
+    _tableType = GridTable;
   const char* end = start + line.length();
   for(const char* i = start; i < end; ++i)
-    if(*i == '|')
+    if(*i == separatorChar)
     {
       ++i;
       while(i < end && String::isSpace(*i))
         ++i;
       if(i >= end)
         break;
-      const char* columStart = i++;
-      for(; i < end && *i != '|'; ++i)
-        if(*i == '\\' && i[1] == '|')
+      const char* columStart = i;
+      for(; i < end && *i != separatorChar; ++i)
+        if(*i == '\\' && i[1] == separatorChar)
           ++i;
       const char* columEnd = i;
-      if(columEnd == columStart)
-        break;
 
       ColumnInfo& columnInfo = _columns.append(ColumnInfo(_indent + (columStart - start)));
       ColumnData& column = columnData.append(ColumnData());
@@ -1026,11 +1041,14 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
       }
       if(*i != '-' || i[1] != '-' || i[2] != '-')
       {
-        _isSeparatorLine = false;
-        break;
+        if(_tableType == PipeTable || *i != '=' || i[1] != '=' || i[2] != '=')
+        {
+          _isSeparatorLine = false;
+          break;
+        }
       }
       i += 3;
-      while(*i == '-' && i < end)
+      while((*i == '-' || (_tableType == GridTable && *i == '=')) && i < end)
         ++i;
       if(*i == ':')
       {

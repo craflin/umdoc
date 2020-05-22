@@ -57,6 +57,7 @@ private:
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
   bool parseMarkdownLine(const String& line, usize additionalIndent);
+  bool parseMarkdownTableLine(int indent, const String& remainingLine);
 
   static String translateHtmlEntities(const String& line);
 

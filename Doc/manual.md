@@ -933,6 +933,30 @@ results in:
 
 Tables translate to the *LaTeX* environment `tabular` where `\\hline` is inserted at the beginning, after the first line and after the last line. The alignment of the cells is set with `l`, `r`, `c`, or `p\{<width>}`.
 
+The grid table syntax can also be used.
+
+```
++--------+--------+
+| left   | right  |
++========+========+
+| cell 1 | cell   |
+|        | 2      |
++--------+--------+
+| cell 3 | cell 4 |
++--------+--------+
+```
+
+results in:
+```boxed
++--------+--------+
+| left   | right  |
++========+========+
+| cell 1 | cell   |
+|        | 2      |
++--------+--------+
+| cell 3 | cell 4 |
++--------+--------+
+```
 
 ### Tables with Caption {#tables-caption}
 
