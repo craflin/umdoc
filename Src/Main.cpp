@@ -1,9 +1,9 @@
 
-#include <nstd/Process.h>
-#include <nstd/Console.h>
-#include <nstd/Directory.h>
-#include <nstd/Error.h>
-#include <nstd/File.h>
+#include <nstd/Process.hpp>
+#include <nstd/Console.hpp>
+#include <nstd/Directory.hpp>
+#include <nstd/Error.hpp>
+#include <nstd/File.hpp>
 
 #include "InputData.h"
 #include "OutputData.h"

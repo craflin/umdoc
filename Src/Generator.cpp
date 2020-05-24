@@ -1,7 +1,7 @@
 
 #include "Generator.h"
 
-#include <nstd/Unicode.h>
+#include <nstd/Unicode.hpp>
 
 String Generator::translate(Generator& generator, const String& str)
 {

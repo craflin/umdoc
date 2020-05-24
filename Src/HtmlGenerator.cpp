@@ -3,10 +3,10 @@
 #include "OutputData.h"
 #include "PlainGenerator.h"
 
-#include <nstd/Error.h>
-#include <nstd/File.h>
-#include <nstd/Console.h>
-#include <nstd/Unicode.h>
+#include <nstd/Error.hpp>
+#include <nstd/File.hpp>
+#include <nstd/Console.hpp>
+#include <nstd/Unicode.hpp>
 
 void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers)
 {

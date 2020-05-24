@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <nstd/String.h>
-#include <nstd/List.h>
-#include <nstd/HashMap.h>
-#include <nstd/Array.h>
-#include <nstd/Map.h>
-#include <nstd/Variant.h>
+#include <nstd/String.hpp>
+#include <nstd/List.hpp>
+#include <nstd/HashMap.hpp>
+#include <nstd/Array.hpp>
+#include <nstd/Map.hpp>
+#include <nstd/Variant.hpp>
 
 class Generator;
 

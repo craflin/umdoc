@@ -2,8 +2,8 @@
 #ifdef NDEBUG
 #undef NDEBUG
 #endif
-#include <nstd/Debug.h>
-#include <nstd/String.h>
+#include <nstd/Debug.hpp>
+#include <nstd/String.hpp>
 
 class Parser
 {

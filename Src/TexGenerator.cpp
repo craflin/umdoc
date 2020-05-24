@@ -1,11 +1,11 @@
 
 #include "TexGenerator.h"
 
-#include <nstd/Debug.h>
-#include <nstd/File.h>
-#include <nstd/Directory.h>
-#include <nstd/Error.h>
-#include <nstd/Unicode.h>
+#include <nstd/Debug.hpp>
+#include <nstd/File.hpp>
+#include <nstd/Directory.hpp>
+#include <nstd/Error.hpp>
+#include <nstd/Unicode.hpp>
 
 #include "OutputData.h"
 
@@ -567,6 +567,7 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
           OutputData::TableSegment::Segment* segment = *i;
           if(!segment->isValid())
             continue;
+
           result.append(segment->generate(*this));
         }
         //if(!width.isEmpty())

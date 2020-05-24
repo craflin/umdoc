@@ -1,9 +1,9 @@
 
 #include "Reader.h"
 
-#include <nstd/File.h>
-#include <nstd/Error.h>
-#include <nstd/Document/XML.h>
+#include <nstd/File.hpp>
+#include <nstd/Error.hpp>
+#include <nstd/Document/Xml.hpp>
 
 #include "InputData.h"
 
@@ -24,8 +24,8 @@ bool Reader::read(const String& inputFile, InputData& inputData)
     return true;
   }
 
-  XML::Parser xmlParser;
-  XML::Element xmlFile;
+  Xml::Parser xmlParser;
+  Xml::Element xmlFile;
   if(!xmlParser.load(inputFile, xmlFile))
     return _errorLine = xmlParser.getErrorLine(), _errorColumn = xmlParser.getErrorColumn(), _errorString = xmlParser.getErrorString(), false;
 
@@ -35,12 +35,12 @@ bool Reader::read(const String& inputFile, InputData& inputData)
   inputData.className = *xmlFile.attributes.find("class");
 
   bool documentRead = false;
-  for(List<XML::Variant>::Iterator i = xmlFile.content.begin(), end = xmlFile.content.end(); i != end; ++i)
+  for(List<Xml::Variant>::Iterator i = xmlFile.content.begin(), end = xmlFile.content.end(); i != end; ++i)
   {
-    const XML::Variant& variant = *i;
+    const Xml::Variant& variant = *i;
     if(!variant.isElement())
       continue;
-    const XML::Element& element = variant.toElement();
+    const Xml::Element& element = variant.toElement();
     if(documentRead)
       return _errorLine = element.line, _errorColumn = element.column, _errorString = String::fromPrintf("Unexpected element '%s'", (const char*)element.type), false;
 
@@ -57,7 +57,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
           return _errorLine = element.line, _errorColumn = element.column, _errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)filePath, (const char*)Error::getErrorString()), false;
         inputData.headerTexFiles.append(data);
       }
-      for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
+      for(List<Xml::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
         inputData.headerTexFiles.append(i->toString());
     }
     else if(element.type == "set")
@@ -70,12 +70,12 @@ bool Reader::read(const String& inputFile, InputData& inputData)
     }
     else if(element.type == "document")
     {
-      for(List<XML::Variant>::Iterator i = element.content.begin(), end = element.content.end(); i != end; ++i)
+      for(List<Xml::Variant>::Iterator i = element.content.begin(), end = element.content.end(); i != end; ++i)
       {
-        const XML::Variant& variant = *i;
+        const Xml::Variant& variant = *i;
         if(!variant.isElement())
           continue;
-        const XML::Element& element = variant.toElement();
+        const Xml::Element& element = variant.toElement();
         if(element.type == "tex" || element.type == "md")
         {
           InputData::Component& component = inputData.document.append(InputData::Component());
@@ -89,7 +89,7 @@ bool Reader::read(const String& inputFile, InputData& inputData)
             if(!file.readAll(component.value))
               return _errorLine = element.line, _errorColumn = element.column, _errorString = String::fromPrintf("Could not read file '%s': %s", (const char*)component.filePath, (const char*)Error::getErrorString()), false;
           }
-          for(List<XML::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
+          for(List<Xml::Variant>::Iterator i =  element.content.begin(), end = element.content.end(); i != end; ++i)
             component.value.append(i->toString());
         }
         else if(element.type == "toc" || element.type == "tableOfContents")

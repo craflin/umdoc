@@ -3,7 +3,7 @@
 
 #include "Generator.h"
 
-#include <nstd/HashSet.h>
+#include <nstd/HashSet.hpp>
 
 struct OutputData;
 

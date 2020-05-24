@@ -1,9 +1,9 @@
 
 #pragma once
 
-#include <nstd/String.h>
-#include <nstd/List.h>
-#include <nstd/HashMap.h>
+#include <nstd/String.hpp>
+#include <nstd/List.hpp>
+#include <nstd/HashMap.hpp>
 
 struct InputData
 {

@@ -1,13 +1,13 @@
 
 #include "Parser.h"
 
-#include <nstd/File.h>
-#include <nstd/Directory.h>
-#include <nstd/Unicode.h>
-#include <nstd/Memory.h>
-#include <nstd/Process.h>
-#include <nstd/Error.h>
-#include <nstd/Thread.h>
+#include <nstd/File.hpp>
+#include <nstd/Directory.hpp>
+#include <nstd/Unicode.hpp>
+#include <nstd/Memory.hpp>
+#include <nstd/Process.hpp>
+#include <nstd/Error.hpp>
+#include <nstd/Thread.hpp>
 
 #include "InputData.h"
 #include "OutputData.h"
