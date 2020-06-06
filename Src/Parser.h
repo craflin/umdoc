@@ -40,18 +40,17 @@ private:
     Error() : line(0) {}
   };
 
-
 private:
   ParserMode _parserMode;
   OutputData* _outputData;
   Error _error;
   List<OutputData::Segment*> _outputSegments;
-  List<OutputData::Segment*> _segments;
+  List<RefCount::Ptr<OutputData::Segment>> _segments;
   Parser* _environmentParser;
   Parser* _parentParser;
 
 private:
-  void addSegment(OutputData::Segment& segment);
+  void addSegment(const RefCount::Ptr<OutputData::Segment>& segment);
 
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 

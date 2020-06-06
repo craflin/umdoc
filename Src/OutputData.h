@@ -7,6 +7,7 @@
 #include <nstd/Array.hpp>
 #include <nstd/Map.hpp>
 #include <nstd/Variant.hpp>
+#include <nstd/RefCount.hpp>
 
 class Generator;
 
@@ -25,7 +26,7 @@ struct OutputData
     String command;
   };
 
-  class Segment
+  class Segment : public RefCount::Object
   {
   public:
     Segment* _parent;
@@ -77,13 +78,10 @@ struct OutputData
   class SeparatorSegment : public Segment
   {
   public:
-    SeparatorSegment(int indent) : Segment(indent), _lines(1) {}
-    int getLines() const {return _lines;}
+    SeparatorSegment(int indent) : Segment(indent) {}
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
-  private:
-    int _lines;
   };
 
   class FigureSegment : public Segment
@@ -118,7 +116,6 @@ struct OutputData
     int _childIndent;
   public:
     BulletListSegment(int indent, char symbol, uint childIndent) : Segment(indent), _symbol(symbol), _childIndent(childIndent) {}
-    ~BulletListSegment();
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
@@ -133,7 +130,6 @@ struct OutputData
     int _childIndent;
   public:
     NumberedListSegment(int indent, uint number, uint childIndent) : Segment(indent), _number(number), _childIndent(childIndent) {}
-    ~NumberedListSegment();
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
@@ -147,7 +143,6 @@ struct OutputData
     int _childIndent;
   public:
     BlockquoteSegment(int indent, uint childIndent) : Segment(indent), _childIndent(childIndent) {}
-    ~BlockquoteSegment();
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
@@ -165,25 +160,23 @@ struct OutputData
     List<String> _lines;
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
-    ~EnvironmentSegment();
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
     bool process(OutputData::OutputFormat format, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
+  private:
+      List<RefCount::Ptr<Segment>> _allocatedSegments;
+      friend class Parser;
   };
 
   class TableSegment : public Segment
   {
   public:
-    struct ColumnData
-    {
-      int indent;
-      String text;
-    };
     struct CellData
     {
-      List<Segment*> segments;
+      List<OutputData::Segment*> outputSegments;
+      List<OutputData::Segment*> segments;
     };
     struct RowData
     {
@@ -202,6 +195,7 @@ struct OutputData
       int indent;
       Alignment alignment;
       Map<String, Variant> arguments;
+      String text;
       ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
     };
     enum Type
@@ -216,15 +210,13 @@ struct OutputData
     List<RowData> _rows;
     ParagraphSegment* _captionSegment;
     Map<String, Variant> _arguments;
+    bool _forceNewRowNextMerge;
   public:
-    TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _captionSegment(0) {}
-    ~TableSegment();
-    bool parseArguments(const String& title, List<ColumnData>& columns, String& error);
+    TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _captionSegment(0), _forceNewRowNextMerge(false) {}
+    bool parseArguments(const String& line, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph) override;
     String generate(Generator& generator) const override;
-  private:
-    bool _forceNewRowNextMerge;
   };
 
   class TexSegment : public Segment
@@ -269,5 +261,9 @@ struct OutputData
   HashMap<String, String> variables;
 
   OutputData() : format(plainFormat), hasPdfSegments(false) {}
-  ~OutputData();
+
+private:
+  List<RefCount::Ptr<Segment>> allocatedSegments;
+
+  friend class Parser;
 };

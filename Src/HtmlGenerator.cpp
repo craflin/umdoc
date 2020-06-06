@@ -332,7 +332,7 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
       OutputData::TableSegment::CellData& cellData = *i;
       String class_ = firstRow ? String("th") : String("td");
       result.append(String("<") + class_ + " class=\"" + class_ + tableStyleSuffix + "\" style=\"" + style + "\">");
-      for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.segments.begin(), end = cellData.segments.end(); i != end; ++i)
+      for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.outputSegments.begin(), end = cellData.outputSegments.end(); i != end; ++i)
       {
         OutputData::TableSegment::Segment* segment = *i;
         if(!segment->isValid())

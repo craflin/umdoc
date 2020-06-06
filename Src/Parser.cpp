@@ -16,50 +16,43 @@
 Parser::~Parser()
 {
   delete _environmentParser;
-  for(List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
-    delete *i;
 }
 
-void Parser::addSegment(OutputData::Segment& newSegment)
+void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment)
 {
-  if(!_segments.isEmpty())
-  {
-    OutputData::Segment* lastSegment = _segments.back();
-    if(!lastSegment->isValid())
-      _segments.removeBack();
-    if(!_segments.isEmpty())
+    bool merged = false;
+    if (!_segments.isEmpty())
     {
-      lastSegment = _segments.back();
-      OutputData::SeparatorSegment* lastSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment);
-      bool lastIsSeparator = lastSeparator && (lastSeparator->getIndent() == 0 || lastSeparator->getIndent() == newSegment.getIndent());
-      if(lastIsSeparator && dynamic_cast<OutputData::SeparatorSegment*>(&newSegment))
-        lastSegment->merge(newSegment, false);
-      else
-      {
-        if(lastIsSeparator && _segments.size() > 1)
-          lastSegment = *--(--_segments.end());
-        for(OutputData::Segment* segment = lastSegment;;)
+        OutputData::Segment* lastSegment = &*_segments.back();
+        OutputData::SeparatorSegment* lastSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment);
+        if (lastSeparator && dynamic_cast<OutputData::SeparatorSegment*>(&*newSegment) /* && (lastSeparator->getIndent() == 0 || lastSeparator->getIndent() == newSegment->getIndent()) */)
+            merged = lastSegment->merge(*newSegment, false);
+        else
         {
-          if(segment->merge(newSegment, lastIsSeparator))
-          {
-            if(!_segments.back()->isValid())
-              _segments.removeBack();
-            if(newSegment.isValid())
-              _segments.append(&newSegment);
-            else
-              delete &newSegment;
-            return;
-          }
-          segment = segment->_parent;
-          if(!segment)
-            break;
+            bool lastIsSeparator = lastSeparator != nullptr;
+            if (lastIsSeparator && _segments.size() > 1)
+                lastSegment = &**--(--_segments.end());
+            for (OutputData::Segment* segment = lastSegment;;)
+            {
+                if (segment->merge(*newSegment, lastIsSeparator))
+                {
+                    merged = true;
+                    break;
+                }
+                segment = segment->_parent;
+                if (!segment)
+                    break;
+            }
         }
-      }
     }
-  }
 
-  _outputSegments.append(&newSegment);
-  _segments.append(&newSegment);
+    if (!merged)
+        _outputSegments.append(&*newSegment);
+    else if (!_segments.back()->isValid())
+        _segments.removeBack();
+
+    if (newSegment->isValid())
+        _segments.append(newSegment);
 }
 
 bool Parser::matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine)
@@ -213,17 +206,14 @@ String Parser::translateHtmlEntities(const String& line)
 
 bool Parser::parseMarkdownTableLine(int indent, const String& remainingLine)
 {
-    OutputData::TableSegment* tableSegment = new OutputData::TableSegment(indent);
-    List<OutputData::TableSegment::ColumnData> columns;
-    if(!tableSegment->parseArguments(remainingLine, columns, _error.string))
-    {
-      delete tableSegment;
+    RefCount::Ptr<OutputData::TableSegment> tableSegment = new OutputData::TableSegment(indent);
+    if(!tableSegment->parseArguments(remainingLine, _error.string))
       return false;
-    }
-    addSegment(*tableSegment);
-    for(List<OutputData::TableSegment::ColumnData>::Iterator i = columns.begin(), end = columns.end(); i != end; ++i)
-      if(!parseMarkdownLine(i->text, i->indent))
-        return false;
+    addSegment(tableSegment);
+    if (!tableSegment->_isSeparatorLine)
+        for (Array<OutputData::TableSegment::ColumnInfo>::Iterator i = tableSegment->_columns.begin(), end = tableSegment->_columns.end(); i != end; ++i)
+            if (!parseMarkdownLine(i->text, i->indent))
+                return false;
     return true;
 }
 
@@ -237,7 +227,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   }
 
   int indent = additionalIndent;
-  OutputData::Segment* segment = 0;
+  RefCount::Ptr<OutputData::Segment> segment;
   const char* p = line;
   for(; *p == ' '; ++p);
   indent += p - (const char*)line;
@@ -255,10 +245,11 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
 
       if(_parserMode == childMode)
       {
-        OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)_parentParser->_segments.back();
+        OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)&*_parentParser->_segments.back();
         if(backticks >= parentSegment->_backticks)
         {
           parentSegment->_segments.swap(_outputSegments);
+          parentSegment->_allocatedSegments.swap(_segments);
           _parentParser->_environmentParser = 0;
           _parentParser->_parserMode = _parentParser->_parentParser ? childMode : normalMode;
           delete this;
@@ -267,7 +258,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       }
       if(_parserMode == verbatimMode)
       {
-        OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)_segments.back();
+        OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
         if(backticks >= environmentSegment->_backticks)
         {
           if(!environmentSegment->process(_outputData->format, _error.string))
@@ -279,7 +270,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
     }
     if(_parserMode == verbatimMode)
     {
-      OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)_segments.back();
+      OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
       environmentSegment->_lines.append(line);
       return true;
     }
@@ -304,7 +295,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         ++i;
         String title;
         title.attach(i, remainingLine.length() - (i - (const char*)remainingLine));
-        OutputData::TitleSegment* titleSegment = new OutputData::TitleSegment(indent, titleLevel);
+        RefCount::Ptr<OutputData::TitleSegment> titleSegment = new OutputData::TitleSegment(indent, titleLevel);
         if(!titleSegment->parseArguments(title, _error.string))
           return false;
         segment = titleSegment;
@@ -320,11 +311,11 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(_segments.back());
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back());
         if(paragraphSegment && paragraphSegment->getIndent() == indent)
         {
           paragraphSegment->invalidate();
-          OutputData::TitleSegment* titleSegment = new OutputData::TitleSegment(indent, 1);
+          RefCount::Ptr<OutputData::TitleSegment> titleSegment = new OutputData::TitleSegment(indent, 1);
           if(!titleSegment->parseArguments(paragraphSegment->_text, _error.string))
             return false;
           segment = titleSegment;
@@ -346,12 +337,12 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = i - (const char*)line;
-        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
-        addSegment(*listSegment);
+        int childIndent = additionalIndent + (i - (const char*)line);
+        RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
+        addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
-        return parseMarkdownLine(remainingLine, indent + offset);
+        return parseMarkdownLine(remainingLine, childIndent);
       }
     }
     break;
@@ -375,11 +366,11 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(_segments.back());
+        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back());
         if(paragraphSegment && paragraphSegment->getIndent() == indent)
         {
           paragraphSegment->invalidate();
-          OutputData::TitleSegment* titleSegment = new OutputData::TitleSegment(indent, 2);
+          RefCount::Ptr<OutputData::TitleSegment> titleSegment = new OutputData::TitleSegment(indent, 2);
           if(!titleSegment->parseArguments(paragraphSegment->_text, _error.string))
             return false;
           segment = titleSegment;
@@ -396,12 +387,12 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = i - (const char*)line;
-        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
-        addSegment(*listSegment);
+        int childIndent = additionalIndent + (i - (const char*)line);
+        RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
+        addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
-        return parseMarkdownLine(remainingLine, indent + offset);
+        return parseMarkdownLine(remainingLine, childIndent);
       }
     }
     break;
@@ -415,12 +406,12 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = i - (const char*)line;
-        OutputData::BulletListSegment* listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
-        addSegment(*listSegment);
+        int childIndent = additionalIndent + (i - (const char*)line);
+        RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
+        addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
-        return parseMarkdownLine(remainingLine, indent + offset);
+        return parseMarkdownLine(remainingLine, childIndent);
       }
     }
     break;
@@ -431,12 +422,9 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       while(*i == '`')
         ++i;
       int backticks = (int)(i - p);
-      OutputData::EnvironmentSegment* environmentSegment = new OutputData::EnvironmentSegment(indent, backticks);
+      RefCount::Ptr<OutputData::EnvironmentSegment> environmentSegment = new OutputData::EnvironmentSegment(indent, backticks);
       if(!environmentSegment->parseArguments(remainingLine, _outputData->environments, _error.string))
-      {
-        delete environmentSegment;
         return false;
-      }
       segment = environmentSegment;
       if(environmentSegment->_verbatim || !environmentSegment->_command.isEmpty())
         _parserMode = verbatimMode;
@@ -451,8 +439,8 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   case '>':
     if(String::isSpace(p[1]))
     {
-      OutputData::BlockquoteSegment* blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
-      addSegment(*blockquoteSegment);
+      RefCount::Ptr<OutputData::BlockquoteSegment> blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
+      addSegment(blockquoteSegment);
       p += 2;
       usize offset = p - (const char*)remainingLine;
       remainingLine.attach(p, remainingLine.length() - offset);
@@ -466,12 +454,9 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       String title, path, remainingLine;
       if(matchFigureImage(i, end, title, path, remainingLine))
       {
-        OutputData::FigureSegment* figureSegment = new OutputData::FigureSegment(indent, title, path);
+        RefCount::Ptr<OutputData::FigureSegment > figureSegment = new OutputData::FigureSegment(indent, title, path);
         if(!figureSegment->parseArguments(remainingLine, _error.string))
-        {
-          delete figureSegment;
           return false;
-        }
         segment = figureSegment;
       }
     }
@@ -492,13 +477,13 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       {
         const char* end = i + remainingLine.length();
         for(i += 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = i - (const char*)line;
+        int childIndent = additionalIndent + (i - (const char*)line);
         String numberStr;
-        OutputData::NumberedListSegment* numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
-        addSegment(*numberedListSegment);
+        RefCount::Ptr<OutputData::NumberedListSegment> numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
+        addSegment(numberedListSegment);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
-        return parseMarkdownLine(remainingLine, indent + offset);
+        return parseMarkdownLine(remainingLine, childIndent);
       }
     }
   }
@@ -506,7 +491,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   if(!segment)
     segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
-  addSegment(*segment);
+  addSegment(segment);
   return true;
 }
 
@@ -690,7 +675,6 @@ bool OutputData::SeparatorSegment::merge(Segment& segment, bool newParagraph)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
-    ++_lines;
     segment.invalidate();
     return true;
   }
@@ -907,6 +891,7 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
     if (!parser.parseMarkdown(_command, fileContent))
       return error = parser.getErrorString(), false;
     _segments.swap(parser._outputSegments);
+    _allocatedSegments.swap(parser._segments);
   }
 
   return true;
@@ -914,53 +899,91 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
 
 bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
 {
-  TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
-  if(tableSegment && tableSegment->getIndent() == _indent && !newParagraph)
-  {
-    segment.invalidate();
-
-    if(tableSegment->_tableType != TableSegment::PipeTable)
-      _tableType = tableSegment->_tableType;
-
-    if(tableSegment->_columns.size() > _columns.size())
+    TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
+    if(tableSegment && tableSegment->getIndent() == _indent && !newParagraph)
     {
-      usize newColumnCount = tableSegment->_columns.size();
-      for(List<RowData>::Iterator i = _rows.begin(), end = _rows.end(); i != end; ++i)
-        i->cellData.resize(newColumnCount);
-      for(usize i = _columns.size(); i < newColumnCount; ++i)
-        _columns.append(tableSegment->_columns[i].indent);
-    }
-    for(usize i = 0; i < tableSegment->_columns.size(); ++i)
-    {
-      ColumnInfo& columnInfo = _columns[i];
-      const ColumnInfo& srcColumnInfo = tableSegment->_columns[i];
-      columnInfo.indent = srcColumnInfo.indent;
-      if(tableSegment->_isSeparatorLine && columnInfo.alignment == ColumnInfo::undefinedAlignment)
-        columnInfo.alignment = srcColumnInfo.alignment;
-    }
+        invalidate();
 
-    if(_tableType != TableSegment::GridTable || tableSegment->_isSeparatorLine)
-      _forceNewRowNextMerge = true;
-    return true;
-  }
-  if (_forceNewRowNextMerge)
-  {
-    _forceNewRowNextMerge = false;
-    _rows.append(RowData()).cellData.resize(_columns.size());
+        tableSegment->_rows.swap(_rows);
+        if (_tableType != TableSegment::PipeTable && tableSegment->_tableType == TableSegment::PipeTable)
+            tableSegment->_tableType = _tableType;
+
+        if(_columns.size() > tableSegment->_columns.size())
+        {
+          usize newColumnCount = _columns.size();
+          for(List<RowData>::Iterator i = tableSegment->_rows.begin(), end = tableSegment->_rows.end(); i != end; ++i)
+            i->cellData.resize(newColumnCount);
+          for (usize i = tableSegment->_columns.size(); i < newColumnCount; ++i)
+          {
+              tableSegment->_columns.append(_columns[i]);
+              tableSegment->_columns.back().text.clear();
+          }
+        }
+
+        for(usize i = 0; i < _columns.size(); ++i)
+        {
+          ColumnInfo& oldColumnInfo = _columns[i];
+          ColumnInfo& newColumnInfo = tableSegment->_columns[i];
+          if (newColumnInfo.text.isEmpty())
+            newColumnInfo.indent = oldColumnInfo.indent;
+          if(oldColumnInfo.alignment != ColumnInfo::undefinedAlignment)
+              newColumnInfo.alignment = oldColumnInfo.alignment;
+          newColumnInfo.arguments.insert(oldColumnInfo.arguments);
+        }
+        tableSegment->_arguments.insert(_arguments);
+
+        if(_forceNewRowNextMerge || tableSegment->_tableType != TableSegment::GridTable || tableSegment->_isSeparatorLine)
+            tableSegment->_forceNewRowNextMerge = true;
+
+        return false;
   }
   usize column = 0;
   for(Array<ColumnInfo>::Iterator i = _columns.begin(), end = _columns.end(); i != end; ++i, ++column)
   {
     const ColumnInfo& columnInfo = *i;
-    if(segment.getIndent() == columnInfo.indent)
+    if(segment.getIndent() >= columnInfo.indent && (column == _columns.size() - 1 || segment.getIndent() < ((ColumnInfo*)_columns)[column + 1].indent))
     {
-      if(_rows.isEmpty())
+      if (_rows.isEmpty() || _forceNewRowNextMerge)
+      {
+        _forceNewRowNextMerge = false;
         _rows.append(RowData()).cellData.resize(_columns.size());
+      }
       RowData& rowData = _rows.back();
       CellData& cellData = rowData.cellData[column];
-      if(cellData.segments.isEmpty() || newParagraph || !cellData.segments.back()->merge(segment, false))
-        cellData.segments.append(&segment);
+
+      if (!cellData.segments.isEmpty() && !cellData.segments.back()->isValid())
+          cellData.segments.removeBack();
+
+      bool added = false;
+      if (!cellData.segments.isEmpty() && !newParagraph)
+      {
+          for (OutputData::Segment* lastSegment = cellData.segments.back();;)
+          {
+              if (lastSegment->merge(segment, false))
+              {
+                  if (!cellData.segments.back()->isValid())
+                      cellData.segments.removeBack();
+                  if (segment.isValid())
+                      cellData.segments.append(&segment);
+                  added = true;
+                  break;
+              }
+              else
+              {
+                  break;
+                  //lastSegment = lastSegment->_parent;
+                  //if (!lastSegment)
+                      //break;
+              }
+          }
+      }
+
       segment._parent = this;
+      if (!added)
+      {
+          cellData.outputSegments.append(&segment);
+          cellData.segments.append(&segment);
+      }
       return true;
     }
   }
@@ -982,7 +1005,7 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
   return false;
 }
 
-bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnData>& columnData, String& error)
+bool OutputData::TableSegment::parseArguments(const String& line, String& error)
 {
   const char* start = line;
   char separatorChar = *start;
@@ -1004,20 +1027,17 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
       const char* columEnd = i;
 
       ColumnInfo& columnInfo = _columns.append(ColumnInfo(_indent + (columStart - start)));
-      ColumnData& column = columnData.append(ColumnData());
-      column.indent = columnInfo.indent;
-      column.text.attach(columStart, columEnd - columStart);
-      Parser::extractArguments(column.text, columnInfo.arguments);
+      columnInfo.text.attach(columStart, columEnd - columStart);
+      Parser::extractArguments(columnInfo.text, columnInfo.arguments);
 
       if(columEnd == end)
       {
-        String text = column.text;
+        String text = columnInfo.text;
         text.trim();
         if(text.isEmpty())
         {
           _arguments.insert(columnInfo.arguments);
           _columns.removeBack();
-          columnData.removeBack();
         }
       }
 
@@ -1025,10 +1045,9 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
     }
 
   _isSeparatorLine = true;
-  usize columnIndex = 0;
-  for(List<ColumnData>::Iterator i = columnData.begin(), end = columnData.end(); i != end; ++i, ++columnIndex)
+  for(Array<ColumnInfo>::Iterator i = _columns.begin(), end = _columns.end(); i != end; ++i)
   {
-    const ColumnData& column = *i;
+    ColumnInfo& column = *i;
     for(const char* i = column.text, * end = i + column.text.length(); i < end; ++i)
     {
       while(String::isSpace(*i) && i < end)
@@ -1063,18 +1082,15 @@ bool OutputData::TableSegment::parseArguments(const String& line, List<ColumnDat
         break;
       }
       if(leftTick && rightTick)
-        _columns[columnIndex].alignment = ColumnInfo::centerAlignment;
+          column.alignment = ColumnInfo::centerAlignment;
       else if(rightTick)
-        _columns[columnIndex].alignment = ColumnInfo::rightAlignment;
+          column.alignment = ColumnInfo::rightAlignment;
       else if(leftTick)
-        _columns[columnIndex].alignment = ColumnInfo::leftAlignment;
+          column.alignment = ColumnInfo::leftAlignment;
     }
     if(!_isSeparatorLine)
       break;
   }
-
-  if(_isSeparatorLine)
-    columnData.clear();
   return true;
 }
 
@@ -1116,6 +1132,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
   {
     const InputData::Component& component = *i;
+    RefCount::Ptr<OutputData::Segment> segment;
     switch(component.type)
     {
     case InputData::Component::texType:
@@ -1123,35 +1140,42 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
         String value = component.value;
         for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
           value.replace(String("%") + i.key() + "%", TexGenerator::texTranslate(*i));
-        _outputSegments.append(new OutputData::TexSegment(value));
+        segment = new OutputData::TexSegment(value);
       }
       break;
     case InputData::Component::texTableOfContentsType:
-      _outputSegments.append(new OutputData::TexSegment("\\tableofcontents"));
+        segment = new OutputData::TexSegment("\\tableofcontents");
       break;
     case InputData::Component::texListOfFiguresType:
-      _outputSegments.append(new OutputData::TexSegment("\\listoffigures"));
+        segment = new OutputData::TexSegment("\\listoffigures");
       break;
     case InputData::Component::texListOfTablesType:
-      _outputSegments.append(new OutputData::TexSegment("\\listoftables"));
+        segment = new OutputData::TexSegment("\\listoftables");
       break;
     case InputData::Component::texNewPageType:
-      _outputSegments.append(new OutputData::TexSegment("\\clearpage"));
+        segment = new OutputData::TexSegment("\\clearpage");
       break;
     case InputData::Component::texPartType:
-      _outputSegments.append(new OutputData::TexPartSegment(component.value));
+        segment = new OutputData::TexPartSegment(component.value);
       break;
     case InputData::Component::pdfType:
-      _outputSegments.append(new OutputData::PdfSegment(component.filePath));
+        segment = new OutputData::PdfSegment(component.filePath);
       _outputData->hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
-      _segments.clear();
+      _segments.append(new OutputData::SeparatorSegment(0));
+      _segments.append(new OutputData::SeparatorSegment(0));
       if(!parseMarkdown(component.filePath, component.value))
         return false;
       break;
     }
+    if (segment)
+    {
+        _outputSegments.append(&*segment);
+        _segments.append(segment);
+    }
   }
   outputData.segments.swap(_outputSegments);
+  outputData.allocatedSegments.swap(_segments);
   return true;
 }
