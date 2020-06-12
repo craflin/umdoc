@@ -95,7 +95,7 @@ bool HtmlGenerator::generate(const OutputData& outputData, const String& outputF
   {
     if (!file.write("<hr/><p>\n"))
         return false;
-    usize number = 1;
+    uint number = 1;
     for(List<String>::Iterator i = _footnotes.begin(), end = _footnotes.end(); i != end; ++i, ++number)
     {
       if(i != _footnotes.begin())
@@ -480,7 +480,7 @@ String HtmlGenerator::getInlineImage(const String& path)
 String HtmlGenerator::getFootnote(const String& text)
 {
     _footnotes.append(text);
-    return String("<sup>") + String::fromInt(_footnotes.size()) + "</sup>";
+    return String("<sup>") + String::fromInt((int)_footnotes.size()) + "</sup>";
 }
 
 String HtmlGenerator::Number::toString() const

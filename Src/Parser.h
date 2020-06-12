@@ -55,7 +55,7 @@ private:
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
-  bool parseMarkdownLine(const String& line, usize additionalIndent);
+  bool parseMarkdownLine(const String& line, int additionalIndent);
   bool parseMarkdownTableLine(int indent, const String& remainingLine);
 
   static String translateHtmlEntities(const String& line);

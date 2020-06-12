@@ -217,7 +217,7 @@ bool Parser::parseMarkdownTableLine(int indent, const String& remainingLine)
     return true;
 }
 
-bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
+bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
 {
   if(_parserMode == environmentMode)
   {
@@ -230,7 +230,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
   RefCount::Ptr<OutputData::Segment> segment;
   const char* p = line;
   for(; *p == ' '; ++p);
-  indent += p - (const char*)line;
+  indent += (int)(p - (const char*)line);
   String remainingLine;
   remainingLine.attach(p, line.length() - (p - (const char*)line));
 
@@ -289,7 +289,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       for(; *i == '#'; ++i);
       if(i < end && String::isSpace(*i))
       {
-        int titleLevel = i - ( const char*)remainingLine;
+        int titleLevel = (int)(i - ( const char*)remainingLine);
         ++i;
         String title;
         title.attach(i, remainingLine.length() - (i - (const char*)remainingLine));
@@ -335,7 +335,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (i - (const char*)line);
+        int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
         addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
@@ -385,7 +385,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (i - (const char*)line);
+        int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
         addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
@@ -404,7 +404,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (i - (const char*)line);
+        int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
         addSegment(listSegment);
         usize offset = i - (const char*)remainingLine;
@@ -442,7 +442,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       p += 2;
       usize offset = p - (const char*)remainingLine;
       remainingLine.attach(p, remainingLine.length() - offset);
-      return parseMarkdownLine(remainingLine, indent + offset);
+      return parseMarkdownLine(remainingLine, indent + (int)offset);
     }
     break;
   case '!':
@@ -475,7 +475,7 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
       {
         const char* end = i + remainingLine.length();
         for(i += 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (i - (const char*)line);
+        int childIndent = additionalIndent + (int)(i - (const char*)line);
         String numberStr;
         RefCount::Ptr<OutputData::NumberedListSegment> numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
         addSegment(numberedListSegment);
@@ -1024,7 +1024,7 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
           ++i;
       const char* columEnd = i;
 
-      ColumnInfo& columnInfo = _columns.append(ColumnInfo(_indent + (columStart - start)));
+      ColumnInfo& columnInfo = _columns.append(ColumnInfo(_indent + (int)(columStart - start)));
       columnInfo.text.attach(columStart, columEnd - columStart);
       Parser::extractArguments(columnInfo.text, columnInfo.arguments);
 

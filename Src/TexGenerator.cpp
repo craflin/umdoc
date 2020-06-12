@@ -520,12 +520,12 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
     result.append("\n\\begin{center}");
   if(xtabStyle)
   {
-    result.append(String("\\tabletail{\\hline\\multicolumn{") + String::fromUInt(segment._columns.size()) + "}{c}{\\vspace{-1cm}\\small\\emph{\\ldots}}\\\\}%\n");
+    result.append(String("\\tabletail{\\hline\\multicolumn{") + String::fromUInt((uint)segment._columns.size()) + "}{c}{\\vspace{-1cm}\\small\\emph{\\ldots}}\\\\}%\n");
     result.append(String("\\tablefirsthead{}%\n"));
     if (!gridStyle)
-        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(segment._columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\\\hline}%\n");
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt((uint)segment._columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\\\hline}%\n");
     else
-        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt(segment._columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\}%\n");
+        result.append(String("\\tablehead{\\multicolumn{") + String::fromUInt((uint)segment._columns.size()) + "}{c}{\\small\\emph{\\ldots}}\\\\}%\n");
     result.append("\\begin{xtabular}{");
   }
   else
