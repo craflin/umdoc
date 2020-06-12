@@ -261,8 +261,6 @@ bool Parser::parseMarkdownLine(const String& line, usize additionalIndent)
         OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
         if(backticks >= environmentSegment->_backticks)
         {
-          if(!environmentSegment->process(_outputData->format, _error.string))
-            return false;
           _parserMode = _parentParser ? childMode : normalMode;
           return true;
         }
@@ -1175,6 +1173,11 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
         _segments.append(segment);
     }
   }
+
+  for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
+      if(!(*i)->process(_outputData->format, _error.string))
+        return false;
+
   outputData.segments.swap(_outputSegments);
   outputData.allocatedSegments.swap(_segments);
   return true;

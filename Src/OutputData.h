@@ -38,6 +38,7 @@ struct OutputData
     virtual ~Segment() {};
     virtual bool merge(Segment& segment, bool newParagraph) = 0;
     virtual String generate(Generator& generator) const = 0;
+    virtual bool process(OutputData::OutputFormat format, String& error) {return true;};
 
     int getIndent() const {return _indent;}
 
@@ -161,10 +162,10 @@ struct OutputData
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
-    bool process(OutputData::OutputFormat format, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
+    bool process(OutputData::OutputFormat format, String& error) override;
   private:
       List<RefCount::Ptr<Segment>> _allocatedSegments;
       friend class Parser;
