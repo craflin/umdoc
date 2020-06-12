@@ -8,9 +8,7 @@ struct InputData;
 class Parser
 {
 public:
-  Parser() : _parserMode(normalMode), _outputData(0), _environmentParser(0), _parentParser(0) {}
-  Parser(Parser* parentParser, OutputData* outputData) : _parserMode(childMode), _outputData(outputData), _environmentParser(0), _parentParser(parentParser) {}
-  ~Parser();
+  Parser() : _parserMode(normalMode), _outputData(0) {}
 
   bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
 
@@ -27,8 +25,7 @@ private:
   {
     normalMode,
     environmentMode,
-    childMode,
-    verbatimMode,
+    verbatimEnvironmentMode,
   };
 
   struct Error
@@ -46,8 +43,6 @@ private:
   Error _error;
   List<OutputData::Segment*> _outputSegments;
   List<RefCount::Ptr<OutputData::Segment>> _segments;
-  Parser* _environmentParser;
-  Parser* _parentParser;
 
 private:
   void addSegment(const RefCount::Ptr<OutputData::Segment>& segment);

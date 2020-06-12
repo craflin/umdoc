@@ -13,11 +13,6 @@
 #include "OutputData.h"
 #include "TexGenerator.h"
 
-Parser::~Parser()
-{
-  delete _environmentParser;
-}
-
 void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment)
 {
     bool merged = false;
@@ -219,13 +214,6 @@ bool Parser::parseMarkdownTableLine(int indent, const String& remainingLine)
 
 bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
 {
-  if(_parserMode == environmentMode)
-  {
-    if(!_environmentParser->parseMarkdownLine(line, additionalIndent))
-      return _error = _environmentParser->_error, false;
-    return true;
-  }
-
   int indent = additionalIndent;
   RefCount::Ptr<OutputData::Segment> segment;
   const char* p = line;
@@ -236,42 +224,21 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
 
   if(_parserMode != normalMode)
   {
+    OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
     if(String::compare(p, "```", 3) == 0)
     {
       const char* i = p +3;
       while(*i == '`')
         ++i;
       int backticks = (int)(i - p);
-
-      if(_parserMode == childMode)
+      if(backticks >= environmentSegment->_backticks)
       {
-        OutputData::EnvironmentSegment* parentSegment = (OutputData::EnvironmentSegment*)&*_parentParser->_segments.back();
-        if(backticks >= parentSegment->_backticks)
-        {
-          parentSegment->_segments.swap(_outputSegments);
-          parentSegment->_allocatedSegments.swap(_segments);
-          _parentParser->_environmentParser = 0;
-          _parentParser->_parserMode = _parentParser->_parentParser ? childMode : normalMode;
-          delete this;
-          return true;
-        }
-      }
-      if(_parserMode == verbatimMode)
-      {
-        OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
-        if(backticks >= environmentSegment->_backticks)
-        {
-          _parserMode = _parentParser ? childMode : normalMode;
-          return true;
-        }
+        _parserMode = normalMode;
+        return true;
       }
     }
-    if(_parserMode == verbatimMode)
-    {
-      OutputData::EnvironmentSegment* environmentSegment = (OutputData::EnvironmentSegment*)&*_segments.back();
-      environmentSegment->_lines.append(line);
-      return true;
-    }
+    environmentSegment->_lines.append(line);
+    return true;
   }
 
   if (remainingLine.find('&'))
@@ -425,12 +392,9 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         return false;
       segment = environmentSegment;
       if(environmentSegment->_verbatim || !environmentSegment->_command.isEmpty())
-        _parserMode = verbatimMode;
+        _parserMode = verbatimEnvironmentMode;
       else
-      {
-        _environmentParser = new Parser(this, _outputData);
         _parserMode = environmentMode;
-      }
       break;
     }
     break;
@@ -530,7 +494,7 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
       else
       {
         const char* commentStart = 0;
-        if(_parserMode != verbatimMode)
+        if(_parserMode != verbatimEnvironmentMode)
             commentStart = lineStr.find("<!--");
         if(commentStart)
         {
@@ -847,39 +811,39 @@ namespace {
 
 bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, String& error)
 {
-  if(_command.isEmpty())
-    return true;
-
-  String format = "latex";
-  if (format_ == OutputData::htmlFormat)
-    format = "html";
-
-  String command = _command;
-#ifndef _WIN32
-  if (!File::isAbsolutePath(command) && !command.find("/"))
-    command.prepend("./");
-#endif
-
-  Process process;
-  if(!process.open(String("\"") + command + "\" " + format, Process::stdoutStream | Process::stdinStream))
+  if(!_command.isEmpty())
   {
-#ifdef _WIN32
-    if(!process.open(String("\"") + command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
+    String format = "latex";
+    if (format_ == OutputData::htmlFormat)
+      format = "html";
+
+    String command = _command;
+#ifndef _WIN32
+    if (!File::isAbsolutePath(command) && !command.find("/"))
+      command.prepend("./");
 #endif
+
+    Process process;
+    if(!process.open(String("\"") + command + "\" " + format, Process::stdoutStream | Process::stdinStream))
+    {
+#ifdef _WIN32
+      if(!process.open(String("\"") + command + ".bat\" " + format, Process::stdoutStream | Process::stdinStream))
+#endif
+        return error = Error::getErrorString(), false;
+    }
+    List<String> input;
+    input.swap(_lines);
+    Thread readerThread;
+    ReaderThreadData readerThreadData(process, _lines);
+    if(!readerThread.start(readerThreadData, &ReaderThreadData::read))
       return error = Error::getErrorString(), false;
+    for(List<String>::Iterator i = input.begin(), end = input.end(); i != end; ++i)
+      if(process.write((const char*)*i, i->length()) != i->length())
+        return error = Error::getErrorString(), false;
+    process.close();
+    if(readerThread.join() != 0)
+      return error = "Could not join reader thread", false;
   }
-  List<String> input;
-  input.swap(_lines);
-  Thread readerThread;
-  ReaderThreadData readerThreadData(process, _lines);
-  if(!readerThread.start(readerThreadData, &ReaderThreadData::read))
-    return error = Error::getErrorString(), false;
-  for(List<String>::Iterator i = input.begin(), end = input.end(); i != end; ++i)
-    if(process.write((const char*)*i, i->length()) != i->length())
-      return error = Error::getErrorString(), false;
-  process.close();
-  if(readerThread.join() != 0)
-    return error = "Could not join reader thread", false;
 
   if(!_verbatim)
   {
