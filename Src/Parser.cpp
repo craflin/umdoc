@@ -13,15 +13,19 @@
 #include "OutputData.h"
 #include "TexGenerator.h"
 
-void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment)
+void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment, const String& line)
 {
+    OutputData::SeparatorSegment* isSeparator = dynamic_cast<OutputData::SeparatorSegment*>(&*newSegment);
+    bool newParagraph = _newParagraphNextLine;
+    _newParagraphNextLine = isSeparator != nullptr;
+
     bool merged = false;
     if (!_segments.isEmpty())
     {
         OutputData::Segment* lastSegment = &*_segments.back();
         OutputData::SeparatorSegment* lastSeparator = dynamic_cast<OutputData::SeparatorSegment*>(lastSegment);
-        if (lastSeparator && dynamic_cast<OutputData::SeparatorSegment*>(&*newSegment) /* && (lastSeparator->getIndent() == 0 || lastSeparator->getIndent() == newSegment->getIndent()) */)
-            merged = lastSegment->merge(*newSegment, false);
+        if (lastSeparator && isSeparator)
+            merged = lastSegment->merge(*newSegment, false, line);
         else
         {
             bool lastIsSeparator = lastSeparator != nullptr;
@@ -29,7 +33,7 @@ void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment)
                 lastSegment = &**--(--_segments.end());
             for (OutputData::Segment* segment = lastSegment;;)
             {
-                if (segment->merge(*newSegment, lastIsSeparator))
+                if (segment->merge(*newSegment, newParagraph, line))
                 {
                     merged = true;
                     break;
@@ -204,11 +208,7 @@ bool Parser::parseMarkdownTableLine(int indent, const String& remainingLine)
     RefCount::Ptr<OutputData::TableSegment> tableSegment = new OutputData::TableSegment(indent);
     if(!tableSegment->parseArguments(remainingLine, _error.string))
       return false;
-    addSegment(tableSegment);
-    if (!tableSegment->_isSeparatorLine)
-        for (Array<OutputData::TableSegment::ColumnInfo>::Iterator i = tableSegment->_columns.begin(), end = tableSegment->_columns.end(); i != end; ++i)
-            if (!parseMarkdownLine(i->text, i->indent))
-                return false;
+    addSegment(tableSegment, remainingLine);
     return true;
 }
 
@@ -304,7 +304,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
-        addSegment(listSegment);
+        addSegment(listSegment, remainingLine);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
         return parseMarkdownLine(remainingLine, childIndent);
@@ -354,7 +354,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
-        addSegment(listSegment);
+        addSegment(listSegment, remainingLine);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
         return parseMarkdownLine(remainingLine, childIndent);
@@ -373,7 +373,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
         int childIndent = additionalIndent + (int)(i - (const char*)line);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
-        addSegment(listSegment);
+        addSegment(listSegment, remainingLine);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
         return parseMarkdownLine(remainingLine, childIndent);
@@ -402,7 +402,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
     if(String::isSpace(p[1]))
     {
       RefCount::Ptr<OutputData::BlockquoteSegment> blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
-      addSegment(blockquoteSegment);
+      addSegment(blockquoteSegment, remainingLine);
       p += 2;
       usize offset = p - (const char*)remainingLine;
       remainingLine.attach(p, remainingLine.length() - offset);
@@ -442,7 +442,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         int childIndent = additionalIndent + (int)(i - (const char*)line);
         String numberStr;
         RefCount::Ptr<OutputData::NumberedListSegment> numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
-        addSegment(numberedListSegment);
+        addSegment(numberedListSegment, remainingLine);
         usize offset = i - (const char*)remainingLine;
         remainingLine.attach(i, remainingLine.length() - offset);
         return parseMarkdownLine(remainingLine, childIndent);
@@ -453,7 +453,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
   if(!segment)
     segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
-  addSegment(segment);
+  addSegment(segment, remainingLine);
   return true;
 }
 
@@ -618,7 +618,7 @@ bool Parser::extractStringArgument(String& line, String& result)
   return false;
 }
 
-bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
   if(newParagraph)
     return false;
@@ -633,7 +633,7 @@ bool OutputData::ParagraphSegment::merge(Segment& segment, bool newParagraph)
   return false;
 }
 
-bool OutputData::SeparatorSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::SeparatorSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
   if(dynamic_cast<SeparatorSegment*>(&segment))
   {
@@ -657,7 +657,7 @@ bool OutputData::FigureSegment::parseArguments(const String& line, String& error
   return true;
 }
 
-bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
   BulletListSegment* listSegment = dynamic_cast<BulletListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == _indent)
@@ -666,7 +666,7 @@ bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph)
     {
       BulletListSegment* parentListSegment = dynamic_cast<BulletListSegment*>(_parent);
       if(parentListSegment && parentListSegment->getIndent() == _indent)
-        return parentListSegment->merge(segment, newParagraph);
+        return parentListSegment->merge(segment, newParagraph, line);
     }
 
     listSegment->_parent = this;
@@ -682,7 +682,7 @@ bool OutputData::BulletListSegment::merge(Segment& segment, bool newParagraph)
   return false;
 }
 
-bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
   NumberedListSegment* listSegment = dynamic_cast<NumberedListSegment*>(&segment);
   if(listSegment && listSegment->getIndent() == _indent)
@@ -691,7 +691,7 @@ bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph)
     {
       NumberedListSegment* parentListSegment = dynamic_cast<NumberedListSegment*>(_parent);
       if(parentListSegment && parentListSegment->getIndent() == _indent)
-        return parentListSegment->merge(segment, newParagraph);
+        return parentListSegment->merge(segment, newParagraph, line);
     }
 
     listSegment->_parent = this;
@@ -707,7 +707,7 @@ bool OutputData::NumberedListSegment::merge(Segment& segment, bool newParagraph)
   return false;
 }
 
-bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
   BlockquoteSegment* blockSegment = dynamic_cast<BlockquoteSegment*>(&segment);
   if(blockSegment && blockSegment->getIndent() == _indent)
@@ -716,7 +716,7 @@ bool OutputData::BlockquoteSegment::merge(Segment& segment, bool newParagraph)
     {
       BlockquoteSegment* parentBlockquoteSegment = dynamic_cast<BlockquoteSegment*>(_parent);
       if(parentBlockquoteSegment && parentBlockquoteSegment->getIndent() == _indent)
-        return parentBlockquoteSegment->merge(segment, newParagraph);
+        return parentBlockquoteSegment->merge(segment, newParagraph, line);
     }
 
     blockSegment->_parent = this;
@@ -847,10 +847,11 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
 
   if(!_verbatim)
   {
-    Parser parser;
+    Parser parser(format_);
     String fileContent;
     fileContent.join(_lines, '\n');
-    if (!parser.parseMarkdown(_command, fileContent))
+    if (!parser.parseMarkdown(_command, fileContent) ||
+        !parser.process())
       return error = parser.getErrorString(), false;
     _segments.swap(parser._outputSegments);
     _allocatedSegments.swap(parser._segments);
@@ -859,46 +860,56 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
   return true;
 }
 
-bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
+bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph, const String& line)
 {
-    TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
-    if(tableSegment && tableSegment->getIndent() == _indent && !newParagraph)
+  TableSegment* tableSegment = dynamic_cast<TableSegment*>(&segment);
+  if(tableSegment && tableSegment->getIndent() == _indent && !newParagraph)
+  {
+    tableSegment->invalidate();
+
+    // increase column count if necessary
+    if(tableSegment->_columns.size() > _columns.size())
     {
-        invalidate();
+      usize newColumnCount = tableSegment->_columns.size();
+      for(List<RowData>::Iterator i = _rows.begin(), end = _rows.end(); i != end; ++i)
+        i->cellData.resize(newColumnCount);
+      for (usize i = _columns.size(); i < newColumnCount; ++i)
+          _columns.append(tableSegment->_columns[i]);
+    }
 
-        tableSegment->_rows.swap(_rows);
-        if (_tableType != TableSegment::PipeTable && tableSegment->_tableType == TableSegment::PipeTable)
-            tableSegment->_tableType = _tableType;
+    // adopt additional alignment configuration and column arguments
+    for(usize i = 0; i < _columns.size(); ++i)
+    {
+      ColumnInfo& columnInfo = _columns[i];
+      ColumnInfo& additionalColumnInfo = tableSegment->_columns[i];
+      if(columnInfo.alignment ==  ColumnInfo::undefinedAlignment && additionalColumnInfo.alignment != ColumnInfo::undefinedAlignment)
+          columnInfo.alignment = additionalColumnInfo.alignment;
+      columnInfo.indent = additionalColumnInfo.indent;
+      columnInfo.arguments.insert(additionalColumnInfo.arguments);
+    }
 
-        if(_columns.size() > tableSegment->_columns.size())
-        {
-          usize newColumnCount = _columns.size();
-          for(List<RowData>::Iterator i = tableSegment->_rows.begin(), end = tableSegment->_rows.end(); i != end; ++i)
-            i->cellData.resize(newColumnCount);
-          for (usize i = tableSegment->_columns.size(); i < newColumnCount; ++i)
-          {
-              tableSegment->_columns.append(_columns[i]);
-              tableSegment->_columns.back().text.clear();
-          }
-        }
+    // add cell data
+    if (!tableSegment->_rows.isEmpty())
+    {
+      if (_rows.isEmpty() || _forceNewRowNextMerge || _tableType != TableSegment::GridTable)
+      {
+        RowData& newRow = _rows.append(RowData());
+        newRow.cellData.resize(_columns.size());
+        _forceNewRowNextMerge = false;
+      }
 
-        for(usize i = 0; i < _columns.size(); ++i)
-        {
-          ColumnInfo& oldColumnInfo = _columns[i];
-          ColumnInfo& newColumnInfo = tableSegment->_columns[i];
-          if (newColumnInfo.text.isEmpty())
-            newColumnInfo.indent = oldColumnInfo.indent;
-          if(oldColumnInfo.alignment != ColumnInfo::undefinedAlignment)
-              newColumnInfo.alignment = oldColumnInfo.alignment;
-          newColumnInfo.arguments.insert(oldColumnInfo.arguments);
-        }
-        tableSegment->_arguments.insert(_arguments);
+      RowData& lastRow = _rows.back();
+      RowData& newRowData = tableSegment->_rows.front();
+      for (usize i = 0; i < newRowData.cellData.size(); ++i)
+        lastRow.cellData[i].lines.append(newRowData.cellData[i].lines);
+    }
 
-        if(_forceNewRowNextMerge || tableSegment->_tableType != TableSegment::GridTable || tableSegment->_isSeparatorLine)
-            tableSegment->_forceNewRowNextMerge = true;
+    if (tableSegment->_isSeparatorLine)
+      _forceNewRowNextMerge = true;
 
-        return false;
+    return true;
   }
+
   usize column = 0;
   for(Array<ColumnInfo>::Iterator i = _columns.begin(), end = _columns.end(); i != end; ++i, ++column)
   {
@@ -912,40 +923,10 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
       }
       RowData& rowData = _rows.back();
       CellData& cellData = rowData.cellData[column];
-
-      if (!cellData.segments.isEmpty() && !cellData.segments.back()->isValid())
-          cellData.segments.removeBack();
-
-      bool added = false;
-      if (!cellData.segments.isEmpty() && !newParagraph)
-      {
-          for (OutputData::Segment* lastSegment = cellData.segments.back();;)
-          {
-              if (lastSegment->merge(segment, false))
-              {
-                  if (!cellData.segments.back()->isValid())
-                      cellData.segments.removeBack();
-                  if (segment.isValid())
-                      cellData.segments.append(&segment);
-                  added = true;
-                  break;
-              }
-              else
-              {
-                  break;
-                  //lastSegment = lastSegment->_parent;
-                  //if (!lastSegment)
-                      //break;
-              }
-          }
-      }
-
-      segment._parent = this;
-      if (!added)
-      {
-          cellData.outputSegments.append(&segment);
-          cellData.segments.append(&segment);
-      }
+      if (newParagraph)
+        cellData.lines.append(String());
+      cellData.lines.append(line);
+      segment.invalidate();
       return true;
     }
   }
@@ -969,6 +950,7 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph)
 
 bool OutputData::TableSegment::parseArguments(const String& line, String& error)
 {
+  RowData& row = _rows.append(RowData());
   const char* start = line;
   char separatorChar = *start;
   if (separatorChar == '+')
@@ -989,28 +971,33 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
       const char* columEnd = i;
 
       ColumnInfo& columnInfo = _columns.append(ColumnInfo(_indent + (int)(columStart - start)));
-      columnInfo.text.attach(columStart, columEnd - columStart);
-      Parser::extractArguments(columnInfo.text, columnInfo.arguments);
+      String text;
+      text.attach(columStart, columEnd - columStart);
+      Parser::extractArguments(text, columnInfo.arguments);
 
       if(columEnd == end)
       {
-        String text = columnInfo.text;
         text.trim();
         if(text.isEmpty())
         {
           _arguments.insert(columnInfo.arguments);
           _columns.removeBack();
+          break;
         }
       }
+      CellData& cellData = row.cellData.append(CellData());
+      cellData.lines.append(text);
 
       --i;
     }
 
   _isSeparatorLine = true;
-  for(Array<ColumnInfo>::Iterator i = _columns.begin(), end = _columns.end(); i != end; ++i)
+  for(Array<CellData>::Iterator i = row.cellData.begin(), end = row.cellData.end(); i != end; ++i)
   {
-    ColumnInfo& column = *i;
-    for(const char* i = column.text, * end = i + column.text.length(); i < end; ++i)
+    const CellData& cellData = *i;
+    size_t index = &*i - &*row.cellData.begin();
+    const String& text = cellData.lines.back();
+    for(const char* i = text, * end = i + text.length(); i < end; ++i)
     {
       while(String::isSpace(*i) && i < end)
         ++i;
@@ -1044,14 +1031,37 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
         break;
       }
       if(leftTick && rightTick)
-          column.alignment = ColumnInfo::centerAlignment;
+          _columns[index].alignment = ColumnInfo::centerAlignment;
       else if(rightTick)
-          column.alignment = ColumnInfo::rightAlignment;
+          _columns[index].alignment = ColumnInfo::rightAlignment;
       else if(leftTick)
-          column.alignment = ColumnInfo::leftAlignment;
+          _columns[index].alignment = ColumnInfo::leftAlignment;
     }
     if(!_isSeparatorLine)
       break;
+  }
+  if (_isSeparatorLine)
+    _rows.clear();
+  return true;
+}
+
+bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& error)
+{
+  for (List<RowData>::Iterator i = _rows.begin(), end = _rows.end(); i != end; ++i)
+  {
+    RowData& row = *i;
+    for (Array<CellData>::Iterator i = row.cellData.begin(), end = row.cellData.end(); i != end; ++i)
+    {
+      CellData& cellData = *i;
+      Parser parser(format);
+      String fileContent;
+      fileContent.join(cellData.lines, '\n');
+      if (!parser.parseMarkdown(String(), fileContent) ||
+          !parser.process())
+        return error = parser.getErrorString(), false;
+      cellData.outputSegments2.swap(parser._outputSegments);
+      cellData.allocatedSegments.append(parser._segments);
+    }
   }
   return true;
 }
@@ -1138,11 +1148,23 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     }
   }
 
-  for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
-      if(!(*i)->process(_outputData->format, _error.string))
-        return false;
+  if (!process())
+    return false;
 
   outputData.segments.swap(_outputSegments);
   outputData.allocatedSegments.swap(_segments);
+  return true;
+}
+
+bool Parser::process()
+{
+  for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
+  {
+    OutputData::Segment* segment = *i;
+    if(!segment->isValid())
+      continue;
+    if(!segment->process(_format, _error.string))
+      return false;
+  }
   return true;
 }

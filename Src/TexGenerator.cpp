@@ -562,7 +562,7 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
         //String width = columnInfo.arguments.find("width")->toString();
         //if(!width.isEmpty())
         //  result.append(String("\\parbox[t][][t]{") + TexGenerator::getTexSize(width) + "}{");
-        for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.outputSegments.begin(), end = cellData.outputSegments.end(); i != end; ++i)
+        for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.outputSegments2.begin(), end = cellData.outputSegments2.end(); i != end; ++i)
         {
           OutputData::TableSegment::Segment* segment = *i;
           if(!segment->isValid())

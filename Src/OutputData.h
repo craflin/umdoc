@@ -36,7 +36,7 @@ struct OutputData
 
   public:
     virtual ~Segment() {};
-    virtual bool merge(Segment& segment, bool newParagraph) = 0;
+    virtual bool merge(Segment& segment, bool newParagraph, const String& line) {return false;};
     virtual String generate(Generator& generator) const = 0;
     virtual bool process(OutputData::OutputFormat format, String& error) {return true;};
 
@@ -58,7 +58,7 @@ struct OutputData
   public:
     ParagraphSegment(int indent, const String& text) : Segment(indent), _text(text) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
     String generate(Generator& generator) const override;
   };
 
@@ -72,7 +72,6 @@ struct OutputData
     TitleSegment(int indent, int level) : Segment(indent), _level(level) {}
     bool parseArguments(const String& title, String& error);
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 
@@ -81,7 +80,7 @@ struct OutputData
   public:
     SeparatorSegment(int indent) : Segment(indent) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
     String generate(Generator& generator) const override;
   };
 
@@ -95,7 +94,6 @@ struct OutputData
     FigureSegment(int indent, const String& title, const String& path) : Segment(indent), _title(title), _path(path) {}
     bool parseArguments(const String& line, String& error);
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 
@@ -104,7 +102,6 @@ struct OutputData
   public:
     RuleSegment(int indent) : Segment(indent) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 
@@ -118,7 +115,7 @@ struct OutputData
   public:
     BulletListSegment(int indent, char symbol, uint childIndent) : Segment(indent), _symbol(symbol), _childIndent(childIndent) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
     String generate(Generator& generator) const override;
   };
 
@@ -132,7 +129,7 @@ struct OutputData
   public:
     NumberedListSegment(int indent, uint number, uint childIndent) : Segment(indent), _number(number), _childIndent(childIndent) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
     String generate(Generator& generator) const override;
   };
 
@@ -145,7 +142,7 @@ struct OutputData
   public:
     BlockquoteSegment(int indent, uint childIndent) : Segment(indent), _childIndent(childIndent) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
     String generate(Generator& generator) const override;
   };
 
@@ -163,12 +160,11 @@ struct OutputData
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
     bool parseArguments(const String& line, const HashMap<String, EnvironmentInfo>& knownEnvironments, String& error);
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
+    bool merge(Segment& segment, bool newParagraph, const String& line) override {return false;}
     String generate(Generator& generator) const override;
     bool process(OutputData::OutputFormat format, String& error) override;
   private:
       List<RefCount::Ptr<Segment>> _allocatedSegments;
-      friend class Parser;
   };
 
   class TableSegment : public Segment
@@ -176,8 +172,9 @@ struct OutputData
   public:
     struct CellData
     {
-      List<OutputData::Segment*> outputSegments;
-      List<OutputData::Segment*> segments;
+      List<String> lines;
+      List<OutputData::Segment*> outputSegments2;
+      List<RefCount::Ptr<Segment>> allocatedSegments;
     };
     struct RowData
     {
@@ -196,7 +193,6 @@ struct OutputData
       int indent;
       Alignment alignment;
       Map<String, Variant> arguments;
-      String text;
       ColumnInfo(int indent) : indent(indent), alignment(undefinedAlignment) {}
     };
     enum Type
@@ -216,7 +212,8 @@ struct OutputData
     TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _captionSegment(0), _forceNewRowNextMerge(false) {}
     bool parseArguments(const String& line, String& error);
   public:
-    bool merge(Segment& segment, bool newParagraph) override;
+    bool merge(Segment& segment, bool newParagraph, const String& line) override;
+    bool process(OutputData::OutputFormat format, String& error) override;
     String generate(Generator& generator) const override;
   };
 
@@ -227,7 +224,6 @@ struct OutputData
   public:
     TexSegment(const String& content) : Segment(0), _content(content) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 
@@ -238,7 +234,6 @@ struct OutputData
   public:
     TexPartSegment(const String& title) : Segment(0), _title(title) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 
@@ -249,7 +244,6 @@ struct OutputData
   public:
     PdfSegment(const String& filePath) : Segment(0), _filePath(filePath) {}
   public:
-    bool merge(Segment& segment, bool newParagraph) override {return false;}
     String generate(Generator& generator) const override;
   };
 

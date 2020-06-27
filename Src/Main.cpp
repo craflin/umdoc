@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 
   // parse input data
   {
-    Parser parser;
+    Parser parser(outputData.format);
     if(!parser.parse(inputData, outputFile, outputData))
     {
       Console::errorf("%s:%d: error: %s\n", (const char*)parser.getErrorFile(), parser.getErrorLine(), (const char*)parser.getErrorString());

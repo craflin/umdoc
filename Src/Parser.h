@@ -8,7 +8,7 @@ struct InputData;
 class Parser
 {
 public:
-  Parser() : _parserMode(normalMode), _outputData(0) {}
+  Parser(OutputData::OutputFormat format) : _format(format), _parserMode(normalMode), _outputData(0),_newParagraphNextLine(false) {}
 
   bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
 
@@ -38,14 +38,16 @@ private:
   };
 
 private:
+  const OutputData::OutputFormat _format;
   ParserMode _parserMode;
   OutputData* _outputData;
   Error _error;
   List<OutputData::Segment*> _outputSegments;
   List<RefCount::Ptr<OutputData::Segment>> _segments;
+  bool _newParagraphNextLine;
 
 private:
-  void addSegment(const RefCount::Ptr<OutputData::Segment>& segment);
+  void addSegment(const RefCount::Ptr<OutputData::Segment>& segment, const String& line);
 
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
@@ -53,7 +55,10 @@ private:
   bool parseMarkdownLine(const String& line, int additionalIndent);
   bool parseMarkdownTableLine(int indent, const String& remainingLine);
 
+  bool process();
+
   static String translateHtmlEntities(const String& line);
 
   friend class OutputData::EnvironmentSegment;
+  friend class OutputData::TableSegment;
 };
