@@ -26,6 +26,9 @@ target_link_libraries(umdoc
 target_compile_definitions(umdoc
     PRIVATE "VERSION=\"${PROJECT_VERSION}\""
 )
+target_compile_features(umdoc
+    PRIVATE cxx_override
+)
 
 set_target_properties(umdoc PROPERTIES
     FOLDER "Src"

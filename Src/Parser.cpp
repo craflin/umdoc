@@ -995,7 +995,7 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
   for(Array<CellData>::Iterator i = row.cellData.begin(), end = row.cellData.end(); i != end; ++i)
   {
     const CellData& cellData = *i;
-    size_t index = &*i - &*row.cellData.begin();
+    usize index = &*i - &*row.cellData.begin();
     const String& text = cellData.lines.back();
     for(const char* i = text, * end = i + text.length(); i < end; ++i)
     {
