@@ -84,7 +84,7 @@ Most Linux distributions provide packages for *TeX Live* that you can be install
 
 # Usage {#usage}
 
-The *umdoc* accepts the following arguments:
+The *umdoc* tool accepts the following command line arguments:
 
 ```
 umdoc [<input-file>] [-a <aux-directory>] [-e <latex-engine>] [-o <output-file>]
