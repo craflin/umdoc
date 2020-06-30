@@ -1,4 +1,15 @@
 
+# 0.2.3
+
+* Refactored table parsing
+* Build Windows builds with /MT
+
+# 0.2.2
+
+* Fixed configuration mapping issue with Visual Studio CDeploy package
+* Added support for grid table syntax
+* Fixed issues with paragraphs in tables
+
 # 0.2.1
 
 * Added support for older latex engines by translating non breaking space to ~
@@ -53,7 +64,7 @@
 * Fixed access to input file when *umdoc* should operate in the working directory
 * Added *md2tex* example
 
-# 0.1
+# 0.1.0
 
 * The initial release of *umdoc* supports the following features:
     * Importing styles from *TEX* files
