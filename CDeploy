@@ -151,6 +151,8 @@ endfunction()
 function(get_target_os var)
     if(WIN32)
         set(${var} windows)
+    elseif(APPLE)
+        set(${var} macos)
     else()
         file(GLOB ETC_RELEASE_FILES /etc/*-release)
         list(REMOVE_ITEM  ETC_RELEASE_FILES /etc/lsb-release)
@@ -212,6 +214,7 @@ if(MSVC AND NOT CDEPLOY_NO_DEBUG_BUILD)
         CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/install-debug" -DCDEPLOY_NO_DEBUG_BUILD=True
         BUILD_COMMAND ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}/build-debug" --config Debug
         INSTALL_COMMAND ${CMAKE_COMMAND} --build "${CMAKE_CURRENT_BINARY_DIR}/build-debug" --config Debug --target install
+        BUILD_ALWAYS True
     )
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install-debug")
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install-debug/" DESTINATION . USE_SOURCE_PERMISSIONS)
