@@ -992,6 +992,7 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
     }
 
   _isSeparatorLine = true;
+  bool foundSeparatorLineChar = false;
   for(Array<CellData>::Iterator i = row.cellData.begin(), end = row.cellData.end(); i != end; ++i)
   {
     const CellData& cellData = *i;
@@ -1015,9 +1016,11 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
           break;
         }
       }
-      i += 3;
       while((*i == '-' || (_tableType == GridTable && *i == '=')) && i < end)
+      {
+        foundSeparatorLineChar = true;
         ++i;
+      }
       if(*i == ':')
       {
         ++i;
@@ -1040,6 +1043,8 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
     if(!_isSeparatorLine)
       break;
   }
+  if (!foundSeparatorLineChar)
+    _isSeparatorLine = false;
   if (_isSeparatorLine)
     _rows.clear();
   return true;
