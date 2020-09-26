@@ -66,6 +66,11 @@ add_example(md2pdf
     md2pdf/example.md
 )
 
+add_example(tables
+    tables/umdoc.xml
+    tables/example.md
+)
+
 add_example(tablesfigures
     tablesfigures/umdoc.xml
     tablesfigures/example.md
