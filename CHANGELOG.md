@@ -1,4 +1,8 @@
 
+# 0.2.4
+
+* Fixed table parsing issue
+
 # 0.2.3
 
 * Refactored table parsing
