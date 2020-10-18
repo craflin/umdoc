@@ -58,6 +58,7 @@ private:
   bool process();
 
   static String translateHtmlEntities(const String& line);
+  static String replacePlaceholderVariables(const String& data, const HashMap<String, String>& variables, bool allowEscaping);
 
   friend class OutputData::EnvironmentSegment;
   friend class OutputData::TableSegment;

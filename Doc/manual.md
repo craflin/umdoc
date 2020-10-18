@@ -211,7 +211,7 @@ The *umdoc* *XML* file can define placeholders, which are replaced in inserted *
 <set name="<name>" value="<value>"/>
 ```
 
-For each defined placeholder the occurrence of `%name%` is replaced with `<value>` in inserted *LaTeX* files.
+For each defined placeholder the occurrence of `\%name\%` is replaced with `<value>` in inserted *LaTeX* and Markdown files.
 The value of a placeholder can be overwritten using a `--<placeholder>=<value>` command line argument when launching the *umdoc* executable.
 
 This feature is most useful to inject information like a version string or the name of the build platform at compile time.
@@ -538,7 +538,7 @@ They can be used anywhere in the file (except nested in comments) and they can s
 
 The following characters: 
 
-`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\!\$ ``
+`` \\\`\*\_\{\}\[\]\(\)\#\+\-\.\!\$\% ``
 
 can be escaped with a black slash (`\\`) to prevent them from being interpreted as markdown formatting characters.
 

@@ -253,7 +253,6 @@ struct OutputData
   bool hasPdfSegments;
   List<Segment*> segments;
   HashMap<String, EnvironmentInfo> environments;
-  HashMap<String, String> variables;
 
   OutputData() : format(plainFormat), hasPdfSegments(false) {}
 

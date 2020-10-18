@@ -15,7 +15,7 @@ String Generator::translate(Generator& generator, const String& str)
     switch(c = *i)
     {
     case '\\':
-      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!$", *(i + 1)))
+      if(i + 1 < end && String::find("\\`*_{}[]()#+-.!$%", *(i + 1)))
         ++i;
       result.append(generator.escapeChar(*i));
       ++i;

@@ -1081,7 +1081,6 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     outputData.format = OutputData::texFormat;
 
   outputData.className = inputData.className;
-  outputData.variables = inputData.variables;
   for(HashMap<String, InputData::Environment>::Iterator i = inputData.environments.begin(), end = inputData.environments.end(); i != end; ++i)
   {
     OutputData::EnvironmentInfo& environmentInfo = outputData.environments.append(i.key(), OutputData::EnvironmentInfo());
@@ -1090,12 +1089,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   }
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
-  {
-    String value = *i;
-    for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-      value.replace(String("%") + i.key() + "%", TexGenerator::texTranslate(*i));
-    outputData.headerTexFiles.append(value);
-  }
+    outputData.headerTexFiles.append(replacePlaceholderVariables(*i, inputData.variables, false));
 
   if(outputData.className.isEmpty())
   {
@@ -1113,12 +1107,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     switch(component.type)
     {
     case InputData::Component::texType:
-      {
-        String value = component.value;
-        for(HashMap<String, String>::Iterator i = outputData.variables.begin(), end = outputData.variables.end(); i != end; ++i)
-          value.replace(String("%") + i.key() + "%", TexGenerator::texTranslate(*i));
-        segment = new OutputData::TexSegment(value);
-      }
+        segment = new OutputData::TexSegment(replacePlaceholderVariables(component.value, inputData.variables, false));
       break;
     case InputData::Component::texTableOfContentsType:
         segment = new OutputData::TexSegment("\\tableofcontents");
@@ -1142,7 +1131,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     case InputData::Component::mdType:
       _segments.append(new OutputData::SeparatorSegment(0));
       _segments.append(new OutputData::SeparatorSegment(0));
-      if(!parseMarkdown(component.filePath, component.value))
+      if(!parseMarkdown(component.filePath, replacePlaceholderVariables(component.value, inputData.variables, true)))
         return false;
       break;
     }
@@ -1173,3 +1162,56 @@ bool Parser::process()
   }
   return true;
 }
+
+
+String Parser::replacePlaceholderVariables(const String& data, const HashMap<String, String>& variables, bool allowEscaping)
+{
+  String result;
+  const char* start = data;
+  const char* blockStart = start;
+  const char* i = start;
+  for(const char* end = i + data.length(); i < end; ++i)
+  {
+    switch(*i)
+    {
+    case '\\':
+      if(allowEscaping && i + 1 < end && i[1] == '%')
+      {
+        ++i;
+        continue;
+      }
+      break;
+    case '%':
+      {
+        const char* varStart = ++i, *varEnd;
+        for(;; ++i)
+        {
+          if(!*i || String::isSpace(*i))
+            goto processNextChar;
+          if(*i == '%')
+          {
+            varEnd = i;
+            break;
+          }
+        }
+        if(varStart != varEnd)
+        {
+          String variableName(varStart, varEnd - varStart);
+          result.append(blockStart, (varStart - 1) - blockStart);
+          blockStart = varEnd + 1;
+          HashMap<String, String>::Iterator it = variables.find(variableName);
+          if (it == variables.end())
+            result.append(String("%") + variableName + "%");
+          else
+            result.append(*it);
+        }
+      }
+    }
+processNextChar:;
+  }
+  if(blockStart == start)
+    return data;
+  result.append(blockStart, i - blockStart);
+  return result;
+}
+
