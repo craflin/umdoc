@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 cmake_policy(SET CMP0048 NEW)
 
-project(umdoc VERSION 0.2.4)
+project(umdoc VERSION 0.2.5)
 
 set(CDEPLOY_NO_DEBUG_BUILD True)
 set(CDEPLOY_NO_COMPILER True)

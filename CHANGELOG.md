@@ -1,4 +1,9 @@
 
+# 0.2.5
+
+* Added support for placeholders in markdown files
+* Fixed issue where lines are accidentally interpreted as a horizontal rule
+
 # 0.2.4
 
 * Fixed table parsing issue
