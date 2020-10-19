@@ -205,7 +205,7 @@ But, if `verbatim` is not set to `true`, the output will be transformed from Mar
 
 ### Placeholders {#umdoc-xml-file-placeholder}
 
-The *umdoc* *XML* file can define placeholders, which are replaced in inserted *LaTeX* files (see [section #](#umdoc-xml-tex-header) and [section #](#umdoc-xml-tex-in-document)):
+The *umdoc* *XML* file can define placeholders, which are replaced in inserted *LaTeX* files (see [section #](#umdoc-xml-tex-header) and [section #](#umdoc-xml-tex-in-document)) and in Markdown files or code (see [section #](#umdoc-xml-markdown)):
 
 ```xml
 <set name="<name>" value="<value>"/>
