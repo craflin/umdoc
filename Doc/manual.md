@@ -583,7 +583,7 @@ This translates to the *LaTeX* environment `quoting`.
 
 ## Horizontal Rules
 
-Lines of asterisks (`\*`), minus (`\-`), or underscores (`\_`) are interpreted as a line spanning horizontal rule.
+Lines of at least three asterisks (`\*`), minus (`\-`), or underscores (`\_`) are interpreted as a line spanning horizontal rule.
 
 ```
 ***

@@ -276,8 +276,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back());
-        if(paragraphSegment && paragraphSegment->getIndent() == indent)
+        OutputData::ParagraphSegment* paragraphSegment;
+        if(!_segments.isEmpty() && (paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back())) && paragraphSegment->getIndent() == indent)
         {
           paragraphSegment->invalidate();
           RefCount::Ptr<OutputData::TitleSegment> titleSegment = new OutputData::TitleSegment(indent, 1);
@@ -331,8 +331,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       for(; i < end && String::isSpace(*i); ++i);
       if(i == end)
       {
-        OutputData::ParagraphSegment* paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back());
-        if(paragraphSegment && paragraphSegment->getIndent() == indent)
+        OutputData::ParagraphSegment* paragraphSegment;
+        if(!_segments.isEmpty() && (paragraphSegment = dynamic_cast<OutputData::ParagraphSegment*>(&*_segments.back())) && paragraphSegment->getIndent() == indent)
         {
           paragraphSegment->invalidate();
           RefCount::Ptr<OutputData::TitleSegment> titleSegment = new OutputData::TitleSegment(indent, 2);
@@ -344,7 +344,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       }
       i = remainingLine;
       for(; i < end && (*i == '-' || String::isSpace(*i)); ++i);
-      if(i == end)
+      if(i == end && remainingLine.length() >= 3)
       {
         segment = new OutputData::RuleSegment(indent);
         break;
