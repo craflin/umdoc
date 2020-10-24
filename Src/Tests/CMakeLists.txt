@@ -6,13 +6,16 @@ add_executable(umdoc_test
     ../TexGenerator.cpp
     ../Generator.cpp
 )
+add_dependencies(umdoc_test umdoc)
 
 target_link_libraries(umdoc_test
     PRIVATE libnstd::Core
 )
 
 target_compile_definitions(umdoc_test
-    PRIVATE DEBUG
+    PRIVATE
+        DEBUG
+        "UMDOC_EXECUTABLE=\"$<TARGET_FILE:umdoc>\""
 )
 
 target_compile_features(umdoc_test

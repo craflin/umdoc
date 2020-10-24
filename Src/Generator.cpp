@@ -2,6 +2,7 @@
 #include "Generator.h"
 
 #include <nstd/Unicode.hpp>
+#include <nstd/Math.hpp>
 
 String Generator::translate(Generator& generator, const String& str)
 {
@@ -109,7 +110,7 @@ String Generator::translate(Generator& generator, const String& str)
       {
         uint32 c = Unicode::fromString(i, end - i);
         result.append(generator.escapeChar(c));
-        i += Unicode::length(*i);
+        i += Math::max(Unicode::length(*i), (usize)1);
         continue;
       }
       ++i;
