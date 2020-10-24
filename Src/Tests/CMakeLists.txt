@@ -11,6 +11,10 @@ target_link_libraries(umdoc_test
     PRIVATE libnstd::Core
 )
 
+target_compile_definitions(umdoc_test
+    PRIVATE DEBUG
+)
+
 target_compile_features(umdoc_test
     PRIVATE cxx_override
 )

@@ -1,7 +1,4 @@
 
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
 #include <nstd/Debug.hpp>
 #include <nstd/String.hpp>
 #include <nstd/HashMap.hpp>
