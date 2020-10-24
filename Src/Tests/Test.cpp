@@ -57,5 +57,26 @@ int main(int argc, char* argv[])
     ASSERT(File::unlink("test.tex"));
   }
 
+  // test umdoc executable launching with an unclosed environment
+  {
+    {
+      File file;
+      ASSERT(file.open("umdoc.xml", File::writeFlag));
+      ASSERT(file.write("<umdoc class=\"article\"><environment name=\"test\" verbatim=\"true\"/><document><md>a\n\n```test\n</md></document></umdoc>"));
+    }
+
+    {
+      Process process;
+      ASSERT(process.start(UMDOC_EXECUTABLE " -o test.tex"));
+      uint32 exitCode;
+      ASSERT(process.join(exitCode));
+      ASSERT(exitCode == 0);
+    }
+
+    ASSERT(File::exists("test.tex"));
+    ASSERT(File::unlink("umdoc.xml"));
+    ASSERT(File::unlink("test.tex"));
+  }
+
   return 0;
 }
