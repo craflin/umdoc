@@ -1,4 +1,8 @@
 
+# 0.2.6
+
+* Fixed dead lock caused by non utf-8 characters
+
 # 0.2.5
 
 * Added support for placeholders in markdown files
