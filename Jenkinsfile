@@ -20,7 +20,7 @@ pipeline {
                                     sh 'rm -rf build/umdoc-*.zip build/umdoc-*.deb build/Doc/umdoc-*.pdf'
                                 }
                                 else {
-                                    bat 'del build\\umdoc-*.zip'
+                                    bat 'if exist build\\umdoc-*.zip del build\\umdoc-*.zip'
                                 }
 
                                 cmakeBuild buildDir: 'build', installation: 'InSearchPath', buildType: 'MinSizeRel', cmakeArgs: '-G Ninja'
@@ -36,6 +36,11 @@ pipeline {
                                     archiveArtifacts artifacts: 'umdoc-*.zip,umdoc-*.deb'
                                 }
                             }
+                        }
+                    }
+                    stage('Test') {
+                        steps {
+                            ctest workingDir: 'build', installation: 'InSearchPath', arguments: '--output-on-failure'
                         }
                     }
                 }
