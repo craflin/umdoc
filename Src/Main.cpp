@@ -5,12 +5,12 @@
 #include <nstd/Error.hpp>
 #include <nstd/File.hpp>
 
-#include "InputData.h"
-#include "OutputData.h"
-#include "Reader.h"
-#include "Parser.h"
-#include "TexGenerator.h"
-#include "HtmlGenerator.h"
+#include "InputData.hpp"
+#include "OutputData.hpp"
+#include "Reader.hpp"
+#include "Parser.hpp"
+#include "TexGenerator.hpp"
+#include "HtmlGenerator.hpp"
 
 static bool latex2pdf(const String& texFile, const String& engine, const String& auxDirectory)
 {

@@ -1,5 +1,5 @@
 
-#include "Parser.h"
+#include "Parser.hpp"
 
 #include <nstd/File.hpp>
 #include <nstd/Directory.hpp>
@@ -9,9 +9,9 @@
 #include <nstd/Error.hpp>
 #include <nstd/Thread.hpp>
 
-#include "InputData.h"
-#include "OutputData.h"
-#include "TexGenerator.h"
+#include "InputData.hpp"
+#include "OutputData.hpp"
+#include "TexGenerator.hpp"
 
 void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment, const String& line)
 {

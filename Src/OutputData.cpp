@@ -1,6 +1,6 @@
 
-#include "OutputData.h"
-#include "Generator.h"
+#include "OutputData.hpp"
+#include "Generator.hpp"
 
 String OutputData::ParagraphSegment::generate(Generator& generator) const {return generator.generate(*this);}
 String OutputData::TitleSegment::generate(Generator& generator) const {return generator.generate(*this);}

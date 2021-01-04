@@ -1,5 +1,5 @@
 
-#include "Generator.h"
+#include "Generator.hpp"
 
 #include <nstd/Unicode.hpp>
 #include <nstd/Math.hpp>

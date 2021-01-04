@@ -1,12 +1,17 @@
 
-add_executable(umdoc_test
+set(sources
     Test.cpp
     ../Parser.cpp
     ../OutputData.cpp
     ../TexGenerator.cpp
     ../Generator.cpp
 )
+
+
+add_executable(umdoc_test ${sources})
 add_dependencies(umdoc_test umdoc)
+
+source_group("" FILES ${sources})
 
 target_link_libraries(umdoc_test
     PRIVATE libnstd::Core

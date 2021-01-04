@@ -1,5 +1,5 @@
 
-#include "TexGenerator.h"
+#include "TexGenerator.hpp"
 
 #include <nstd/Debug.hpp>
 #include <nstd/File.hpp>
@@ -7,7 +7,7 @@
 #include <nstd/Error.hpp>
 #include <nstd/Unicode.hpp>
 
-#include "OutputData.h"
+#include "OutputData.hpp"
 
 const char* TexGenerator::_defaultListingsLanguages[] = {"ABAP", "ACM", "ACMscript", "ACSL", "Ada", "Algol", "Ant", "Assembler", "Awk", "bash", "Basic", "C", "C++", "Caml", "CIL", "Clean", "Cobol", "Comal 80", "command.com", "Comsol", "csh", "Delphi", "Eiffel", "Elan", "erlang", "Euphoria", "Fortran", "GCL", "Gnuplot", "hansl", "Haskell", "HTML", "IDL", "inform", "Java", "JVMIS", "ksh", "Lingo", "Lisp", "LLVM", "Logo", "Lua", "make", "Matlab", "Mathematica", "Mercury", "MetaPost", "Miranda", "Mizar", "ML", "Modula-2", "MuPAD", "NASTRAN", "Oberon-2", "OCL", "Octave", "Oz", "Perl", "Pascal", "PHP", "PL/I", "Plasm", "PostScript", "POV", "Prolog", "Promela", "PSTricks", "Python", "R", "Reduce", "Rexx", "RSL", "Ruby", "S", "SAS", "Scala", "Scilab", "sh", "SHELXL", "SPARQL", "Simula", "SQL", "tcl", "TeX", "VBScript", "Verilog", "VHDL", "VRML", "XML", "XSLT"};
 const usize TexGenerator::_numOfDefaultListingsLanguages = sizeof(_defaultListingsLanguages) / sizeof(*_defaultListingsLanguages);

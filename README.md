@@ -1,6 +1,8 @@
 
 # umdoc
 
+[![Build Status](http://iocp.hopto.org:8080/buildStatus/icon?job=craflin%2Fumdoc%2Fmaster)](http://iocp.hopto.org:8080/job/craflin/job/umdoc/job/master/)
+
 *umdoc* is a Markdown to *LaTeX* to *PDF* converter.
 It is command line tool to convert a Markdown file or set of Markdown files into an input file (`.tex` file) for a *LaTeX* engine like `xelatex`, `lualatex` or `pdflatex`.
 The *LaTeX* engine is then launched to convert the generated file into a *PDF* document.
@@ -8,7 +10,7 @@ Optional layout information written in *LaTeX* may be provided to customize the 
 
 ## Examples & Documentation
 
-Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.2.5/umdoc-0.2.5.pdf).
+Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.2.6/umdoc-0.2.6.pdf).
 
 ## Build Instructions
 

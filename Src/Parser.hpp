@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "OutputData.h"
+#include "OutputData.hpp"
 
 struct InputData;
 
