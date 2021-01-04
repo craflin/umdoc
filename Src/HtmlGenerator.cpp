@@ -1,7 +1,7 @@
 
-#include "HtmlGenerator.h"
-#include "OutputData.h"
-#include "PlainGenerator.h"
+#include "HtmlGenerator.hpp"
+#include "OutputData.hpp"
+#include "PlainGenerator.hpp"
 
 #include <nstd/Error.hpp>
 #include <nstd/File.hpp>

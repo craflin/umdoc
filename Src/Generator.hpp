@@ -3,7 +3,7 @@
 
 #include <nstd/String.hpp>
 
-#include "OutputData.h"
+#include "OutputData.hpp"
 
 #pragma once
 

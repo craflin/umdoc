@@ -1,18 +1,20 @@
 
 #pragma once
 
-#include "Generator.h"
-
-#include <nstd/HashSet.hpp>
+#include "Generator.hpp"
 
 struct OutputData;
 
-class HtmlGenerator : public Generator
+class TexGenerator : public Generator
 {
 public:
-  bool generate(const OutputData& outputData, const String& outputFile);
+  bool generate(const String& engine, const OutputData& outputData, const String& outputFile);
 
   String getErrorString() const;
+
+public:
+  static const char* _defaultListingsLanguages[];
+  static const usize _numOfDefaultListingsLanguages;
 
 public:
   String generate(const OutputData::ParagraphSegment& segment) override;
@@ -37,48 +39,10 @@ public:
   String getLineBreak() override;
   String getInlineImage(const String& path) override;
   String getFootnote(const String& text) override;
-  String getLatexFormula(const String& formula) override {return String();};
+  String getLatexFormula(const String& formula) override;
 
-private:
-  class Number
-  {
-  public:
-    Number() {}
-    Number(const Array<uint>& number) : _number(number) {}
-    Number(uint number) {_number.append(number);}
-
-    String toString() const;
-
-  private:
-    Array<uint> _number;
-  };
-
-  struct LastNumbers
-  {
-    Array<uint> title;
-    uint figure;
-    uint table;
-
-    LastNumbers() : figure(), table() {}
-  };
-
-private:
-  String _outputDir;
-
-  HashMap<const OutputData::TitleSegment*, Number> _titleNumbers;
-  HashMap<const OutputData::FigureSegment*, Number> _figureNumbers;
-  HashMap<const OutputData::TableSegment*, Number> _tableNumbers;
-  HashMap<String, Number> _numbers;
-
-  HashMap<const OutputData::Segment*, String> _elementIds;
-  HashSet<String> _usedElementIds;
-
-  List<String> _footnotes;
-
-private:
-  String stripFormattingAndTranslate(const String& str);
-  String escape(const String& str);
-
-  void findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers);
-  String getElementId(const OutputData::Segment& segment, const String& title, const Map<String, Variant>& arguments);
+public:
+  static String texTranslate(const String& str);
+  static String getEnvironmentName(const String& language);
+  static String getTexSize(const String& size, bool width = true);
 };

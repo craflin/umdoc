@@ -1,11 +1,11 @@
 
-#include "Reader.h"
+#include "Reader.hpp"
 
 #include <nstd/File.hpp>
 #include <nstd/Error.hpp>
 #include <nstd/Document/Xml.hpp>
 
-#include "InputData.h"
+#include "InputData.hpp"
 
 bool Reader::read(const String& inputFile, InputData& inputData)
 {

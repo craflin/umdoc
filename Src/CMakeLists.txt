@@ -1,21 +1,21 @@
 
 set(sources
     Generator.cpp
-    Generator.h
+    Generator.hpp
     HtmlGenerator.cpp
-    HtmlGenerator.h
-    InputData.h
+    HtmlGenerator.hpp
+    InputData.hpp
     Main.cpp
     OutputData.cpp
-    OutputData.h
+    OutputData.hpp
     Parser.cpp
-    Parser.h
+    Parser.hpp
     Reader.cpp
-    Reader.h
+    Reader.hpp
     TexGenerator.cpp
-    TexGenerator.h
+    TexGenerator.hpp
     PlainGenerator.cpp
-    PlainGenerator.h
+    PlainGenerator.hpp
 )
 
 add_executable(umdoc ${sources})
