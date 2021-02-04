@@ -878,7 +878,7 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph, const 
     }
 
     // adopt additional alignment configuration and column arguments
-    for(usize i = 0; i < _columns.size(); ++i)
+    for(usize i = 0; i < tableSegment->_columns.size(); ++i)
     {
       ColumnInfo& columnInfo = _columns[i];
       ColumnInfo& additionalColumnInfo = tableSegment->_columns[i];
