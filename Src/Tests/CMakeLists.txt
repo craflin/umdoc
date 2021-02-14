@@ -5,6 +5,7 @@ set(sources
     ../OutputData.cpp
     ../TexGenerator.cpp
     ../Generator.cpp
+    ../Reader.cpp
 )
 
 
@@ -14,7 +15,7 @@ add_dependencies(umdoc_test umdoc)
 source_group("" FILES ${sources})
 
 target_link_libraries(umdoc_test
-    PRIVATE libnstd::Core
+    PRIVATE libnstd::Document
 )
 
 target_compile_definitions(umdoc_test

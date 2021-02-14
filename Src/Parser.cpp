@@ -925,7 +925,7 @@ bool OutputData::TableSegment::merge(Segment& segment, bool newParagraph, const 
       CellData& cellData = rowData.cellData[column];
       if (newParagraph)
         cellData.lines.append(String());
-      cellData.lines.append(line);
+      cellData.lines.append(String(segment.getIndent() - columnInfo.indent, ' ') + line);
       segment.invalidate();
       return true;
     }
@@ -960,11 +960,11 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
     if(*i == separatorChar)
     {
       ++i;
+      const char* columStart = i;
       while(i < end && String::isSpace(*i))
         ++i;
       if(i >= end)
         break;
-      const char* columStart = i;
       for(; i < end && *i != separatorChar; ++i)
         if(*i == '\\' && i[1] == separatorChar)
           ++i;

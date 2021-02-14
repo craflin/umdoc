@@ -6,6 +6,9 @@
 #include <nstd/Process.hpp>
 
 #include "../Parser.hpp"
+#include "../InputData.hpp"
+#include "../Reader.hpp"
+#include "../TexGenerator.hpp"
 
 void test_Parser_translateHtmlEntities()
 {
@@ -29,28 +32,68 @@ void test_Parser_replacePlaceholderVariables()
 
 void test_Parser_TableCellParsing()
 {
-  /*
-  // test table parsing
   {
-    {
-      File file;
-      ASSERT(file.open("umdoc.xml", File::writeFlag));
-      ASSERT(file.write("<umdoc><document><md>\n"));
-      ASSERT(file.write("</md></document></umdoc>"));
-    }
-
-    {
-      InputData inputData;
-      OutputData outputData;
-      Reader reader;
-      ASSERT(reader.read("umdoc.xml", inputData);
-      ASSERT(parser.parse(inputData, "test.tex", outputData));
-    }
-
-    ASSERT(File::unlink("umdoc.xml"));
-    ASSERT(File::unlink("test.tex"));
+    File file;
+    ASSERT(file.open("umdoc.xml", File::writeFlag));
+    ASSERT(file.write("<umdoc><document><md>\n"));
+    ASSERT(file.write("+-----+\n"));
+    ASSERT(file.write("| * b |\n"));
+    ASSERT(file.write("|   c |\n"));
+    ASSERT(file.write("+-----+\n"));
+    ASSERT(file.write("</md></document></umdoc>"));
   }
-  */
+
+  {
+    InputData inputData;
+    OutputData outputData;
+    Reader reader;
+    Parser parser;
+    TexGenerator generator;
+    ASSERT(reader.read("umdoc.xml", inputData));
+    ASSERT(parser.parse(inputData, "test.tex", outputData));
+    ASSERT(generator.generate(String(), outputData, "test.tex"));
+  }
+
+  {
+    String data;
+    ASSERT(File::readAll("test.tex", data));
+    ASSERT(data.find("\\item \nb  c \n\\end{itemize}\n"));
+  }
+
+  ASSERT(File::unlink("umdoc.xml"));
+  ASSERT(File::unlink("test.tex"));
+}
+
+void test_Parser_TableCellParsing2()
+{
+  {
+    File file;
+    ASSERT(file.open("umdoc.xml", File::writeFlag));
+    ASSERT(file.write("<umdoc><document><md>\n"));
+    ASSERT(file.write("| * b |\n"));
+    ASSERT(file.write("    c\n"));
+    ASSERT(file.write("</md></document></umdoc>"));
+  }
+
+  {
+    InputData inputData;
+    OutputData outputData;
+    Reader reader;
+    Parser parser;
+    TexGenerator generator;
+    ASSERT(reader.read("umdoc.xml", inputData));
+    ASSERT(parser.parse(inputData, "test.tex", outputData));
+    ASSERT(generator.generate(String(), outputData, "test.tex"));
+  }
+
+  {
+    String data;
+    ASSERT(File::readAll("test.tex", data));
+    ASSERT(data.find("\\item \nb  c\n\\end{itemize}\n"));
+  }
+
+  ASSERT(File::unlink("umdoc.xml"));
+  ASSERT(File::unlink("test.tex"));
 }
 
 void test_umdoc_NonUtf8InputChar()
@@ -100,6 +143,7 @@ int main(int argc, char* argv[])
   test_Parser_translateHtmlEntities();
   test_Parser_replacePlaceholderVariables();
   test_Parser_TableCellParsing();
+  test_Parser_TableCellParsing2();
   test_umdoc_NonUtf8InputChar();
   test_umdoc_UnclosedEnvironment();
   return 0;
