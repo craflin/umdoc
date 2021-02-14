@@ -847,11 +847,11 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
 
   if(!_verbatim)
   {
-    Parser parser(format_);
+    Parser parser;
     String fileContent;
     fileContent.join(_lines, '\n');
     if (!parser.parseMarkdown(_command, fileContent) ||
-        !parser.process())
+        !parser.process(format_))
       return error = parser.getErrorString(), false;
     _segments.swap(parser._outputSegments);
     _allocatedSegments.swap(parser._segments);
@@ -1058,11 +1058,11 @@ bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& 
     for (Array<CellData>::Iterator i = row.cellData.begin(), end = row.cellData.end(); i != end; ++i)
     {
       CellData& cellData = *i;
-      Parser parser(format);
+      Parser parser;
       String fileContent;
       fileContent.join(cellData.lines, '\n');
       if (!parser.parseMarkdown(String(), fileContent) ||
-          !parser.process())
+          !parser.process(format))
         return error = parser.getErrorString(), false;
       cellData.outputSegments2.swap(parser._outputSegments);
       cellData.allocatedSegments.append(parser._segments);
@@ -1142,7 +1142,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     }
   }
 
-  if (!process())
+  if (!process(outputData.format))
     return false;
 
   outputData.segments.swap(_outputSegments);
@@ -1150,14 +1150,14 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   return true;
 }
 
-bool Parser::process()
+bool Parser::process(OutputData::OutputFormat format)
 {
   for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
   {
     OutputData::Segment* segment = *i;
     if(!segment->isValid())
       continue;
-    if(!segment->process(_format, _error.string))
+    if(!segment->process(format, _error.string))
       return false;
   }
   return true;

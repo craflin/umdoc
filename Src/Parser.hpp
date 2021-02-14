@@ -8,7 +8,7 @@ struct InputData;
 class Parser
 {
 public:
-  Parser(OutputData::OutputFormat format) : _format(format), _parserMode(normalMode), _outputData(0),_newParagraphNextLine(false) {}
+  Parser() : _parserMode(normalMode), _outputData(0),_newParagraphNextLine(false) {}
 
   bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
 
@@ -38,7 +38,6 @@ private:
   };
 
 private:
-  const OutputData::OutputFormat _format;
   ParserMode _parserMode;
   OutputData* _outputData;
   Error _error;
@@ -55,7 +54,7 @@ private:
   bool parseMarkdownLine(const String& line, int additionalIndent);
   bool parseMarkdownTableLine(int indent, const String& remainingLine);
 
-  bool process();
+  bool process(OutputData::OutputFormat format);
 
   static String translateHtmlEntities(const String& line);
   static String replacePlaceholderVariables(const String& data, const HashMap<String, String>& variables, bool allowEscaping);
