@@ -61,4 +61,7 @@ private:
 
   friend class OutputData::EnvironmentSegment;
   friend class OutputData::TableSegment;
+
+  friend void test_Parser_translateHtmlEntities();
+  friend void test_Parser_replacePlaceholderVariables();
 };
