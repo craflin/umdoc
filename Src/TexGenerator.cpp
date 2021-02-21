@@ -507,6 +507,7 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
   bool xtabGridStyle = segment._arguments.contains(".xtabgrid");
   bool gridStyle = segment._arguments.contains(".grid") || xtabGridStyle;
   bool xtabStyle = segment._arguments.contains(".xtab") || xtabGridStyle;
+  bool plainStyle = segment._arguments.contains(".plain");
   if(segment._captionSegment)
   {
     caption = segment._captionSegment->_text;
@@ -547,7 +548,8 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
       result.append("|");
   }
   result.append("}\n");
-  result.append("\\hline\n");
+  if (!plainStyle)
+    result.append("\\hline\n");
   for(List<OutputData::TableSegment::RowData>::Iterator i = segment._rows.begin(), end = segment._rows.end(); i != end; ++i)
   {
     OutputData::TableSegment::RowData& rowData = *i;
@@ -575,11 +577,13 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
       }
     }
     result.append(" \\\\\n");
-    if(i == segment._rows.begin() || gridStyle)
-      result.append("\\hline\n");
+    if (!plainStyle)
+      if(i == segment._rows.begin() || gridStyle)
+        result.append("\\hline\n");
   }
-  if(segment._rows.size() > 1 && !gridStyle)
-    result.append("\\hline\n");
+  if (!plainStyle)
+    if(segment._rows.size() > 1 && !gridStyle)
+      result.append("\\hline\n");
   if(xtabStyle)
     result.append("\\end{xtabular}");
   else

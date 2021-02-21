@@ -83,6 +83,9 @@ bool HtmlGenerator::generate(const OutputData& outputData, const String& outputF
      !file.write(String(".table_grid {margin-left:auto;margin-right:auto;border-collapse:collapse;border:1px solid black;}\n")) ||
      !file.write(String(".th_grid {border:1px solid black;padding-left:0.5em;padding-right:0.5em;font-weight: normal;}\n")) ||
      !file.write(String(".td_grid {border:1px solid black;padding-left:0.5em;padding-right:0.5em;}\n")) ||
+     !file.write(String(".table_plain {margin-left:auto;margin-right:auto;border-collapse:collapse;}\n")) ||
+     !file.write(String(".th_plain {padding-left:0.5em;padding-right:0.5em;font-weight: normal;}\n")) ||
+     !file.write(String(".td_plain {padding-left:0.5em;padding-right:0.5em;}\n")) ||
      !file.write(String("</style>\n")) ||
      !file.write(String("</head>\n")))
     return false;
@@ -298,8 +301,11 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
   String id = getElementId(segment, "", segment._arguments);
   bool xtabGridStyle = segment._arguments.contains(".xtabgrid");
   bool gridStyle = segment._arguments.contains(".grid") || xtabGridStyle;
+  bool plainStyle = segment._arguments.contains(".plain");
   String tableStyleSuffix;
-  if(gridStyle)
+  if(plainStyle)
+    tableStyleSuffix = "_plain";
+  else if(gridStyle)
     tableStyleSuffix = "_grid";
   result.append(String("<p id=\"") + id + "\"><table class=\"table" + tableStyleSuffix + "\">");
   for(List<OutputData::TableSegment::RowData>::Iterator i = segment._rows.begin(), end = segment._rows.end(); i != end; ++i)

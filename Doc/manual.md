@@ -981,7 +981,7 @@ Tables with caption translate to a *LaTeX* table as in [section #](#tables) surr
 
 ### Table Styles
 
-The table style can be changed by adding the attribute `.grid`, `.xtab` or `.xtabgrid` at the end of the first line of the table.
+The table style can be changed by adding the attribute `.grid`, `.plain`, `.xtab` or `.xtabgrid` at the end of the first line of the table.
 
 ```
 |a|b| {.grid}
@@ -992,6 +992,19 @@ results in:
 ```boxed
 |a|b| {.grid}
 |c|d|
+```
+
+The table border can be disabled using `.plain`.
+
+```
+|a {width=2cm}|b| {.plain}
+|c            |d|
+```
+
+results in:
+```boxed
+|a {width=2cm}|b| {.plain}
+|c            |d|
 ```
 
 The `.xtab` or `.xtabgrid` style attributes are useful if a table is too large to fit on a single page. An `xtab` table will be created using the  environment `xtabular` from the *LaTeX* package *xtab*.
