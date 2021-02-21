@@ -46,13 +46,13 @@ private:
   bool _newParagraphNextLine;
 
 private:
-  void addSegment(const RefCount::Ptr<OutputData::Segment>& segment, const String& line);
+  void addSegment2(const RefCount::Ptr<OutputData::Segment>& segment, bool newLine, const String& data);
 
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
   bool parseMarkdown(const String& filePath, const String& fileContent);
   bool parseMarkdownLine(const String& line, int additionalIndent);
-  bool parseMarkdownTableLine(int indent, const String& remainingLine);
+  bool parseMarkdownTableLine(int indent, bool newLine, const String& remainingLine);
 
   bool process(OutputData::OutputFormat format);
 

@@ -35,7 +35,7 @@ void test_Parser_TableCellParsing()
   {
     File file;
     ASSERT(file.open("umdoc.xml", File::writeFlag));
-    ASSERT(file.write("<umdoc><document><md>\n"));
+    ASSERT(file.write("<umdoc class=\"article\"><document><md>\n"));
     ASSERT(file.write("+-----+\n"));
     ASSERT(file.write("| * b |\n"));
     ASSERT(file.write("|   c |\n"));
@@ -69,8 +69,9 @@ void test_Parser_TableCellParsing2()
   {
     File file;
     ASSERT(file.open("umdoc.xml", File::writeFlag));
-    ASSERT(file.write("<umdoc><document><md>\n"));
-    ASSERT(file.write("| * b |\n"));
+    ASSERT(file.write("<umdoc class=\"article\"><document><md>\n"));
+    ASSERT(file.write("| a   |\n"));
+    ASSERT(file.write("  * b  \n"));
     ASSERT(file.write("    c\n"));
     ASSERT(file.write("</md></document></umdoc>"));
   }
@@ -89,7 +90,7 @@ void test_Parser_TableCellParsing2()
   {
     String data;
     ASSERT(File::readAll("test.tex", data));
-    ASSERT(data.find("\\item \nb  c\n\\end{itemize}\n"));
+    ASSERT(data.find("\\item \nb   c\n\\end{itemize}\n"));
   }
 
   ASSERT(File::unlink("umdoc.xml"));
@@ -101,7 +102,7 @@ void test_umdoc_NonUtf8InputChar()
   {
     File file;
     ASSERT(file.open("umdoc.xml", File::writeFlag));
-    ASSERT(file.write("<umdoc><document><md>Test²</md></document></umdoc>"));
+    ASSERT(file.write("<umdoc class=\"article\"><document><md>Test²</md></document></umdoc>"));
   }
 
   {
