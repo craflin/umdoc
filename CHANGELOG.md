@@ -1,4 +1,10 @@
 
+# 0.2.7
+
+* Fixed crash when merging incomplete table rows
+* Corrected table cell content parsing
+* Added .plain table style
+
 # 0.2.6
 
 * Fixed dead lock caused by non utf-8 characters
