@@ -1,4 +1,8 @@
 
+# 0.2.8
+
+* Fixed issue with invalid characters in output files
+
 # 0.2.7
 
 * Fixed crash when merging incomplete table rows

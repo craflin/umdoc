@@ -218,8 +218,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
   const char* p = line;
   for(; *p == ' '; ++p);
   int indent = additionalIndent + (int)(p - (const char*)line);
-  String remainingLine; // todo: rename to segmentData
-  remainingLine.attach(p, line.length() - (p - (const char*)line));
+  String remainingLine(p, line.length() - (p - (const char*)line)); // todo: rename to segmentData
+  p = remainingLine;
   bool newLine = additionalIndent == 0;
 
   if(_parserMode != normalMode)
@@ -302,12 +302,11 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (int)(i - (const char*)line);
+        int childIndent = indent + (int)(i - p);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '*', childIndent);
         usize offset = i - (const char*)remainingLine;
-        String data2; // todo: reuse dataSegment
-        data2.attach(remainingLine, offset);
-        remainingLine.attach(i, remainingLine.length() - offset);
+        String data2(remainingLine, offset);
+        remainingLine = String(i, remainingLine.length() - offset);
         addSegment2(listSegment, newLine, data2);
         return parseMarkdownLine(remainingLine, childIndent);
       }
@@ -354,12 +353,11 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (int)(i - (const char*)line);
+        int childIndent = indent + (int)(i - p);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '-', childIndent);
         usize offset = i - (const char*)remainingLine;
-        String data2; // todo: reuse dataSegment
-        data2.attach(remainingLine, offset);
-        remainingLine.attach(i, remainingLine.length() - offset);
+        String data2(remainingLine, offset);
+        remainingLine = String(i, remainingLine.length() - offset);
         addSegment2(listSegment, newLine, data2);
         return parseMarkdownLine(remainingLine, childIndent);
       }
@@ -375,12 +373,11 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       if(p + 1 < end && String::isSpace(*(p + 1)))
       {
         for(i = p + 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (int)(i - (const char*)line);
+        int childIndent = indent + (int)(i - p);
         RefCount::Ptr<OutputData::BulletListSegment> listSegment = new OutputData::BulletListSegment(indent, '+', childIndent);
         usize offset = i - (const char*)remainingLine;
-        String data2; // todo: reuse dataSegment
-        data2.attach(remainingLine, offset);
-        remainingLine.attach(i, remainingLine.length() - offset);
+        String data2(remainingLine, offset);
+        remainingLine = String(i, remainingLine.length() - offset);
         addSegment2(listSegment, newLine, data2);
         return parseMarkdownLine(remainingLine, childIndent);
       }
@@ -410,9 +407,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       RefCount::Ptr<OutputData::BlockquoteSegment> blockquoteSegment = new OutputData::BlockquoteSegment(indent, indent + 2);
       p += 2;
       usize offset = p - (const char*)remainingLine;
-      String data2; // todo: reuse dataSegment
-      data2.attach(remainingLine, offset);
-      remainingLine.attach(p, remainingLine.length() - offset);
+      String data2(remainingLine, offset);
+      remainingLine = String(p, remainingLine.length() - offset);
       addSegment2(blockquoteSegment, newLine, data2);
       return parseMarkdownLine(remainingLine, indent + (int)offset);
     }
@@ -447,13 +443,12 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       {
         const char* end = i + remainingLine.length();
         for(i += 2; i < end && String::isSpace(*i); ++i);
-        int childIndent = additionalIndent + (int)(i - (const char*)line);
+        int childIndent = indent + (int)(i - p);
         String numberStr;
         RefCount::Ptr<OutputData::NumberedListSegment> numberedListSegment = new OutputData::NumberedListSegment(indent, remainingLine.toUInt(), childIndent);
         usize offset = i - (const char*)remainingLine;
-        String data2; // todo: reuse dataSegment
-        data2.attach(remainingLine, offset);
-        remainingLine.attach(i, remainingLine.length() - offset);
+        String data2(remainingLine, offset);
+        remainingLine = String(i, remainingLine.length() - offset);
         addSegment2(numberedListSegment, newLine, data2);
         return parseMarkdownLine(remainingLine, childIndent);
       }
