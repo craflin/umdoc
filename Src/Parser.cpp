@@ -845,7 +845,7 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
     for(List<String>::Iterator i = input.begin(), end = input.end(); i != end; ++i)
       if(process.write((const char*)*i, i->length()) != i->length())
         return error = Error::getErrorString(), false;
-    process.close();
+    process.close(Process::stdinStream);
     if(readerThread.join() != 0)
       return error = "Could not join reader thread", false;
   }

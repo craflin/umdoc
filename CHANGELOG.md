@@ -1,4 +1,8 @@
 
+# 0.2.9
+
+* Fixed environment script execution
+
 # 0.2.8
 
 * Fixed issue with invalid characters in output files
