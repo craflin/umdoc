@@ -18,6 +18,8 @@ To compile *umdoc* from the sources follow the following steps:
 
 ### Windows
 
+* Ensure you have Visual Studio, Git and CMake installed.
+* Install [MiKTeX](https://miktex.org),
 * Clone the Git repository.
 * Initialize submodules.
 * Use CMake to generate a solution file (`umdoc.sln`) for some version of Visual Studio.
@@ -26,7 +28,8 @@ To compile *umdoc* from the sources follow the following steps:
 
 ### Linux
 
-* Ensure you have `git`, `g++` and `cmake` installed.
+* Ensure you have `git`, `g++` and `cmake` installed. (Ubuntu: `sudo apt-get git g++ cmake`)
+* Install `xelatex` with various fonts. (Ubuntu: `sudo apt-get install texlive-xetex texlive-fonts-extra`)
 * Clone the Git repository. `git clone git@github.com:craflin/umdoc.git`
 * Initialize submodules. `git submodule update --init`
 * Use CMake to build *umdoc*.
