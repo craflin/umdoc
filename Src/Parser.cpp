@@ -391,7 +391,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         ++i;
       int backticks = (int)(i - p);
       RefCount::Ptr<OutputData::EnvironmentSegment> environmentSegment = new OutputData::EnvironmentSegment(indent, backticks);
-      if(!environmentSegment->parseArguments(remainingLine, _outputData->environments, _error.string))
+      if(!environmentSegment->parseArguments(remainingLine, _outputData->info.environments, _error.string))
         return false;
       segment = environmentSegment;
       if(environmentSegment->_verbatim || !environmentSegment->_command.isEmpty())
@@ -1082,28 +1082,28 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
   _outputData = &outputData;
 
   if (outputFile.endsWith(".htm") || outputFile.endsWith(".html"))
-    outputData.format = OutputData::htmlFormat;
+    outputData.info.format = OutputData::htmlFormat;
   else
-    outputData.format = OutputData::texFormat;
+    outputData.info.format = OutputData::texFormat;
 
-  outputData.className = inputData.className;
+  outputData.info.className = inputData.className;
   for(HashMap<String, InputData::Environment>::Iterator i = inputData.environments.begin(), end = inputData.environments.end(); i != end; ++i)
   {
-    OutputData::EnvironmentInfo& environmentInfo = outputData.environments.append(i.key(), OutputData::EnvironmentInfo());
+    OutputData::EnvironmentInfo& environmentInfo = outputData.info.environments.append(i.key(), OutputData::EnvironmentInfo());
     environmentInfo.verbatim = i->verbatim;
     environmentInfo.command = i->command;
   }
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
-    outputData.headerTexFiles.append(replacePlaceholderVariables(*i, inputData.variables, false));
+    outputData.info.headerTexFiles.append(replacePlaceholderVariables(*i, inputData.variables, false));
 
-  if(outputData.className.isEmpty())
+  if(outputData.info.className.isEmpty())
   {
-    outputData.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
-    outputData.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
-    outputData.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
+    outputData.info.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
+    outputData.info.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
+    outputData.info.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
     for(usize i = 0; i < TexGenerator::_numOfDefaultListingsLanguages; ++i)
-      outputData.environments.append(TexGenerator::getEnvironmentName(String::fromCString(TexGenerator::_defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
+      outputData.info.environments.append(TexGenerator::getEnvironmentName(String::fromCString(TexGenerator::_defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
 
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
@@ -1132,7 +1132,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::pdfType:
         segment = new OutputData::PdfSegment(component.filePath);
-      _outputData->hasPdfSegments = true;
+      _outputData->info.hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
       _segments.append(new OutputData::SeparatorSegment(0));
@@ -1148,7 +1148,7 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     }
   }
 
-  if (!process(outputData.format))
+  if (!process(outputData.info.format))
     return false;
 
   outputData.segments.swap(_outputSegments);

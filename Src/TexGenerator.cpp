@@ -20,9 +20,9 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
   if(!file.open(outputFile, File::writeFlag))
     return false;
 
-  if(!outputData.className.isEmpty())
+  if(!outputData.info.className.isEmpty())
   {
-    if(!file.write(String("\\documentclass{") + outputData.className + "}\n\n"))
+    if(!file.write(String("\\documentclass{") + outputData.info.className + "}\n\n"))
       return false;
   }
   else
@@ -200,7 +200,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
     //  return false;
 
     // package to include pdf pages
-    if(outputData.hasPdfSegments)
+    if(outputData.info.hasPdfSegments)
       if(!file.write("\\usepackage{pdfpages}\n\n"))
         return false;
 
@@ -212,7 +212,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
 
   if(!file.write("\n"))
     return false;
-  for(List<String>::Iterator i = outputData.headerTexFiles.begin(), end = outputData.headerTexFiles.end(); i != end; ++i)
+  for(List<String>::Iterator i = outputData.info.headerTexFiles.begin(), end = outputData.info.headerTexFiles.end(); i != end; ++i)
     if(!file.write(*i) ||
        !file.write("\n"))
        return false;

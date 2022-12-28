@@ -255,12 +255,16 @@ struct OutputData
     String generate(Generator& generator) const override;
   };
 
-  OutputFormat format;
-  String className;
-  List<String> headerTexFiles;
-  bool hasPdfSegments;
-  List<SegmentPtr> segments;
-  HashMap<String, EnvironmentInfo> environments;
+  struct Info
+  {
+    OutputFormat format;
+    String className;
+    List<String> headerTexFiles;
+    bool hasPdfSegments;
+    HashMap<String, EnvironmentInfo> environments;
 
-  OutputData() : format(plainFormat), hasPdfSegments(false) {}
+    Info () : format(plainFormat), hasPdfSegments(false) {}
+  };
+  Info info;
+  List<SegmentPtr> segments;
 };
