@@ -13,7 +13,7 @@ class Generator;
 
 struct OutputData
 {
-  class Info;
+  struct Info;
   class Segment;
   class BulletListSegment;
   class NumberedListSegment;
