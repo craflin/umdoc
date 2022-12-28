@@ -13,7 +13,7 @@
 #include "OutputData.hpp"
 #include "TexGenerator.hpp"
 
-void Parser::addSegment2(const RefCount::Ptr<OutputData::Segment>& newSegment, bool newLine, const String& data)
+void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment, bool newLine, const String& data)
 {
     OutputData::SeparatorSegment* isSeparator = dynamic_cast<OutputData::SeparatorSegment*>(&*newSegment);
     bool newParagraph = _newParagraphNextLine;
@@ -208,11 +208,11 @@ bool Parser::parseMarkdownTableLine(int indent, bool newLine, const String& data
     RefCount::Ptr<OutputData::TableSegment> tableSegment = new OutputData::TableSegment(indent);
     if(!tableSegment->parseArguments(data, _error.string))
       return false;
-    addSegment2(tableSegment, newLine, data);
+    addSegment(tableSegment, newLine, data);
     return true;
 }
 
-bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
+bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line, int additionalIndent)
 {
   RefCount::Ptr<OutputData::Segment> segment;
   const char* p = line;
@@ -307,8 +307,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
-        return parseMarkdownLine(remainingLine, childIndent);
+        addSegment(listSegment, newLine, data2);
+        return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
     break;
@@ -358,8 +358,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
-        return parseMarkdownLine(remainingLine, childIndent);
+        addSegment(listSegment, newLine, data2);
+        return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
     break;
@@ -378,8 +378,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
-        return parseMarkdownLine(remainingLine, childIndent);
+        addSegment(listSegment, newLine, data2);
+        return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
     break;
@@ -391,7 +391,7 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         ++i;
       int backticks = (int)(i - p);
       RefCount::Ptr<OutputData::EnvironmentSegment> environmentSegment = new OutputData::EnvironmentSegment(indent, backticks);
-      if(!environmentSegment->parseArguments(remainingLine, _outputData->environments, _error.string))
+      if(!environmentSegment->parseArguments(remainingLine, info.environments, _error.string))
         return false;
       segment = environmentSegment;
       if(environmentSegment->_verbatim || !environmentSegment->_command.isEmpty())
@@ -409,8 +409,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
       usize offset = p - (const char*)remainingLine;
       String data2(remainingLine, offset);
       remainingLine = String(p, remainingLine.length() - offset);
-      addSegment2(blockquoteSegment, newLine, data2);
-      return parseMarkdownLine(remainingLine, indent + (int)offset);
+      addSegment(blockquoteSegment, newLine, data2);
+      return parseMarkdownLine(info, remainingLine, indent + (int)offset);
     }
     break;
   case '!':
@@ -449,8 +449,8 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(numberedListSegment, newLine, data2);
-        return parseMarkdownLine(remainingLine, childIndent);
+        addSegment(numberedListSegment, newLine, data2);
+        return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
   }
@@ -458,11 +458,11 @@ bool Parser::parseMarkdownLine(const String& line, int additionalIndent)
   if(!segment)
     segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
-  addSegment2(segment, newLine, remainingLine);
+  addSegment(segment, newLine, remainingLine);
   return true;
 }
 
-bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
+bool Parser::parseMarkdown(const OutputData::Info& info, const String& filePath, const String& fileContent)
 {
   int line = 1;
   String lineStr;
@@ -510,7 +510,7 @@ bool Parser::parseMarkdown(const String& filePath, const String& fileContent)
         }
         else
         {
-          if(!parseMarkdownLine(lineStr, 0))
+          if(!parseMarkdownLine(info, lineStr, 0))
             return false;
           break;
         }
@@ -814,12 +814,12 @@ namespace {
   };
 }
 
-bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, String& error)
+bool OutputData::EnvironmentSegment::process(const OutputData::Info& info, String& error)
 {
   if(!_command.isEmpty())
   {
     String format = "latex";
-    if (format_ == OutputData::htmlFormat)
+    if (info.format == OutputData::htmlFormat)
       format = "html";
 
     String command = _command;
@@ -855,11 +855,8 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
     Parser parser;
     String fileContent;
     fileContent.join(_lines, '\n');
-    if (!parser.parseMarkdown(_command, fileContent) ||
-        !parser.process(format_))
+    if (!parser.parseMarkdown(info, _command, fileContent, _segments))
       return error = parser.getErrorString(), false;
-    _segments.swap(parser._outputSegments);
-    _allocatedSegments.swap(parser._segments);
   }
 
   return true;
@@ -1058,7 +1055,7 @@ bool OutputData::TableSegment::parseArguments(const String& line, String& error)
   return true;
 }
 
-bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& error)
+bool OutputData::TableSegment::process(const OutputData::Info& info, String& error)
 {
   for (List<RowData>::Iterator i = _rows.begin(), end = _rows.end(); i != end; ++i)
   {
@@ -1069,11 +1066,8 @@ bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& 
       Parser parser;
       String fileContent;
       fileContent.join(cellData.lines, '\n');
-      if (!parser.parseMarkdown(String(), fileContent) ||
-          !parser.process(format))
+      if (!parser.parseMarkdown(info, info.sourceFile + ":Table", fileContent, cellData.outputSegments2))
         return error = parser.getErrorString(), false;
-      cellData.outputSegments2.swap(parser._outputSegments);
-      cellData.allocatedSegments.append(parser._segments);
     }
   }
   return true;
@@ -1081,31 +1075,30 @@ bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& 
 
 bool Parser::parse(const InputData& inputData, const String& outputFile, OutputData& outputData)
 {
-  _outputData = &outputData;
-
+  outputData.info.sourceFile = inputData.inputFile;
   if (outputFile.endsWith(".htm") || outputFile.endsWith(".html"))
-    outputData.format = OutputData::htmlFormat;
+    outputData.info.format = OutputData::htmlFormat;
   else
-    outputData.format = OutputData::texFormat;
+    outputData.info.format = OutputData::texFormat;
 
-  outputData.className = inputData.className;
+  outputData.info.className = inputData.className;
   for(HashMap<String, InputData::Environment>::Iterator i = inputData.environments.begin(), end = inputData.environments.end(); i != end; ++i)
   {
-    OutputData::EnvironmentInfo& environmentInfo = outputData.environments.append(i.key(), OutputData::EnvironmentInfo());
+    OutputData::EnvironmentInfo& environmentInfo = outputData.info.environments.append(i.key(), OutputData::EnvironmentInfo());
     environmentInfo.verbatim = i->verbatim;
     environmentInfo.command = i->command;
   }
 
   for(List<String>::Iterator i = inputData.headerTexFiles.begin(), end = inputData.headerTexFiles.end(); i != end; ++i)
-    outputData.headerTexFiles.append(replacePlaceholderVariables(*i, inputData.variables, false));
+    outputData.info.headerTexFiles.append(replacePlaceholderVariables(*i, inputData.variables, false));
 
-  if(outputData.className.isEmpty())
+  if(outputData.info.className.isEmpty())
   {
-    outputData.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
-    outputData.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
-    outputData.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
+    outputData.info.environments.append("boxed", OutputData::EnvironmentInfo()).verbatim = false;
+    outputData.info.environments.append("plain", OutputData::EnvironmentInfo()).verbatim = true;
+    outputData.info.environments.append("xplain", OutputData::EnvironmentInfo()).verbatim = true;
     for(usize i = 0; i < TexGenerator::_numOfDefaultListingsLanguages; ++i)
-      outputData.environments.append(TexGenerator::getEnvironmentName(String::fromCString(TexGenerator::_defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
+      outputData.info.environments.append(TexGenerator::getEnvironmentName(String::fromCString(TexGenerator::_defaultListingsLanguages[i])), OutputData::EnvironmentInfo()).verbatim = true;
   }
 
   for(List<InputData::Component>::Iterator i = inputData.document.begin(), end = inputData.document.end(); i != end; ++i)
@@ -1134,12 +1127,12 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
       break;
     case InputData::Component::pdfType:
         segment = new OutputData::PdfSegment(component.filePath);
-      _outputData->hasPdfSegments = true;
+      outputData.info.hasPdfSegments = true;
       break;
     case InputData::Component::mdType:
       _segments.append(new OutputData::SeparatorSegment(0));
       _segments.append(new OutputData::SeparatorSegment(0));
-      if(!parseMarkdown(component.filePath, replacePlaceholderVariables(component.value, inputData.variables, true)))
+      if(!parseMarkdown(outputData.info, component.filePath, replacePlaceholderVariables(component.value, inputData.variables, true)))
         return false;
       break;
     }
@@ -1150,27 +1143,34 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     }
   }
 
-  if (!process(outputData.format))
+  if (!process(outputData.info))
     return false;
 
   outputData.segments.swap(_outputSegments);
-  outputData.allocatedSegments.swap(_segments);
   return true;
 }
 
-bool Parser::process(OutputData::OutputFormat format)
+bool Parser::parseMarkdown(const OutputData::Info& info, const String& filePath, const String& fileContent, List<OutputData::SegmentPtr>& segments)
 {
-  for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
+  if (!parseMarkdown(info, filePath, fileContent) ||
+      !process(info))
+      return false;
+  segments.swap(_outputSegments);
+  return true;
+}
+
+bool Parser::process(const OutputData::Info& info)
+{
+  for (List<OutputData::SegmentPtr>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
   {
-    OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
-    if(!segment->process(format, _error.string))
+    if(!segment->process(info, _error.string))
       return false;
   }
   return true;
 }
-
 
 String Parser::replacePlaceholderVariables(const String& data, const HashMap<String, String>& variables, bool allowEscaping)
 {

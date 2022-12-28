@@ -20,9 +20,9 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
   if(!file.open(outputFile, File::writeFlag))
     return false;
 
-  if(!outputData.className.isEmpty())
+  if(!outputData.info.className.isEmpty())
   {
-    if(!file.write(String("\\documentclass{") + outputData.className + "}\n\n"))
+    if(!file.write(String("\\documentclass{") + outputData.info.className + "}\n\n"))
       return false;
   }
   else
@@ -200,7 +200,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
     //  return false;
 
     // package to include pdf pages
-    if(outputData.hasPdfSegments)
+    if(outputData.info.hasPdfSegments)
       if(!file.write("\\usepackage{pdfpages}\n\n"))
         return false;
 
@@ -212,7 +212,7 @@ bool TexGenerator::generate(const String& engine, const OutputData& outputData, 
 
   if(!file.write("\n"))
     return false;
-  for(List<String>::Iterator i = outputData.headerTexFiles.begin(), end = outputData.headerTexFiles.end(); i != end; ++i)
+  for(List<String>::Iterator i = outputData.info.headerTexFiles.begin(), end = outputData.info.headerTexFiles.end(); i != end; ++i)
     if(!file.write(*i) ||
        !file.write("\n"))
        return false;
@@ -380,22 +380,22 @@ String TexGenerator::generate(const OutputData::RuleSegment& segment)
 String TexGenerator::generate(const OutputData::BulletListSegment& segment)
 {
   String result("\n\\begin{itemize}\n\\item ");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append(segment->generate(*this));
   }
-  for(List<OutputData::BulletListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BulletListSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::BulletListSegment* siblingSegment = *i;
+    OutputData::BulletListSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("\\item ");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -408,22 +408,22 @@ String TexGenerator::generate(const OutputData::BulletListSegment& segment)
 String TexGenerator::generate(const OutputData::NumberedListSegment& segment)
 {
   String result("\n\\begin{enumerate}\n\\item ");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append((*i)->generate(*this));
   }
-  for(List<OutputData::NumberedListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::NumberedListSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::NumberedListSegment* siblingSegment = *i;
+    const OutputData::NumberedListSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("\\item ");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -437,21 +437,21 @@ String TexGenerator::generate(const OutputData::NumberedListSegment& segment)
 String TexGenerator::generate(const OutputData::BlockquoteSegment& segment)
 {
   String result("\n\\begin{quoting}\n");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append((*i)->generate(*this));
   }
-  for(List<OutputData::BlockquoteSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BlockquoteSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::BlockquoteSegment* siblingSegment = *i;
+    const OutputData::BlockquoteSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -487,9 +487,9 @@ String TexGenerator::generate(const OutputData::EnvironmentSegment& segment)
   }
   else
   {
-    for(List<OutputData::Segment*>::Iterator i = segment._segments.begin(), end = segment._segments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = segment._segments.begin(), end = segment._segments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -564,9 +564,9 @@ String TexGenerator::generate(const OutputData::TableSegment& segment)
         //String width = columnInfo.arguments.find("width")->toString();
         //if(!width.isEmpty())
         //  result.append(String("\\parbox[t][][t]{") + TexGenerator::getTexSize(width) + "}{");
-        for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.outputSegments2.begin(), end = cellData.outputSegments2.end(); i != end; ++i)
+        for(List<OutputData::SegmentPtr>::Iterator i = cellData.outputSegments2.begin(), end = cellData.outputSegments2.end(); i != end; ++i)
         {
-          OutputData::TableSegment::Segment* segment = *i;
+          const OutputData::SegmentPtr& segment = *i;
           if(!segment->isValid())
             continue;
 

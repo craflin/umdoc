@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
   }
 
   // generate html
-  if(outputData.format == OutputData::htmlFormat)
+  if(outputData.info.format == OutputData::htmlFormat)
   {
     HtmlGenerator generator;
     if(!generator.generate(outputData, outputFile))

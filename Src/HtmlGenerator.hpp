@@ -79,6 +79,6 @@ private:
   String stripFormattingAndTranslate(const String& str);
   String escape(const String& str);
 
-  void findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers);
+  void findNumbers(const List<OutputData::SegmentPtr>& segments, LastNumbers& lastNumbers);
   String getElementId(const OutputData::Segment& segment, const String& title, const Map<String, Variant>& arguments);
 };
