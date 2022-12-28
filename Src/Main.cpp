@@ -37,7 +37,7 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
     bool rerun = false;
 
     Process process;
-    if(process.open(engine + " --interaction=scrollmode --halt-on-error --file-line-error --aux-directory=\"" + auxDirectory + "\" --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
+    if(process.open(engine + " --interaction=scrollmode --halt-on-error --file-line-error --output-directory=\"" + auxDirectory + "\" \"" + texFile + "\"") == 0)
       return false;
 
     // Well I tried to set textinfo.max_print_line in an lua init script. This does not work since it is overwritten from kpathsea when it is reading its config file (texmf.cnf).
@@ -69,11 +69,7 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
           if(lineEnd)
           {
             usize lineLen = lineEnd - (const char*)unhandledData;
-#ifdef _WIN32
             if(lineLen == 79)
-#else
-            if(lineLen == 80)
-#endif
               bufferedLine.append(unhandledData.substr(0, lineLen));
             else
             {
@@ -108,7 +104,6 @@ static bool latex2pdf(const String& texFile, const String& engine, const String&
 
     if(!rerun)
        break;
-
   }
 
   return true;
