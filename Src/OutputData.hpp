@@ -13,6 +13,7 @@ class Generator;
 
 struct OutputData
 {
+  class Info;
   class Segment;
   class BulletListSegment;
   class NumberedListSegment;
@@ -50,7 +51,7 @@ struct OutputData
     virtual ~Segment() {};
     virtual bool merge(Segment& segment, bool newParagraph, bool newLine, const String& line) {return false;};
     virtual String generate(Generator& generator) const = 0;
-    virtual bool process(OutputData::OutputFormat format, String& error) {return true;};
+    virtual bool process(const OutputData::Info& info, String& error) {return true;};
 
     int getIndent() const {return _indent;}
 
@@ -173,7 +174,7 @@ struct OutputData
   public:
     bool merge(Segment& segment, bool newParagraph, bool newLine, const String& line) override {return false;}
     String generate(Generator& generator) const override;
-    bool process(OutputData::OutputFormat format, String& error) override;
+    bool process(const OutputData::Info& info, String& error) override;
   };
 
   class TableSegment : public Segment
@@ -221,7 +222,7 @@ struct OutputData
     bool parseArguments(const String& line, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph, bool newLine, const String& line) override;
-    bool process(OutputData::OutputFormat format, String& error) override;
+    bool process(const OutputData::Info& info, String& error) override;
     String generate(Generator& generator) const override;
   };
 
@@ -257,6 +258,7 @@ struct OutputData
 
   struct Info
   {
+    String sourceFile;
     OutputFormat format;
     String className;
     List<String> headerTexFiles;

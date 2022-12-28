@@ -8,9 +8,10 @@ struct InputData;
 class Parser
 {
 public:
-  Parser() : _parserMode(normalMode), _outputData(0),_newParagraphNextLine(false) {}
+  Parser() : _parserMode(normalMode), _newParagraphNextLine(false) {}
 
   bool parse(const InputData& inputData, const String& outputFile, OutputData& outputData);
+  bool parseMarkdown(const OutputData::Info& info, const String& filePath, const String& fileContent, List<OutputData::SegmentPtr>& segments);
 
   String getErrorFile() const {return _error.file;}
   int getErrorLine() const {return _error.line;}
@@ -39,7 +40,6 @@ private:
 
 private:
   ParserMode _parserMode;
-  OutputData* _outputData;
   Error _error;
   List<OutputData::SegmentPtr> _outputSegments;
   List<OutputData::SegmentPtr> _segments;
@@ -50,17 +50,14 @@ private:
 
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
-  bool parseMarkdown(const String& filePath, const String& fileContent);
-  bool parseMarkdownLine(const String& line, int additionalIndent);
+  bool parseMarkdown(const OutputData::Info& info, const String& filePath, const String& fileContent);
+  bool parseMarkdownLine(const OutputData::Info& info, const String& line, int additionalIndent);
   bool parseMarkdownTableLine(int indent, bool newLine, const String& remainingLine);
 
-  bool process(OutputData::OutputFormat format);
+  bool process(const OutputData::Info& info);
 
   static String translateHtmlEntities(const String& line);
   static String replacePlaceholderVariables(const String& data, const HashMap<String, String>& variables, bool allowEscaping);
-
-  friend class OutputData::EnvironmentSegment;
-  friend class OutputData::TableSegment;
 
   friend void test_Parser_translateHtmlEntities();
   friend void test_Parser_replacePlaceholderVariables();
