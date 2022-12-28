@@ -13,7 +13,7 @@
 #include "OutputData.hpp"
 #include "TexGenerator.hpp"
 
-void Parser::addSegment2(const RefCount::Ptr<OutputData::Segment>& newSegment, bool newLine, const String& data)
+void Parser::addSegment(const RefCount::Ptr<OutputData::Segment>& newSegment, bool newLine, const String& data)
 {
     OutputData::SeparatorSegment* isSeparator = dynamic_cast<OutputData::SeparatorSegment*>(&*newSegment);
     bool newParagraph = _newParagraphNextLine;
@@ -38,7 +38,7 @@ void Parser::addSegment2(const RefCount::Ptr<OutputData::Segment>& newSegment, b
                     merged = true;
                     break;
                 }
-                segment = &*segment->_parent;
+                segment = segment->_parent;
                 if (!segment)
                     break;
             }
@@ -208,7 +208,7 @@ bool Parser::parseMarkdownTableLine(int indent, bool newLine, const String& data
     RefCount::Ptr<OutputData::TableSegment> tableSegment = new OutputData::TableSegment(indent);
     if(!tableSegment->parseArguments(data, _error.string))
       return false;
-    addSegment2(tableSegment, newLine, data);
+    addSegment(tableSegment, newLine, data);
     return true;
 }
 
@@ -307,7 +307,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
+        addSegment(listSegment, newLine, data2);
         return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
@@ -358,7 +358,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
+        addSegment(listSegment, newLine, data2);
         return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
@@ -378,7 +378,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(listSegment, newLine, data2);
+        addSegment(listSegment, newLine, data2);
         return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
@@ -409,7 +409,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
       usize offset = p - (const char*)remainingLine;
       String data2(remainingLine, offset);
       remainingLine = String(p, remainingLine.length() - offset);
-      addSegment2(blockquoteSegment, newLine, data2);
+      addSegment(blockquoteSegment, newLine, data2);
       return parseMarkdownLine(info, remainingLine, indent + (int)offset);
     }
     break;
@@ -449,7 +449,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
         usize offset = i - (const char*)remainingLine;
         String data2(remainingLine, offset);
         remainingLine = String(i, remainingLine.length() - offset);
-        addSegment2(numberedListSegment, newLine, data2);
+        addSegment(numberedListSegment, newLine, data2);
         return parseMarkdownLine(info, remainingLine, childIndent);
       }
     }
@@ -458,7 +458,7 @@ bool Parser::parseMarkdownLine(const OutputData::Info& info, const String& line,
   if(!segment)
     segment = new OutputData::ParagraphSegment(indent, remainingLine);
 
-  addSegment2(segment, newLine, remainingLine);
+  addSegment(segment, newLine, remainingLine);
   return true;
 }
 

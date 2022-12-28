@@ -46,7 +46,7 @@ private:
   bool _newParagraphNextLine;
 
 private:
-  void addSegment2(const RefCount::Ptr<OutputData::Segment>& segment, bool newLine, const String& data);
+  void addSegment(const RefCount::Ptr<OutputData::Segment>& segment, bool newLine, const String& data);
 
   bool matchFigureImage(const char* s, const char* end, String& title, String& path, String& remainingLine);
 
