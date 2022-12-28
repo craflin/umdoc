@@ -97,12 +97,43 @@ void test_Parser_TableCellParsing2()
   ASSERT(File::unlink("test.tex"));
 }
 
+void test_Parser_TableCellParsing3()
+{
+  {
+    File file;
+    ASSERT(file.open("umdoc.xml", File::writeFlag));
+    ASSERT(file.write("<umdoc><document><md>\n"));
+    ASSERT(file.write("| ```c |\n"));
+    ASSERT(file.write("</md></document></umdoc>"));
+  }
+
+  {
+    InputData inputData;
+    OutputData outputData;
+    Reader reader;
+    Parser parser;
+    TexGenerator generator;
+    ASSERT(reader.read("umdoc.xml", inputData));
+    ASSERT(parser.parse(inputData, "test.tex", outputData));
+    ASSERT(generator.generate(String(), outputData, "test.tex"));
+  }
+
+  {
+    String data;
+    ASSERT(File::readAll("test.tex", data));
+    ASSERT(data.find("\\begin{clanguage}"));
+  }
+
+  ASSERT(File::unlink("umdoc.xml"));
+  ASSERT(File::unlink("test.tex"));
+}
+
 void test_umdoc_NonUtf8InputChar()
 { // test umdoc executable launching with non utf-8 char input
   {
     File file;
     ASSERT(file.open("umdoc.xml", File::writeFlag));
-    ASSERT(file.write("<umdoc class=\"article\"><document><md>Test²</md></document></umdoc>"));
+    ASSERT(file.write("<umdoc class=\"article\"><document><md>Testï¿½</md></document></umdoc>"));
   }
 
   {
@@ -145,6 +176,7 @@ int main(int argc, char* argv[])
   test_Parser_replacePlaceholderVariables();
   test_Parser_TableCellParsing();
   test_Parser_TableCellParsing2();
+  test_Parser_TableCellParsing3();
   test_umdoc_NonUtf8InputChar();
   test_umdoc_UnclosedEnvironment();
   return 0;
