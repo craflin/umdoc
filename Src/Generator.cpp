@@ -130,9 +130,9 @@ String Generator::translate(Generator& generator, const String& str)
 String Generator::generate(Generator& generator, const OutputData& data)
 {
   String result(data.segments.size() * 256);
-  for(List<OutputData::Segment*>::Iterator i = data.segments.begin(), end = data.segments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = data.segments.begin(), end = data.segments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append(segment->generate(generator));

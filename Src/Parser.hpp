@@ -41,8 +41,8 @@ private:
   ParserMode _parserMode;
   OutputData* _outputData;
   Error _error;
-  List<OutputData::Segment*> _outputSegments;
-  List<RefCount::Ptr<OutputData::Segment>> _segments;
+  List<OutputData::SegmentPtr> _outputSegments;
+  List<OutputData::SegmentPtr> _segments;
   bool _newParagraphNextLine;
 
 private:

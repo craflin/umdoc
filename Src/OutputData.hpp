@@ -13,6 +13,18 @@ class Generator;
 
 struct OutputData
 {
+  class Segment;
+  class BulletListSegment;
+  class NumberedListSegment;
+  class BlockquoteSegment;
+  class ParagraphSegment;
+
+  typedef RefCount::Ptr<Segment> SegmentPtr;
+  typedef RefCount::Ptr<BulletListSegment> BulletListSegmentPtr;
+  typedef RefCount::Ptr<NumberedListSegment> NumberedListSegmentPtr;
+  typedef RefCount::Ptr<BlockquoteSegment> BlockquoteSegmentPtr;
+  typedef RefCount::Ptr<ParagraphSegment> ParagraphSegmentPtr;
+
   enum OutputFormat
   {
     plainFormat,
@@ -32,7 +44,7 @@ struct OutputData
     Segment* _parent;
 
   public:
-    Segment(int indent) : _valid(true), _indent(indent), _parent(0) {}
+    Segment(int indent) : _parent(0), _valid(true), _indent(indent) {}
 
   public:
     virtual ~Segment() {};
@@ -48,7 +60,6 @@ struct OutputData
   protected:
     bool _valid;
     int _indent;
-    
   };
 
   class ParagraphSegment : public Segment
@@ -108,8 +119,8 @@ struct OutputData
   class BulletListSegment : public Segment
   {
   public:
-    List<BulletListSegment*> _siblingSegments;
-    List<Segment*> _childSegments;
+    List<BulletListSegmentPtr> _siblingSegments;
+    List<SegmentPtr> _childSegments;
     char _symbol;
     int _childIndent;
   public:
@@ -122,8 +133,8 @@ struct OutputData
   class NumberedListSegment : public Segment
   {
   public:
-    List<NumberedListSegment*> _siblingSegments;
-    List<Segment*> _childSegments;
+    List<NumberedListSegmentPtr> _siblingSegments;
+    List<SegmentPtr> _childSegments;
     uint _number;
     int _childIndent;
   public:
@@ -136,8 +147,8 @@ struct OutputData
   class BlockquoteSegment : public Segment
   {
   public:
-    List<BlockquoteSegment*> _siblingSegments;
-    List<Segment*> _childSegments;
+    List<BlockquoteSegmentPtr> _siblingSegments;
+    List<SegmentPtr> _childSegments;
     int _childIndent;
   public:
     BlockquoteSegment(int indent, uint childIndent) : Segment(indent), _childIndent(childIndent) {}
@@ -154,7 +165,7 @@ struct OutputData
     String _command;
     String _language;
     Map<String, Variant> _arguments;
-    List<Segment*> _segments;
+    List<SegmentPtr> _segments;
     List<String> _lines;
   public:
     EnvironmentSegment(int indent, int backticks) : Segment(indent), _backticks(backticks), _verbatim(true) {}
@@ -163,8 +174,6 @@ struct OutputData
     bool merge(Segment& segment, bool newParagraph, bool newLine, const String& line) override {return false;}
     String generate(Generator& generator) const override;
     bool process(OutputData::OutputFormat format, String& error) override;
-  private:
-      List<RefCount::Ptr<Segment>> _allocatedSegments;
   };
 
   class TableSegment : public Segment
@@ -173,8 +182,7 @@ struct OutputData
     struct CellData
     {
       List<String> lines;
-      List<OutputData::Segment*> outputSegments2;
-      List<RefCount::Ptr<Segment>> allocatedSegments;
+      List<SegmentPtr> outputSegments2;
     };
     struct RowData
     {
@@ -205,11 +213,11 @@ struct OutputData
     bool _isSeparatorLine;
     Array<ColumnInfo> _columns;
     List<RowData> _rows;
-    ParagraphSegment* _captionSegment;
+    ParagraphSegmentPtr _captionSegment;
     Map<String, Variant> _arguments;
     bool _forceNewRowNextMerge;
   public:
-    TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _captionSegment(0), _forceNewRowNextMerge(false) {}
+    TableSegment(int indent) : Segment(indent), _tableType(PipeTable), _isSeparatorLine(false), _forceNewRowNextMerge(false) {}
     bool parseArguments(const String& line, String& error);
   public:
     bool merge(Segment& segment, bool newParagraph, bool newLine, const String& line) override;
@@ -251,13 +259,8 @@ struct OutputData
   String className;
   List<String> headerTexFiles;
   bool hasPdfSegments;
-  List<Segment*> segments;
+  List<SegmentPtr> segments;
   HashMap<String, EnvironmentInfo> environments;
 
   OutputData() : format(plainFormat), hasPdfSegments(false) {}
-
-private:
-  List<RefCount::Ptr<Segment>> allocatedSegments;
-
-  friend class Parser;
 };

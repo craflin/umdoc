@@ -38,7 +38,7 @@ void Parser::addSegment2(const RefCount::Ptr<OutputData::Segment>& newSegment, b
                     merged = true;
                     break;
                 }
-                segment = segment->_parent;
+                segment = &*segment->_parent;
                 if (!segment)
                     break;
             }
@@ -859,7 +859,6 @@ bool OutputData::EnvironmentSegment::process(OutputData::OutputFormat format_, S
         !parser.process(format_))
       return error = parser.getErrorString(), false;
     _segments.swap(parser._outputSegments);
-    _allocatedSegments.swap(parser._segments);
   }
 
   return true;
@@ -1073,7 +1072,6 @@ bool OutputData::TableSegment::process(OutputData::OutputFormat format, String& 
           !parser.process(format))
         return error = parser.getErrorString(), false;
       cellData.outputSegments2.swap(parser._outputSegments);
-      cellData.allocatedSegments.append(parser._segments);
     }
   }
   return true;
@@ -1154,15 +1152,14 @@ bool Parser::parse(const InputData& inputData, const String& outputFile, OutputD
     return false;
 
   outputData.segments.swap(_outputSegments);
-  outputData.allocatedSegments.swap(_segments);
   return true;
 }
 
 bool Parser::process(OutputData::OutputFormat format)
 {
-  for (List<OutputData::Segment*>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
+  for (List<OutputData::SegmentPtr>::Iterator i = _outputSegments.begin(), end = _outputSegments.end(); i != end; ++i)
   {
-    OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     if(!segment->process(format, _error.string))

@@ -8,14 +8,14 @@
 #include <nstd/Console.hpp>
 #include <nstd/Unicode.hpp>
 
-void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, LastNumbers& lastNumbers)
+void HtmlGenerator::findNumbers(const List<OutputData::SegmentPtr>& segments, LastNumbers& lastNumbers)
 {
-  for(List<OutputData::Segment*>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segments.begin(), end = segments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
-    const OutputData::TitleSegment* titleSegment = dynamic_cast<const OutputData::TitleSegment*>(segment);
+    const OutputData::TitleSegment* titleSegment = dynamic_cast<const OutputData::TitleSegment*>(&*segment);
     if(titleSegment)
     {
       if(titleSegment->_level >= 5 ||
@@ -33,7 +33,7 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.title);
     }
-    const OutputData::FigureSegment* figureSegment = dynamic_cast<const OutputData::FigureSegment*>(segment);
+    const OutputData::FigureSegment* figureSegment = dynamic_cast<const OutputData::FigureSegment*>(&*segment);
     if(figureSegment)
     {
       _figureNumbers.append(figureSegment, ++lastNumbers.figure);
@@ -41,7 +41,7 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.figure);
     }
-    const OutputData::TableSegment* tableSegment = dynamic_cast<const OutputData::TableSegment*>(segment);
+    const OutputData::TableSegment* tableSegment = dynamic_cast<const OutputData::TableSegment*>(&*segment);
     if(tableSegment && tableSegment->_captionSegment)
     {
       _tableNumbers.append(tableSegment, ++lastNumbers.table);
@@ -49,7 +49,7 @@ void HtmlGenerator::findNumbers(const List<OutputData::Segment*>& segments, Last
       if(!label.isEmpty())
         _numbers.append(label, lastNumbers.table);
     }
-    const OutputData::EnvironmentSegment* environmentSegment = dynamic_cast<const OutputData::EnvironmentSegment*>(segment);
+    const OutputData::EnvironmentSegment* environmentSegment = dynamic_cast<const OutputData::EnvironmentSegment*>(&*segment);
     if(environmentSegment)
       findNumbers(environmentSegment->_segments, lastNumbers);
   }
@@ -179,23 +179,23 @@ String HtmlGenerator::generate(const OutputData::BulletListSegment& segment)
 {
   String result;
   result.append("<ul><li>");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append(segment->generate(*this));
   }
   result.append("</li>");
-  for(List<OutputData::BulletListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BulletListSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::BulletListSegment* siblingSegment = *i;
+    const OutputData::BulletListSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("<li>");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -210,23 +210,23 @@ String HtmlGenerator::generate(const OutputData::NumberedListSegment& segment)
 {
   String result;
   result.append("<ol><li>");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append(segment->generate(*this));
   }
   result.append("</li>");
-  for(List<OutputData::NumberedListSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::NumberedListSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::NumberedListSegment* siblingSegment = *i;
+    const OutputData::NumberedListSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
     result.append("<li>");
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -241,21 +241,21 @@ String HtmlGenerator::generate(const OutputData::BlockquoteSegment& segment)
 {
   String result;
   result.append("<blockquote>");
-  for(List<OutputData::Segment*>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
+  for(List<OutputData::SegmentPtr>::Iterator i = segment._childSegments.begin(), end = segment._childSegments.end(); i != end; ++i)
   {
-    const OutputData::Segment* segment = *i;
+    const OutputData::SegmentPtr& segment = *i;
     if(!segment->isValid())
       continue;
     result.append((*i)->generate(*this));
   }
-  for(List<OutputData::BlockquoteSegment*>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
+  for(List<OutputData::BlockquoteSegmentPtr>::Iterator i = segment._siblingSegments.begin(), end = segment._siblingSegments.end(); i != end; ++i)
   {
-    OutputData::BlockquoteSegment* siblingSegment = *i;
+    const OutputData::BlockquoteSegmentPtr& siblingSegment = *i;
     if(!siblingSegment->isValid())
       continue;
-    for(List<OutputData::Segment*>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = siblingSegment->_childSegments.begin(), end = siblingSegment->_childSegments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -283,9 +283,9 @@ String HtmlGenerator::generate(const OutputData::EnvironmentSegment& segment)
   }
   else
   {
-    for(List<OutputData::Segment*>::Iterator i = segment._segments.begin(), end = segment._segments.end(); i != end; ++i)
+    for(List<OutputData::SegmentPtr>::Iterator i = segment._segments.begin(), end = segment._segments.end(); i != end; ++i)
     {
-      const OutputData::Segment* segment = *i;
+      const OutputData::SegmentPtr& segment = *i;
       if(!segment->isValid())
         continue;
       result.append(segment->generate(*this));
@@ -338,9 +338,9 @@ String HtmlGenerator::generate(const OutputData::TableSegment& segment)
       OutputData::TableSegment::CellData& cellData = *i;
       String class_ = firstRow ? String("th") : String("td");
       result.append(String("<") + class_ + " class=\"" + class_ + tableStyleSuffix + "\" style=\"" + style + "\">");
-      for(List<OutputData::TableSegment::Segment*>::Iterator i = cellData.outputSegments2.begin(), end = cellData.outputSegments2.end(); i != end; ++i)
+      for(List<OutputData::SegmentPtr>::Iterator i = cellData.outputSegments2.begin(), end = cellData.outputSegments2.end(); i != end; ++i)
       {
-        OutputData::TableSegment::Segment* segment = *i;
+        const OutputData::SegmentPtr& segment = *i;
         if(!segment->isValid())
           continue;
         result.append(segment->generate(*this));
