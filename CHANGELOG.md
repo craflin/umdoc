@@ -1,4 +1,10 @@
 
+# 0.3.0
+
+* Added Ubuntu 22.04 build
+* Fixed crash caused by XML syntax errors
+* Fixed crash caused by code segments in environments or tables
+
 # 0.2.9
 
 * Fixed environment script execution

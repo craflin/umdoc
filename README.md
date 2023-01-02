@@ -10,7 +10,7 @@ Optional layout information written in *LaTeX* may be provided to customize the 
 
 ## Examples & Documentation
 
-Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.2.7/umdoc-0.2.7.pdf).
+Further documentation and a showcase of *umdoc*'s capabilities can be found in its [user manual](https://github.com/craflin/umdoc/releases/download/0.3.0/umdoc-0.3.0.pdf).
 
 ## Build Instructions
 
